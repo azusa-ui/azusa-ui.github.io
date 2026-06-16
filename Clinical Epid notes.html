@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Clinical Epid Notes — Combined</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #faf8ff;
+    --bg-paper: #ffffff;
+    --bg-soft: #f3eefe;
+    --ink: #1a1530;
+    --ink-soft: #4a4368;
+    --ink-mute: #7c7595;
+    --line: #e7e1f5;
+    --line-strong: #d4caee;
+    --indigo-900: #1e1b4b;
+    --indigo-700: #3730a3;
+    --indigo-600: #4f46e5;
+    --purple-700: #6d28d9;
+    --purple-600: #7c3aed;
+    --purple-300: #c4b5fd;
+    --purple-100: #ede9fe;
+    --shadow: 0 6px 20px -8px rgba(76, 29, 149, 0.18), 0 2px 6px rgba(30, 27, 75, 0.05);
+    --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+    --sans:  "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    height: 100vh;
+  }
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; min-height: 100vh; }
+    body { overflow: auto; }
+  }
+
+  aside.side {
+    background: linear-gradient(180deg, #1a1448 0%, #2a1c75 70%, #3d2bb0 100%);
+    color: #fff;
+    padding: 28px 0;
+    overflow-y: auto;
+    position: relative;
+  }
+  aside.side::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  .brand {
+    padding: 0 24px 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .brand .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #c4b5fd;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand .eyebrow::before {
+    content: ""; width: 22px; height: 1px; background: #c4b5fd;
+  }
+  .brand h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 26px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+  }
+  .brand h1 em { font-style: italic; color: #d8c8ff; }
+  .brand .sub {
+    font-size: 12.5px;
+    color: #b8a8ec;
+    line-height: 1.5;
+    margin: 6px 0 0;
+  }
+  .brand .meta {
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: #c4b5fd;
+    letter-spacing: 0.08em;
+  }
+  .brand .author {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(196,181,253,0.22);
+    border-radius: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .brand .author-k {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #b8a8ec;
+    font-weight: 600;
+  }
+  .brand .author-v {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .nav-group-title {
+    padding: 4px 24px 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b8a8ec;
+    font-weight: 700;
+    position: relative;
+  }
+  .nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 12px;
+    position: relative;
+  }
+  .nav-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #e0d8ff;
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--sans);
+    transition: all 0.18s ease;
+    width: 100%;
+  }
+  .nav-item:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.10);
+    color: #fff;
+  }
+  .nav-item.active {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(196,181,253,0.35);
+    color: #fff;
+    box-shadow: 0 4px 14px -8px rgba(0,0,0,0.5);
+  }
+  .nav-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #c4b5fd;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .nav-item.active .nav-num { color: #fff; }
+  .nav-title {
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .side-foot {
+    margin-top: 24px;
+    padding: 16px 24px 8px;
+    border-top: 1px solid rgba(255,255,255,0.10);
+    font-size: 11px;
+    color: #9d8ddb;
+    line-height: 1.55;
+  }
+
+  .stage {
+    min-width: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+  @media (max-width: 900px) {
+    aside.side { height: auto; }
+    .stage { height: 100vh; }
+  }
+  .stage-bar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-paper);
+    flex-shrink: 0;
+  }
+  .stage-bar .pos {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .stage-bar .crumb {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--indigo-900);
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .stage-bar .arrows {
+    display: flex;
+    gap: 6px;
+  }
+  .arrow-btn {
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    color: var(--purple-700);
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .arrow-btn:hover:not(:disabled) {
+    background: var(--purple-100);
+    border-color: var(--purple-300);
+    transform: translateY(-1px);
+  }
+  .arrow-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .frames {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+  }
+  .doc-frame {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+  }
+  .doc-frame.active { display: flex; }
+
+  .doc-header {
+    padding: 20px 28px 16px;
+    background: linear-gradient(180deg, #faf6ff 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .doc-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--purple-600);
+    margin-bottom: 6px;
+  }
+  .doc-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(20px, 2.2vw, 28px);
+    line-height: 1.1;
+    color: var(--indigo-900);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .doc-iframe {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: var(--bg);
+  }
+
+  /* ── PYQ inline wrapper ── */
+  .pyq-inline { flex: 1; overflow-y: auto; min-height: 0; }
+  .page-sub { font-size: 12.5px; color: var(--ink-mute); line-height: 1.5; margin: 6px 0 0; }
+
+  /* ── Year Tabs ── */
+  .tab-bar { display: flex; gap: 0; padding: 0 24px; border-bottom: 2px solid var(--line); overflow-x: auto; -webkit-overflow-scrolling: touch; flex-shrink: 0; }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .ytab { flex-shrink: 0; background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 10px 16px; font-family: var(--sans); font-size: 12.5px; font-weight: 600; color: var(--ink-mute); cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .ytab:hover { color: var(--purple-700); background: var(--purple-100); }
+  .ytab.active { color: var(--indigo-700); border-bottom-color: var(--indigo-600); background: var(--bg-soft); }
+
+  /* ── Panels ── */
+  .panels { padding: 20px 24px 40px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .panel-intro { font-family: var(--serif); font-style: italic; font-size: 14.5px; color: var(--ink-soft); margin-bottom: 18px; line-height: 1.6; }
+
+  /* ── Q Card ── */
+  .qcard { background: var(--bg-paper); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 14px; overflow: hidden; }
+  .qcard-head { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; cursor: pointer; user-select: none; }
+  .qcard-head:hover { background: var(--bg-soft); }
+  .qnum { font-family: var(--mono); font-size: 10.5px; font-weight: 500; color: #fff; background: var(--indigo-700); border-radius: 6px; padding: 3px 9px; flex-shrink: 0; margin-top: 2px; letter-spacing: .05em; }
+  .qtopic { flex: 1; min-width: 0; }
+  .qtopic-label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--purple-600); margin-bottom: 3px; }
+  .qtopic-title { font-size: 14px; font-weight: 600; color: var(--indigo-900); line-height: 1.35; }
+  .marks-chip { flex-shrink: 0; font-family: var(--mono); font-size: 11px; color: var(--purple-700); background: var(--purple-100); border-radius: 6px; padding: 3px 9px; white-space: nowrap; margin-top: 2px; }
+  .toggle-icon { flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; background: var(--bg-soft); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--ink-mute); transition: all .2s; margin-top: 2px; }
+  .qcard.open .toggle-icon { background: var(--purple-100); border-color: var(--purple-300); color: var(--purple-700); transform: rotate(45deg); }
+
+  /* ── Question body ── */
+  .qbody { border-top: 1px solid var(--line); padding: 16px 18px; }
+  .qstem { font-size: 13.5px; color: var(--ink-soft); line-height: 1.65; margin-bottom: 14px; }
+  .qstem strong { color: var(--ink); font-weight: 600; }
+  .sub-parts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .sub-part { font-size: 13px; color: var(--ink-soft); line-height: 1.55; padding: 7px 12px; background: var(--bg-soft); border-radius: 8px; }
+  .sub-part .sp-label { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--indigo-700); margin-right: 6px; }
+  .sub-part .sp-marks { font-family: var(--mono); font-size: 10px; color: var(--ink-mute); float: right; }
+
+  /* ── Data Table ── */
+  .data-table-wrap { overflow-x: auto; margin: 12px 0; }
+  .data-table { border-collapse: collapse; font-size: 12.5px; width: 100%; }
+  .data-table th { background: var(--indigo-700); color: #fff; padding: 7px 12px; font-weight: 600; text-align: left; font-size: 11.5px; }
+  .data-table th.center { text-align: center; }
+  .data-table td { padding: 6px 12px; border-bottom: 1px solid var(--line); color: var(--ink-soft); font-size: 13px; }
+  .data-table td.num { font-family: var(--mono); text-align: right; color: var(--ink); }
+  .data-table tr.total td { background: var(--bg-soft); font-weight: 600; color: var(--ink); }
+  .data-table td.th-cell { background: var(--bg-soft); font-weight: 600; color: var(--ink); font-size: 12px; }
+
+  /* ── Model Answer ── */
+  .answer-section { display: none; border-top: 2px dashed var(--purple-300); margin-top: 12px; padding-top: 14px; }
+  .qcard.open .answer-section { display: block; }
+  .ans-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .ans-badge { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--purple-700); background: var(--purple-100); padding: 3px 9px; border-radius: 6px; }
+  .ans-part { margin-bottom: 16px; }
+  .ans-part-label { font-family: var(--mono); font-size: 11.5px; font-weight: 500; color: var(--indigo-700); background: var(--bg-soft); border-left: 3px solid var(--indigo-600); padding: 5px 10px; border-radius: 0 6px 6px 0; margin-bottom: 8px; display: inline-block; }
+  .ans-text { font-size: 13.5px; color: var(--ink-soft); line-height: 1.68; }
+  .ans-text p { margin-bottom: 8px; }
+  .ans-text p:last-child { margin-bottom: 0; }
+  .ans-text strong { color: var(--ink); font-weight: 600; }
+  .ans-text em { font-family: var(--serif); font-style: italic; color: var(--ink-soft); }
+
+  /* ── Calc Box ── */
+  .calc-box { background: var(--indigo-900); border-radius: 10px; padding: 14px 16px; margin: 10px 0; font-family: var(--mono); font-size: 12.5px; color: #e0d8ff; line-height: 1.8; }
+  .calc-box .calc-label { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--purple-300); margin-bottom: 6px; }
+  .calc-box .calc-line { display: flex; flex-wrap: wrap; gap: 4px; align-items: baseline; }
+  .calc-box .var { color: #c4b5fd; }
+  .calc-box .val { color: #a5f3fc; font-weight: 500; }
+  .calc-box .interp { font-family: var(--sans); font-size: 12px; color: #93c5fd; margin-top: 6px; line-height: 1.5; }
+
+  /* ── Bullet lists in answers ── */
+  .ans-list { list-style: none; display: flex; flex-direction: column; gap: 5px; margin: 8px 0; }
+  .ans-list li { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; padding-left: 18px; position: relative; }
+  .ans-list li::before { content: "▸"; position: absolute; left: 0; color: var(--purple-600); font-size: 10px; top: 4px; }
+  .ans-list li strong { color: var(--ink); }
+  .ans-list.numbered { list-style: none; counter-reset: li; }
+  .ans-list.numbered li { counter-increment: li; }
+  .ans-list.numbered li::before { content: counter(li)"."; font-family: var(--mono); font-size: 11px; color: var(--indigo-600); top: 3px; }
+
+  /* ── Kappa / 2×2 answer table ── */
+  .ans-table { border-collapse: collapse; font-size: 12.5px; margin: 10px 0; }
+  .ans-table th { background: var(--purple-700); color: #fff; padding: 6px 14px; font-size: 11.5px; font-weight: 600; }
+  .ans-table td { padding: 6px 14px; border: 1px solid var(--line); color: var(--ink-soft); }
+  .ans-table td.diag { background: #ede9fe; font-weight: 600; color: var(--indigo-700); font-family: var(--mono); }
+  .ans-table td.num { font-family: var(--mono); text-align: right; }
+  .ans-table td.totrow { background: var(--bg-soft); font-weight: 600; color: var(--ink); font-family: var(--mono); }
+
+  /* ── Topic badge colours ── */
+  .topic-analysis .qnum { background: #1d4ed8; }
+  .topic-nonrct .qnum { background: #6d28d9; }
+  .topic-blinding .qnum { background: #0f766e; }
+  .topic-screening .qnum { background: #b45309; }
+  .topic-ethics .qnum { background: #991b1b; }
+  .topic-meta .qnum { background: #4338ca; }
+  .topic-rand .qnum { background: #065f46; }
+  .topic-prognosis .qnum { background: #7c2d12; }
+  .topic-agreement .qnum { background: #1e3a5f; }
+
+  .note-box { background: var(--bg-soft); border: 1px solid var(--purple-300); border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; margin: 10px 0; }
+  .note-box strong { color: var(--purple-700); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="eyebrow">Combined Notes</div>
+      <h1>Clinical <em>Epidemiology</em></h1>
+      <p class="sub">All six learning-note documents combined into a single browsable companion.</p>
+      <div class="author">
+        <div class="author-k">Compiled by</div>
+        <div class="author-v">Dr Azul</div>
+      </div>
+      <div class="meta">GET 504/3 · DrPH · USM · 2025/26</div>
+    </div>
+    <div class="nav-group-title">Notes</div>
+    <nav class="nav-list" id="navList">
+      <button class="nav-item active" data-target="intro">
+        <span class="nav-num">01</span>
+        <span class="nav-title">Intro: Clinical Epidemiology &amp; Clinical Trials</span>
+      </button>
+      <button class="nav-item" data-target="rand">
+        <span class="nav-num">02</span>
+        <span class="nav-title">Randomization &amp; Blinding</span>
+      </button>
+      <button class="nav-item" data-target="nonrand">
+        <span class="nav-num">03</span>
+        <span class="nav-title">Non-Randomized Trials</span>
+      </button>
+      <button class="nav-item" data-target="outcomes">
+        <span class="nav-num">04</span>
+        <span class="nav-title">Outcomes in Clinical Trials</span>
+      </button>
+      <button class="nav-item" data-target="analysis">
+        <span class="nav-num">05</span>
+        <span class="nav-title">Analysis in Clinical Trials</span>
+      </button>
+      <button class="nav-item" data-target="prognosis">
+        <span class="nav-num">06</span>
+        <span class="nav-title">Prognosis in Clinical Epidemiology</span>
+      </button>
+      <button class="nav-item" data-target="screening">
+        <span class="nav-num">07</span>
+        <span class="nav-title">Screening and Diagnostic Tests</span>
+      </button>
+      <button class="nav-item" data-target="agreement">
+        <span class="nav-num">08</span>
+        <span class="nav-title">Clinical Agreement</span>
+      </button>
+      <button class="nav-item" data-target="sr">
+        <span class="nav-num">09</span>
+        <span class="nav-title">Systematic Review</span>
+      </button>
+      <button class="nav-item" data-target="meta">
+        <span class="nav-num">10</span>
+        <span class="nav-title">Meta-analyses</span>
+      </button>
+      <button class="nav-item" data-target="ethics">
+        <span class="nav-num">11</span>
+        <span class="nav-title">Ethics in Clinical Trials</span>
+      </button>
+      <button class="nav-item" data-target="pyq" style="margin-top:10px;background:rgba(196,181,253,0.13);border-color:rgba(196,181,253,0.3);">
+        <span class="nav-num" style="background:#7c3aed;">12</span>
+        <span class="nav-title">Exam PYQ</span>
+      </button>
+    </nav>
+    <div class="side-foot">
+      Each note is rendered exactly as written. Item 12 contains exam past year questions with model answers.
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-bar">
+      <div class="pos" id="posIndicator">01 / 11</div>
+      <div class="crumb" id="crumb">Intro: Clinical Epidemiology &amp; Clinical Trials</div>
+      <div class="arrows">
+        <button class="arrow-btn" id="prevBtn" aria-label="Previous note">←</button>
+        <button class="arrow-btn" id="nextBtn" aria-label="Next note">→</button>
+      </div>
+    </div>
+    <div class="frames" id="frames">
+    <section class="doc-frame active" data-doc="intro" aria-labelledby="title-intro">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 01 of 11</div>
+        <h2 id="title-intro" class="doc-title">Intro: Clinical Epidemiology &amp; Clinical Trials</h2>
+      </header>
+      <iframe class="doc-iframe" title="Intro: Clinical Epidemiology &amp; Clinical Trials" data-src="Intro%20Clinical%20Epidemiology%20%26%20Clinical%20Trials.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="rand" aria-labelledby="title-rand">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 02 of 11</div>
+        <h2 id="title-rand" class="doc-title">Randomization &amp; Blinding</h2>
+      </header>
+      <iframe class="doc-iframe" title="Randomization &amp; Blinding" data-src="Randomization%20%26%20Blinding.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="nonrand" aria-labelledby="title-nonrand">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 03 of 11</div>
+        <h2 id="title-nonrand" class="doc-title">Non-Randomized Trials</h2>
+      </header>
+      <iframe class="doc-iframe" title="Non-Randomized Trials" data-src="Non-Randomized%20Trials.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="outcomes" aria-labelledby="title-outcomes">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 04 of 11</div>
+        <h2 id="title-outcomes" class="doc-title">Outcomes in Clinical Trials</h2>
+      </header>
+      <iframe class="doc-iframe" title="Outcomes in Clinical Trials" data-src="Outcomes%20in%20Clinical%20Trials.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="analysis" aria-labelledby="title-analysis">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 05 of 11</div>
+        <h2 id="title-analysis" class="doc-title">Analysis in Clinical Trials</h2>
+      </header>
+      <iframe class="doc-iframe" title="Analysis in Clinical Trials" data-src="Analysis%20in%20Clinical%20Trials.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="prognosis" aria-labelledby="title-prognosis">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 06 of 11</div>
+        <h2 id="title-prognosis" class="doc-title">Prognosis in Clinical Epidemiology</h2>
+      </header>
+      <iframe class="doc-iframe" title="Prognosis in Clinical Epidemiology" data-src="Prognosis%20in%20Clinical%20Epidemiology.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="screening" aria-labelledby="title-screening">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 07 of 11</div>
+        <h2 id="title-screening" class="doc-title">Screening and Diagnostic Tests</h2>
+      </header>
+      <iframe class="doc-iframe" title="Screening and Diagnostic Tests" data-src="Screening%20and%20Diagnostic%20Tests.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="agreement" aria-labelledby="title-agreement">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 08 of 11</div>
+        <h2 id="title-agreement" class="doc-title">Clinical Agreement</h2>
+      </header>
+      <iframe class="doc-iframe" title="Clinical Agreement" data-src="Clinical%20Agreement.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="sr" aria-labelledby="title-sr">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 09 of 11</div>
+        <h2 id="title-sr" class="doc-title">Systematic Review</h2>
+      </header>
+      <iframe class="doc-iframe" title="Systematic Review" data-src="Systematic%20Review.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="meta" aria-labelledby="title-meta">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 10 of 11</div>
+        <h2 id="title-meta" class="doc-title">Meta-analyses</h2>
+      </header>
+      <iframe class="doc-iframe" title="Meta-analyses" data-src="Meta-Analyses.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="ethics" aria-labelledby="title-ethics">
+      <header class="doc-header">
+        <div class="doc-eyebrow">Note 11 of 12</div>
+        <h2 id="title-ethics" class="doc-title">Ethics in Clinical Trials</h2>
+      </header>
+      <iframe class="doc-iframe" title="Ethics in Clinical Trials" data-src="Ethics%20in%20Clinical%20Trials.html"></iframe>
+    </section>
+    <section class="doc-frame" data-doc="pyq" aria-labelledby="title-pyq">
+      <header class="doc-header" style="background:linear-gradient(180deg,#f5f0ff 0%,var(--bg) 100%);">
+        <div class="doc-eyebrow" style="color:#7c3aed;">Note 12 of 12</div>
+        <h2 id="title-pyq" class="doc-title">Exam Past Year Questions</h2>
+        <p class="page-sub">Clinical Epidemiology — questions arranged by year with mark-calibrated model answers drawn from reference notes.</p>
+      </header>
+      <div class="pyq-inline">
+        <div class="tab-bar">
+          <button class="ytab active" data-year="y2324f">2023/24 Final</button>
+          <button class="ytab" data-year="y2324m">2023/24 Midterm</button>
+          <button class="ytab" data-year="y2122">2021/22</button>
+          <button class="ytab" data-year="y2021">2020/21</button>
+          <button class="ytab" data-year="y1819">2018/19</button>
+        </div>
+        <div class="panels">
+
+<!-- ═══════════════════ 2023/24 FINAL ═══════════════════ -->
+<div class="panel active" id="y2324f">
+<p class="panel-intro">Final examination — six questions covering analytical approach, non-RCT design, blinding, screening, ethics, and meta-analysis.</p>
+
+<div class="qcard topic-analysis" id="q2324f1">
+  <div class="qcard-head" onclick="toggle('q2324f1')">
+    <span class="qnum">Q1</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Analytical Approach</div>
+      <div class="qtopic-title">Treatment effects — Drug X vs current antibiotic in GUT infection (pregnant women)</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Table 1 shows a cross-tabulation from a multi-centre double-blind RCT investigating the efficacy of <strong>Drug X vs current antibiotic</strong> in reducing hospital admissions due to GUT bacterial infection among pregnant women.</p>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th></th><th class="center">Admitted</th><th class="center">Not Admitted</th><th class="center">Total</th></tr></thead>
+        <tbody>
+          <tr><td class="th-cell">Current Antibiotic (control)</td><td class="num">53</td><td class="num">447</td><td class="num">500</td></tr>
+          <tr><td class="th-cell">Drug X (treatment)</td><td class="num">48</td><td class="num">954</td><td class="num">1002</td></tr>
+          <tr class="total"><td>Total</td><td class="num">101</td><td class="num">1401</td><td class="num">1502</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="qstem"><em>Define, calculate and interpret the following treatment effects:</em></p>
+    <div class="sub-parts">
+      <div class="sub-part"><span class="sp-label">(a)</span> Absolute Risk (AR) <span class="sp-marks">5 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(b)</span> Absolute Risk Reduction (ARR) <span class="sp-marks">5 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(c)</span> Number Needed to Treat (NNT) <span class="sp-marks">5 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(d)</span> Relative Risk (RR) <span class="sp-marks">5 marks</span></div>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">(a) Absolute Risk — 5 marks</div>
+        <div class="ans-text"><p><strong>Definition:</strong> The probability of an event occurring in a specified group over a defined period.</p></div>
+        <div class="calc-box">
+          <div class="calc-label">AR — Current Antibiotic (control)</div>
+          <div>AR = 53 / 500 = <span class="val">0.106 (10.6%)</span></div>
+          <div class="interp">10.6% of pregnant women on current antibiotic were admitted for GUT bacterial infection.</div>
+          <br>
+          <div class="calc-label">AR — Drug X (treatment)</div>
+          <div>AR = 48 / 1002 = <span class="val">0.0479 (4.79%)</span></div>
+          <div class="interp">4.79% of pregnant women on Drug X were admitted for GUT bacterial infection.</div>
+        </div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(b) Absolute Risk Reduction — 5 marks</div>
+        <div class="ans-text"><p><strong>Definition:</strong> The absolute difference in event rates between control and treatment group.</p></div>
+        <div class="calc-box">
+          <div class="calc-label">ARR = AR(control) − AR(treatment)</div>
+          <div>ARR = 0.106 − 0.0479 = <span class="val">0.0581 (5.81%)</span></div>
+          <div class="interp">Drug X reduces the absolute risk of hospital admission by 5.81% compared to current antibiotic.</div>
+        </div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(c) Number Needed to Treat — 5 marks</div>
+        <div class="ans-text"><p><strong>Definition:</strong> The number of patients who need to be treated to prevent one additional bad outcome.</p></div>
+        <div class="calc-box">
+          <div class="calc-label">NNT = 1 / ARR</div>
+          <div>NNT = 1 / 0.0581 = <span class="val">17.2 → 18 patients</span></div>
+          <div class="interp">Approximately 18 pregnant women need to be treated with Drug X to prevent one additional hospital admission.</div>
+        </div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(d) Relative Risk — 5 marks</div>
+        <div class="ans-text"><p><strong>Definition:</strong> The ratio of the risk of the outcome in the treatment group to the risk in the control group.</p></div>
+        <div class="calc-box">
+          <div class="calc-label">RR = AR(treatment) / AR(control)</div>
+          <div>RR = 0.0479 / 0.106 = <span class="val">0.45</span> (&lt; 1, protective)</div>
+          <div class="interp">Women on Drug X have 45% of the risk compared to those on current antibiotic — 55% lower relative risk (RRR = 0.55).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-nonrct" id="q2324f2">
+  <div class="qcard-head" onclick="toggle('q2324f2')">
+    <span class="qnum">Q2</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Non-Randomized Trial</div>
+      <div class="qtopic-title">Threats to internal validity — community exercise programme among obese adults</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">A non-randomised community trial on the effectiveness of an <strong>exercise program</strong> is conducted among obese adults. Discuss threats to internal validity in this non-randomized trial.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-text"><p><strong>Internal validity</strong> is the degree to which observed effects are truly due to the intervention. Non-randomized trials are vulnerable to:</p></div>
+      <ul class="ans-list numbered">
+        <li><strong>Selection Bias:</strong> Without randomization, the exercise group may self-select motivated, healthier participants — differences in outcomes may reflect baseline characteristics rather than the intervention.</li>
+        <li><strong>History:</strong> Concurrent external events (national anti-obesity campaigns, dietary guideline changes) may independently change outcomes in one group.</li>
+        <li><strong>Maturation:</strong> Natural physiological changes over time (seasonal weight fluctuations, regression to mean) can occur independently of the exercise programme.</li>
+        <li><strong>Testing Effect:</strong> Repeated physical assessments may themselves prompt behaviour change, unrelated to the programme content.</li>
+        <li><strong>Instrumentation:</strong> Changes in measurement equipment calibration or different assessors at different time points introduce systematic error.</li>
+        <li><strong>Regression to the Mean:</strong> Participants selected for high BMI may naturally drift toward the population mean, appearing as programme-induced improvement.</li>
+        <li><strong>Attrition/Dropout Bias:</strong> Differential dropout (least fit leaving) leaves only motivated completers, overestimating effectiveness.</li>
+        <li><strong>Confounding:</strong> Unmeasured co-interventions (dietary changes, medication) may differ between groups and independently affect outcomes.</li>
+        <li><strong>Contamination:</strong> Control group participants may independently begin exercising, reducing observed differences between groups.</li>
+        <li><strong>Hawthorne Effect:</strong> Participants may change behaviour simply because they know they are being observed.</li>
+      </ul>
+      <div class="note-box"><strong>Mitigation:</strong> Use concurrent control group; propensity score analysis; standardize measurement protocols; intention-to-treat analysis.</div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-blinding" id="q2324f3">
+  <div class="qcard-head" onclick="toggle('q2324f3')">
+    <span class="qnum">Q3</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Blinding</div>
+      <div class="qtopic-title">Two methods of blinding — Drug A (analgesic) vs placebo in lower back pain</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">A researcher compares the effect of a <strong>new analgesic treatment (Drug A)</strong> vs placebo (Drug B) among lower back pain patients. Discuss <strong>2 (TWO)</strong> methods of blinding.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">Method 1 — Placebo for Active Drug (10 marks)</div>
+        <div class="ans-text">
+          <p><strong>Definition:</strong> A placebo (Drug B) physically indistinguishable from Drug A is administered to the control group. Identical in appearance (colour, shape, size, sheen), taste, texture, weight, odour, and packaging.</p>
+          <p><strong>Level of blinding:</strong> Primarily blinds participants; can also blind outcome assessors.</p>
+          <p><strong>Advantages:</strong> Simple to implement for oral medications; prevents placebo response bias; reduces differential reporting of pain outcomes.</p>
+          <p><strong>Limitations:</strong> Difficult if Drug A has distinctive side effects (drowsiness, flushing) absent in placebo — participants may guess their allocation.</p>
+          <p><strong>Assessment:</strong> After trial, ask participants to guess their assignment — success if correct guessing ≈ 50% in each group.</p>
+        </div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">Method 2 — Double-Dummy Method (10 marks)</div>
+        <div class="ans-text">
+          <p><strong>Definition:</strong> All participants receive two preparations simultaneously — one active and one matching placebo — so both groups are indistinguishable.</p>
+          <p><strong>Mechanism:</strong> Drug A group receives active Drug A + placebo resembling Drug B; Drug B group receives active Drug B (or placebo of A) + placebo resembling Drug A.</p>
+          <p><strong>Level of blinding:</strong> Achieves comprehensive double-blinding — particularly useful when comparing treatments with different formulations (pill vs patch).</p>
+          <p><strong>Advantages:</strong> Maximises blinding integrity; prevents performance bias and detection bias; preferred in high-quality RCTs comparing different drug forms.</p>
+          <p><strong>Limitations:</strong> More complex and expensive; increased pill burden may reduce compliance; logistically challenging for multi-centre trials.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-screening" id="q2324f4">
+  <div class="qcard-head" onclick="toggle('q2324f4')">
+    <span class="qnum">Q4</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Screening &amp; Diagnosis</div>
+      <div class="qtopic-title">SST-12 test kit — diagnostic accuracy for COVID-19 smell loss</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">A diagnostic accuracy study on the <strong>SST-12 test kit</strong> to detect COVID-19 smell loss.</p>
+    <div class="sub-parts">
+      <div class="sub-part"><span class="sp-label">(i)</span> Construct a 2×2 table <span class="sp-marks">2 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(ii)</span> Calculate &amp; interpret: Sensitivity, Specificity, PPV, NPV, LR+, LR−, DOR, Accuracy <span class="sp-marks">24 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(iii)</span> Calculate PPV and NPV when prevalence of COVID-19 smell loss = 60% <span class="sp-marks">4 marks</span></div>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer — Framework</span></div>
+      <div class="note-box"><strong>Note:</strong> Numerical data was provided in the exam paper. The framework below applies to any data set — same approach as the POCUS example (2021/22 Q4).</div>
+      <div class="ans-part">
+        <div class="ans-part-label">(i) 2×2 Table — 2 marks</div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th></th><th class="center">Disease + (Smell Loss)</th><th class="center">Disease − (No Smell Loss)</th><th class="center">Total</th></tr></thead>
+            <tbody>
+              <tr><td class="th-cell">Test + (SST-12 positive)</td><td class="num">TP (a)</td><td class="num">FP (b)</td><td class="num">a+b</td></tr>
+              <tr><td class="th-cell">Test − (SST-12 negative)</td><td class="num">FN (c)</td><td class="num">TN (d)</td><td class="num">c+d</td></tr>
+              <tr class="total"><td>Total</td><td class="num">a+c</td><td class="num">b+d</td><td class="num">N</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(ii) Measures — 24 marks (3 marks each)</div>
+        <ul class="ans-list">
+          <li><strong>Sensitivity</strong> = TP/(TP+FN). High Sn → few false negatives (SnNOut).</li>
+          <li><strong>Specificity</strong> = TN/(TN+FP). High Sp → few false positives (SpPin).</li>
+          <li><strong>PPV</strong> = TP/(TP+FP). Increases as prevalence rises.</li>
+          <li><strong>NPV</strong> = TN/(TN+FN). Increases as prevalence falls.</li>
+          <li><strong>LR+</strong> = Sn/(1−Sp). LR+ &gt; 10 = strong confirmation.</li>
+          <li><strong>LR−</strong> = (1−Sn)/Sp. LR− &lt; 0.1 = strong rule-out.</li>
+          <li><strong>DOR</strong> = LR+/LR−. DOR &gt; 10 = good discriminatory test.</li>
+          <li><strong>Accuracy</strong> = (TP+TN)/N.</li>
+        </ul>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(iii) Adjusted PPV &amp; NPV at 60% prevalence — 4 marks</div>
+        <div class="calc-box">
+          <div class="calc-label">Using Bayes' Theorem</div>
+          <div>Pre-test odds = 0.60/0.40 = <span class="val">1.50</span></div>
+          <div>Post-test odds (+) = 1.50 × LR+ → Adjusted PPV = Post-test odds/(1+Post-test odds)</div>
+          <div>Post-test odds (−) = 1.50 × LR− → Adjusted NPV = 1/(1+Post-test odds)</div>
+          <div class="interp">At higher prevalence (60%), PPV increases while NPV decreases.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-ethics" id="q2324f5">
+  <div class="qcard-head" onclick="toggle('q2324f5')">
+    <span class="qnum">Q5</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Ethics in Clinical Trials</div>
+      <div class="qtopic-title">Ethical considerations — pharmacist-led low-carbohydrate diet trial in Type 2 DM</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">A non-randomized trial conducted by community pharmacists among <strong>Type 2 DM</strong> patients. A low-carbohydrate diet is delivered during a 12-week trial; outcomes are HbA1C, blood pressure, and medication satisfaction. Discuss ethical considerations.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-text"><p>Guided by the <strong>four pillars of biomedical ethics</strong> (Autonomy, Beneficence, Non-maleficence, Justice) and Emanuel et al. principles of scientific validity and social value.</p></div>
+      <ul class="ans-list numbered">
+        <li><strong>Autonomy &amp; Informed Consent (4 marks):</strong> Full written information about the intervention, objectives, allocation process, risks/benefits, and right to withdraw. The pharmacist-patient relationship creates power imbalance — recruitment should use neutral party or explicit safeguards. T2DM patients may have comorbidities affecting cognitive capacity; use plain language forms.</li>
+        <li><strong>Risk-Benefit / Beneficence (4 marks):</strong> Low-carbohydrate diet carries hypoglycaemia risk (especially with sulfonylureas/insulin), nutritional deficiencies. Benefits include improved HbA1C and blood pressure. Pharmacists must be trained to monitor adverse effects. Clinical equipoise must be demonstrated.</li>
+        <li><strong>Non-maleficence (3 marks):</strong> Minimum necessary data collected; dietary advice must be evidence-based; adverse events must be reported. Non-randomized design increases confounding — conclusions about causation must be appropriately caveated.</li>
+        <li><strong>Justice &amp; Fair Subject Selection (3 marks):</strong> T2DM patients are vulnerable (chronic illness, polypharmacy). Inclusion/exclusion criteria must be scientifically justified. Pharmacist recruiting own patients creates conflict of interest — independent oversight recommended.</li>
+        <li><strong>Privacy &amp; Confidentiality (3 marks):</strong> Sensitive health data (HbA1C, BP, medication records) stored securely, de-identified. Compliance with PDPA mandatory.</li>
+        <li><strong>Scientific Validity &amp; Social Value (2 marks):</strong> Research question must address genuine knowledge gap. Ethics committee (MREC/IRB) approval required before data collection.</li>
+        <li><strong>Post-trial Access (1 mark):</strong> If intervention proves beneficial, all participants offered access post-trial (Declaration of Helsinki).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-meta" id="q2324f6">
+  <div class="qcard-head" onclick="toggle('q2324f6')">
+    <span class="qnum">Q6</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Meta-analysis</div>
+      <div class="qtopic-title">Frailty intervention in older persons — PICO question &amp; forest plot interpretation</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Frailty among older persons is a rising concern with heterogeneous evidence on management.</p>
+    <div class="sub-parts">
+      <div class="sub-part"><span class="sp-label">(a)</span> Formulate a specific research question for this meta-analysis <span class="sp-marks">5 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(b)</span> A meta-analysis was conducted through random-effect model. Egger's test = 0.405. Comment on the forest plot. <span class="sp-marks">25 marks</span></div>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">(a) PICO Research Question — 5 marks</div>
+        <div class="calc-box">
+          <div class="calc-label">PICO Format</div>
+          <div><span class="var">P</span> — Older persons (≥60 years) with confirmed frailty (Fried Frailty Phenotype or Clinical Frailty Scale)</div>
+          <div><span class="var">I</span> — Multi-component frailty intervention (exercise ± nutritional supplementation ± cognitive training)</div>
+          <div><span class="var">C</span> — Usual care or no intervention</div>
+          <div><span class="var">O</span> — Frailty score reduction, functional outcomes (gait speed, grip strength), quality of life</div>
+          <div class="interp">"Among older persons aged ≥60 years with frailty, does a multi-component intervention compared to usual care significantly reduce frailty scores and improve functional outcomes?"</div>
+        </div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(b) Forest Plot Commentary — 25 marks</div>
+        <ul class="ans-list numbered">
+          <li><strong>Structure (3 marks):</strong> Each horizontal line = one study; square = point estimate (size ∝ weight); horizontal bars = 95% CI; diamond = pooled effect.</li>
+          <li><strong>X-axis (2 marks):</strong> Values left of null favour control; right favour intervention. Null line = 0 (for SMD) or 1 (for RR).</li>
+          <li><strong>Individual study results (3 marks):</strong> Describe direction and magnitude; note which studies' CIs cross the null line.</li>
+          <li><strong>Pooled effect (4 marks):</strong> Report overall pooled SMD/RR and 95% CI. If CI excludes null, result is statistically significant.</li>
+          <li><strong>Heterogeneity (5 marks):</strong> I² &lt;25% = low; 25–50% = moderate; &gt;75% = high. High I² justifies random-effects model.</li>
+          <li><strong>Random-effects justification (2 marks):</strong> DerSimonian-Laird method appropriate given expected heterogeneity in frailty populations — produces wider, more conservative CI than fixed-effects.</li>
+          <li><strong>Publication bias — Egger's test (3 marks):</strong> p = 0.405. Since p &gt; 0.05, <strong>no statistically significant evidence of publication bias</strong>.</li>
+          <li><strong>Clinical interpretation (3 marks):</strong> If pooled effect favours intervention with significant CI, supports multi-component programmes for older frail persons. Limitations: heterogeneity in frailty measurement and intervention delivery.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /2023/24 Final -->
+
+
+<!-- ═══════════════════ 2023/24 MIDTERM ═══════════════════ -->
+<div class="panel" id="y2324m">
+<p class="panel-intro">Midterm examination — three questions on randomization, prognostic bias, and clinical agreement.</p>
+
+<div class="qcard topic-rand" id="q2324m1">
+  <div class="qcard-head" onclick="toggle('q2324m1')">
+    <span class="qnum">Q1</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Randomization</div>
+      <div class="qtopic-title">Stratified randomization — new chemotherapy (Drug A vs B) with sex &amp; age strata</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">A researcher studies the effect of new chemotherapy (Drug A) versus current treatment (Drug B). Two major prognostic factors: <strong>sex</strong> (male/female) and <strong>age</strong> (adult/elderly).</p>
+    <div class="sub-parts">
+      <div class="sub-part"><span class="sp-label">(a)</span> State the most appropriate method of randomization and provide reasons <span class="sp-marks">5 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(b)</span> Plan your randomization <span class="sp-marks">25 marks</span></div>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">(a) Method — 5 marks</div>
+        <div class="ans-text"><p><strong>Stratified randomization</strong> (with block randomization within strata) is most appropriate.</p></div>
+        <ul class="ans-list">
+          <li>Two known prognostic factors (sex and age) associated with chemotherapy outcomes — stratification ensures balance across both arms.</li>
+          <li>Unstratified randomization risks imbalance in small-to-moderate samples for categorical prognostic factors.</li>
+          <li>Reduces confounding from key covariates, improving internal validity.</li>
+        </ul>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(b) Randomization Plan — 25 marks</div>
+        <div class="ans-text"><p><strong>Step 1 — Define strata (5 marks):</strong> Cross all combinations to create 2×2 = <strong>4 strata</strong>:</p></div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Stratum</th><th>Sex</th><th>Age Group</th></tr></thead>
+            <tbody>
+              <tr><td class="th-cell">1</td><td>Male</td><td>Adult</td></tr>
+              <tr><td class="th-cell">2</td><td>Male</td><td>Elderly</td></tr>
+              <tr><td class="th-cell">3</td><td>Female</td><td>Adult</td></tr>
+              <tr><td class="th-cell">4</td><td>Female</td><td>Elderly</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ans-text"><p><strong>Step 2 — Block randomization within strata (10 marks):</strong> Apply permuted block randomization (block size 4 or 6) within each stratum.</p></div>
+        <div class="calc-box">
+          <div class="calc-label">Example: Stratum 1 (Male-Adult), block size = 4</div>
+          <div>Possible blocks: AABB | ABAB | ABBA | BAAB | BABA | BBAA</div>
+          <div class="interp">Randomly select blocks in sequence. Apply same process to Strata 2–4 independently.</div>
+        </div>
+        <div class="ans-text"><p><strong>Step 3 — Allocation concealment (5 marks):</strong> Prepare SNOSE (Sequentially Numbered Opaque Sealed Envelopes) for each stratum, OR use centralised computerised randomization. Allocation concealed from recruiters until participant is enrolled.</p>
+        <p><strong>Step 4 — Implementation (5 marks):</strong> As each participant enrolled, confirm stratum, then open next sealed envelope for that stratum. Record in CONSORT flowchart.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-prognosis" id="q2324m2">
+  <div class="qcard-head" onclick="toggle('q2324m2')">
+    <span class="qnum">Q2</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Prognosis &amp; Outcomes</div>
+      <div class="qtopic-title">Bias in prognostic studies + characteristics of primary outcomes</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <div class="sub-parts">
+      <div class="sub-part"><span class="sp-label">(a)</span> Discuss bias in prognostic study <span class="sp-marks">20 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(b)</span> Outline the characteristics of primary outcomes <span class="sp-marks">10 marks</span></div>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">(a) Bias in Prognostic Studies — 20 marks</div>
+        <div class="ans-text"><p>Using NSCLC (non-small cell lung cancer) cohort as example. Bias is broadly categorised into <strong>Selection Bias</strong> and <strong>Information Bias</strong>.</p></div>
+        <div class="ans-text"><p><strong>1. Selection Bias (8 marks)</strong></p></div>
+        <ul class="ans-list">
+          <li><strong>Susceptibility Bias:</strong> Exposed and unexposed groups differ in baseline characteristics. In NSCLC, patients receiving aggressive treatment may be younger with fewer comorbidities — inherently likely to have better outcomes independent of treatment. Minimize by: matching, restriction, multivariate adjustment.</li>
+          <li><strong>Migration Bias:</strong> Dropout reasons correlate with both prognostic factor and outcome. Aggressive treatment patients may dropout due to severe side effects, leaving a healthier survivor subset — artificially improving apparent outcomes. Minimize by: intent-to-treat analysis, multiple imputation.</li>
+        </ul>
+        <div class="ans-text"><p><strong>2. Information Bias (8 marks)</strong></p></div>
+        <ul class="ans-list">
+          <li><strong>Measurement Bias:</strong> Outcomes detected differently between groups. CT scanning vs chest X-ray produces different recurrence rates — not due to worse prognosis but superior detection sensitivity. Minimize by: standardized diagnostic protocols; blinded outcome assessors.</li>
+          <li><strong>Lead Time Bias:</strong> Apparent survival improvement from earlier detection, not actual longer survival. Screened NSCLC patients appear to live longer post-diagnosis because disease is detected earlier. Minimize by: measure disease-specific mortality; compare within same disease stage.</li>
+        </ul>
+        <div class="ans-text"><p><strong>3. Definition and context (4 marks):</strong> A prognostic study identifies factors that predict future outcomes in patients with an established diagnosis. The inception cohort design is the gold standard.</p></div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(b) Characteristics of Primary Outcomes — 10 marks</div>
+        <ul class="ans-list numbered">
+          <li><strong>Clinically important and patient-centred:</strong> Reflects outcomes that matter to patients (survival, QOL, symptom relief).</li>
+          <li><strong>Pre-specified in protocol:</strong> Defined before data collection to prevent HARKing.</li>
+          <li><strong>Singular:</strong> One primary outcome preferred to avoid Type I error inflation.</li>
+          <li><strong>Valid and reliable:</strong> Measurement tool validated for the target population.</li>
+          <li><strong>Measurable and quantifiable:</strong> Expressible as number or category permitting statistical testing.</li>
+          <li><strong>Responsive to treatment:</strong> Capable of changing in response to the intervention within the study time frame.</li>
+          <li><strong>Appropriate scale:</strong> Numerical, categorical/binary, or time-to-event — matched to correct statistical test.</li>
+          <li><strong>Feasible to collect:</strong> Practical, ethical, achievable within study resources.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-agreement" id="q2324m3">
+  <div class="qcard-head" onclick="toggle('q2324m3')">
+    <span class="qnum">Q3</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Clinical Agreement</div>
+      <div class="qtopic-title">ICC models + manual kappa calculation — two radiologists, breast ultrasound (N=100)</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <div class="sub-parts">
+      <div class="sub-part"><span class="sp-label">(a)</span> Discuss 3 models in intraclass correlation coefficient <span class="sp-marks">12 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(b)(i)</span> Manually calculate unweighted kappa with 95% CI — two radiologists assessing breast lump (N=100) <span class="sp-marks">15 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(b)(ii)</span> Interpret the results <span class="sp-marks">3 marks</span></div>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Radiologist 1</th><th class="center">R2: Yes</th><th class="center">R2: No</th><th class="center">Total</th></tr></thead>
+        <tbody>
+          <tr><td class="th-cell">Yes</td><td class="num">35</td><td class="num">5</td><td class="num">40</td></tr>
+          <tr><td class="th-cell">No</td><td class="num">5</td><td class="num">55</td><td class="num">60</td></tr>
+          <tr class="total"><td>Total</td><td class="num">40</td><td class="num">60</td><td class="num">100</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">(a) Three ICC Models — 12 marks</div>
+        <ul class="ans-list numbered">
+          <li><strong>Model 1 — One-Way Random [ICC(1,1)]:</strong> Each subject rated by a different, randomly selected subset of raters — no rater rates all subjects. Only subject effect is modelled. Formula: (MSR−MSW)/(MSR+(k−1)MSW).</li>
+          <li><strong>Model 2 — Two-Way Random [ICC(2,1)]:</strong> All subjects rated by same raters; these raters are a random sample from a larger pool — results generalisable to other raters. Type: Consistency or Absolute agreement. Use when you want to generalise findings to other raters from the same pool.</li>
+          <li><strong>Model 3 — Two-Way Mixed [ICC(3,1)]:</strong> All subjects rated by same fixed set of raters — these specific raters are the only ones of interest (not generalisable). Subject random, rater fixed. Appropriate for test-retest reliability. Mathematically identical to Model 2 but interpretation restricted to those specific raters.</li>
+        </ul>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(b)(i) Kappa Calculation — 15 marks</div>
+        <div class="calc-box">
+          <div class="calc-label">Step 1 — Observed Agreement (P₀) [3 marks]</div>
+          <div>P₀ = (35+55)/100 = <span class="val">0.90 (90%)</span></div>
+          <br>
+          <div class="calc-label">Step 2 — Expected Agreement by Chance (Pₑ) [6 marks]</div>
+          <div>Pₑ (+) = (40×40)/10000 = <span class="val">0.16</span></div>
+          <div>Pₑ (−) = (60×60)/10000 = <span class="val">0.36</span></div>
+          <div>Pₑ = 0.16 + 0.36 = <span class="val">0.52</span></div>
+          <br>
+          <div class="calc-label">Step 3 — Kappa (K) [3 marks]</div>
+          <div>K = (0.90−0.52)/(1−0.52) = 0.38/0.48 = <span class="val">0.79</span></div>
+          <br>
+          <div class="calc-label">Step 4 — SE &amp; 95% CI [3 marks]</div>
+          <div>SE(K) = √[0.90×0.10/(100×0.48²)] = √[0.09/23.04] = <span class="val">0.0625</span></div>
+          <div>95% CI = 0.79 ± 1.96×0.0625 = <span class="val">(0.67, 0.91)</span></div>
+        </div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(b)(ii) Interpretation — 3 marks</div>
+        <div class="ans-text"><p>K = 0.79 (95% CI: 0.67, 0.91) — <strong>substantial to almost perfect agreement</strong> between the two radiologists (Landis &amp; Koch 1977: 0.61–0.80 = Substantial; 0.81–1.00 = Almost Perfect). CI entirely exceeds the 0.61 threshold.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /2023/24 Midterm -->
+
+
+<!-- ═══════════════════ 2021/22 ═══════════════════ -->
+<div class="panel" id="y2122">
+<p class="panel-intro">Final examination — nine questions across prognosis, analytic approach, blinding, screening, systematic review, ethics, and meta-analysis.</p>
+
+<div class="qcard topic-prognosis" id="q2122q1">
+  <div class="qcard-head" onclick="toggle('q2122q1')">
+    <span class="qnum">Q1</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Prognosis</div>
+      <div class="qtopic-title">Bias in prognostic studies — with NSCLC example</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">With <strong>one example</strong>, discuss bias in prognostic studies.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="note-box">Refer to 2023/24 Midterm Q2(a) for full model answer — same question, same NSCLC example. Covers susceptibility bias, migration bias, measurement bias, and lead time bias.</div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-analysis" id="q2122q2">
+  <div class="qcard-head" onclick="toggle('q2122q2')">
+    <span class="qnum">Q2</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Analytical Approach</div>
+      <div class="qtopic-title">Treatment effects — Vaccine X vs placebo for respiratory infection in elderly</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">A randomized placebo-controlled trial investigating the efficacy of <strong>Vaccine X vs placebo</strong> in reducing hospital admissions due to respiratory infection among elderly. Define, calculate and interpret AR, ARR, NNT, and RR.</p>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th></th><th class="center">Admitted</th><th class="center">Not Admitted</th><th class="center">Total</th></tr></thead>
+        <tbody>
+          <tr><td class="th-cell">Placebo (control)</td><td class="num">45</td><td class="num">455</td><td class="num">500</td></tr>
+          <tr><td class="th-cell">Vaccine X (treatment)</td><td class="num">50</td><td class="num">960</td><td class="num">1010</td></tr>
+          <tr class="total"><td>Total</td><td class="num">95</td><td class="num">1415</td><td class="num">1510</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="calc-box">
+        <div class="calc-label">AR — Placebo</div>
+        <div>AR = 45/500 = <span class="val">0.09 (9%)</span></div>
+        <div class="interp">9% of elderly in placebo group were admitted for respiratory infection.</div>
+        <br>
+        <div class="calc-label">AR — Vaccine X</div>
+        <div>AR = 50/1010 = <span class="val">0.0495 (4.95%)</span></div>
+        <br>
+        <div class="calc-label">ARR</div>
+        <div>ARR = 0.09 − 0.0495 = <span class="val">0.0405 (4.05%)</span></div>
+        <div class="interp">Vaccine X reduces absolute risk of hospital admission by 4.05%.</div>
+        <br>
+        <div class="calc-label">NNT</div>
+        <div>NNT = 1/0.0405 = <span class="val">24.7 → 25 elderly persons</span></div>
+        <br>
+        <div class="calc-label">RR</div>
+        <div>RR = 0.0495/0.09 = <span class="val">0.55</span> (&lt;1, protective)</div>
+        <div class="interp">Vaccinated elderly have 55% of the risk compared to placebo — 45% lower relative risk.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-blinding" id="q2122q3">
+  <div class="qcard-head" onclick="toggle('q2122q3')">
+    <span class="qnum">Q3</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Blinding</div>
+      <div class="qtopic-title">Two methods of blinding — analgesic Drug A vs placebo in lower back pain</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Same question as 2023/24 Final Q3. Discuss 2 (TWO) methods of blinding when comparing Drug A (analgesic) vs placebo (Drug B) among lower back pain patients.</p>
+    <div class="note-box"><strong>Refer to 2023/24 Final Q3 model answer</strong> — Placebo for Active Drug (Method 1) and Double-Dummy Method (Method 2), 10 marks each.</div>
+  </div>
+</div>
+
+<div class="qcard topic-screening" id="q2122q4">
+  <div class="qcard-head" onclick="toggle('q2122q4')">
+    <span class="qnum">Q4</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Screening &amp; Diagnosis</div>
+      <div class="qtopic-title">POCUS diagnostic accuracy — pulmonary COVID-19 in emergency department</div>
+    </div>
+    <span class="marks-chip">14 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Point-of-care lung ultrasound (POCUS) evaluated for COVID-19 pulmonary manifestations in ED. Data: <strong>TP=24, FP=27, FN=3, TN=39</strong> (N=93). Define and calculate: Sensitivity, Specificity, PPV, NPV, LR+, LR−, DOR.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th></th><th class="center">PCR/CT +</th><th class="center">PCR/CT −</th><th class="center">Total</th></tr></thead>
+          <tbody>
+            <tr><td class="th-cell">POCUS +</td><td class="num">24 (TP)</td><td class="num">27 (FP)</td><td class="num">51</td></tr>
+            <tr><td class="th-cell">POCUS −</td><td class="num">3 (FN)</td><td class="num">39 (TN)</td><td class="num">42</td></tr>
+            <tr class="total"><td>Total</td><td class="num">27</td><td class="num">66</td><td class="num">93</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="calc-box">
+        <div class="calc-label">Sensitivity</div>
+        <div>Sn = 24/27 = <span class="val">88.9%</span> — POCUS correctly identifies 88.9% of true COVID-19 cases.</div>
+        <br>
+        <div class="calc-label">Specificity</div>
+        <div>Sp = 39/66 = <span class="val">59.1%</span></div>
+        <br>
+        <div class="calc-label">PPV</div>
+        <div>PPV = 24/51 = <span class="val">47.1%</span></div>
+        <br>
+        <div class="calc-label">NPV</div>
+        <div>NPV = 39/42 = <span class="val">92.9%</span></div>
+        <br>
+        <div class="calc-label">LR+ = Sn/(1−Sp)</div>
+        <div>LR+ = 0.889/0.409 = <span class="val">2.17</span> — small-to-moderate increase in probability.</div>
+        <br>
+        <div class="calc-label">LR− = (1−Sn)/Sp</div>
+        <div>LR− = 0.111/0.591 = <span class="val">0.188</span> — moderate rule-out ability.</div>
+        <br>
+        <div class="calc-label">DOR = LR+/LR−</div>
+        <div>DOR = 2.17/0.188 = <span class="val">11.5</span> — moderate discriminatory ability.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-screening" id="q2122q5">
+  <div class="qcard-head" onclick="toggle('q2122q5')">
+    <span class="qnum">Q5</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Screening</div>
+      <div class="qtopic-title">Factors influencing Positive and Negative Predictive Value</div>
+    </div>
+    <span class="marks-chip">6 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Briefly describe THREE (3) factors influencing the Positive and Negative Predictive Value.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer — 2 marks each</span></div>
+      <ul class="ans-list numbered">
+        <li><strong>Prevalence:</strong> As prevalence increases, PPV increases and NPV decreases. In low-prevalence populations, even a high-sensitivity test will have many false positives and low PPV.</li>
+        <li><strong>Sensitivity:</strong> Higher sensitivity → more true positives detected → higher NPV. A highly sensitive test makes a negative result more reliable (SnNOut rule).</li>
+        <li><strong>Specificity:</strong> Higher specificity → fewer false positives → higher PPV. High specificity confirms disease on positive result (SpPin rule).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-screening" id="q2122q6">
+  <div class="qcard-head" onclick="toggle('q2122q6')">
+    <span class="qnum">Q6</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Screening</div>
+      <div class="qtopic-title">Youden's Index — cut-off point determination</div>
+    </div>
+    <span class="marks-chip">10 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Describe the usage of <strong>Youden's Index</strong> to determine the cut-off point of a diagnostic test.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-text">
+        <p><strong>Definition (2 marks):</strong> Youden's Index (J) measures the overall discriminatory ability of a diagnostic test — balancing sensitivity and specificity into a single metric.</p>
+        <p><strong>Formula (1 mark):</strong> J = Sensitivity + Specificity − 1. Range: 0 (no discrimination) to 1 (perfect).</p>
+        <p><strong>Application to ROC curve (4 marks):</strong> For each possible cut-off, Sn and Sp are calculated and J computed. The cut-off with the highest J is the optimal threshold — the point on the ROC curve with greatest perpendicular distance from the chance diagonal.</p>
+      </div>
+      <div class="calc-box">
+        <div class="calc-label">Example</div>
+        <div>Cut-off A: Sn=0.80, Sp=0.70 → J = <span class="val">0.50</span></div>
+        <div>Cut-off B: Sn=0.85, Sp=0.75 → J = <span class="val">0.60 ← optimal</span></div>
+        <div>Cut-off C: Sn=0.90, Sp=0.60 → J = <span class="val">0.50</span></div>
+      </div>
+      <div class="ans-text"><p><strong>Clinical consideration (3 marks):</strong> Screening tests prefer maximising sensitivity; confirmatory tests prefer maximising specificity. Youden's Index provides the statistically optimal balance, but final cut-off must be determined clinically by weighing consequences of false positives vs false negatives.</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-meta" id="q2122q7">
+  <div class="qcard-head" onclick="toggle('q2122q7')">
+    <span class="qnum">Q7</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Systematic Review</div>
+      <div class="qtopic-title">Role of systematic review in evidence-based practice</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Discuss the role of systematic review in evidence-based practice.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <ul class="ans-list numbered">
+        <li><strong>Integration of evidence (3 marks):</strong> Consolidates findings from multiple studies into a distilled summary of best available evidence.</li>
+        <li><strong>Minimising bias (3 marks):</strong> Predefined inclusion/exclusion criteria, quality assessment tools (GRADE, Cochrane RoB), and systematic search strategies reduce selection and interpretation bias.</li>
+        <li><strong>Informing clinical decision-making (3 marks):</strong> Provides clinicians with up-to-date, comprehensive evidence on treatment options, diagnostic tests, and preventive measures.</li>
+        <li><strong>Policy and guideline development (3 marks):</strong> Health authorities use SRs to formulate evidence-informed clinical guidelines. E.g., SR on smoking cessation effectiveness informs national anti-tobacco policies.</li>
+        <li><strong>Efficiency (2 marks):</strong> Saves time by avoiding duplication; provides synthesised information in one document rather than requiring review of hundreds of primary studies.</li>
+        <li><strong>Identifying research gaps (2 marks):</strong> Highlights inconsistencies and gaps in the literature, guiding future research priorities.</li>
+        <li><strong>Limitations (4 marks):</strong> Quality depends on primary studies; publication bias can skew pooled estimates; heterogeneity (I²) complicates synthesis; labour-intensive; may become outdated.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-ethics" id="q2122q8">
+  <div class="qcard-head" onclick="toggle('q2122q8')">
+    <span class="qnum">Q8</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Ethics</div>
+      <div class="qtopic-title">Ethical considerations — web-based education RCT among diabetic patients</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">A RCT on web-based education among diabetic patients assessing BMI, blood lipid profile, blood pressure, and fasting blood glucose. Discuss the ethical considerations.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <ul class="ans-list numbered">
+        <li><strong>Informed Consent &amp; Autonomy (4 marks):</strong> Full online informed consent; participants understand study design, randomization, data collection, right to withdraw. Elderly diabetic patients may have limited digital literacy — use simplified language; involve caregivers where appropriate.</li>
+        <li><strong>Fair Subject Selection &amp; Vulnerability (4 marks):</strong> Equal access to technology must be considered — offer alternatives (printed materials, phone) for those with limited internet access. Avoid recruiting only from low-income populations without additional safeguards.</li>
+        <li><strong>Privacy &amp; Confidentiality (4 marks):</strong> Sensitive health data (BMI, lipid profiles, blood glucose) requires robust encryption. PDPA compliance. Use secure platforms for survey distribution.</li>
+        <li><strong>Risk-Benefit &amp; Acceptability (3 marks):</strong> Educational intervention is low-risk but misinformation about diet/medication could cause harm — content must be medically validated and culturally sensitive.</li>
+        <li><strong>Post-trial Continuation (3 marks):</strong> If web-based education proves beneficial, control group offered access post-trial. DSMB considers early stopping if one arm proves clearly superior.</li>
+        <li><strong>Scientific Validity (2 marks):</strong> Clear research question; validated outcome tools; sufficient sample size. Ethics committee approval (MREC/HPBS) mandatory.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-meta" id="q2122q9">
+  <div class="qcard-head" onclick="toggle('q2122q9')">
+    <span class="qnum">Q9</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Meta-analysis</div>
+      <div class="qtopic-title">Forest plot commentary — ACP in heart failure (random-effect, Egger's p=0.405)</div>
+    </div>
+    <span class="marks-chip">10 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">A random-effect meta-analysis on the effect of <strong>advance care planning (ACP)</strong> on QOL and end-of-life satisfaction in heart failure patients. Median follow-up = 12 weeks. <strong>Egger's test = 0.405</strong>. Describe the findings.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <ul class="ans-list numbered">
+        <li><strong>Structure (1 mark):</strong> 7 studies represented; square (point estimate ∝ weight), horizontal line (95% CI), diamond = overall pooled effect.</li>
+        <li><strong>Overall pooled effect (2 marks):</strong> SMD = 0.38 (95% CI: 0.09, 0.68). CI excludes zero → statistically significant positive effect of ACP on QOL.</li>
+        <li><strong>Heterogeneity (2 marks):</strong> I² = 72% (substantial) — justifies random-effects model.</li>
+        <li><strong>Subgroup analysis (2 marks):</strong> High RoB studies: SMD = 0.48 (0.11, 0.86), I²=73%. Low RoB studies: SMD = 0.19 (−0.08, 0.45), I²=16% — not statistically significant. No significant difference between subgroups (p=0.21).</li>
+        <li><strong>Publication bias (2 marks):</strong> Egger's test p = 0.405 — p &gt; 0.05, <strong>no statistically significant publication bias</strong>.</li>
+        <li><strong>Conclusion (1 mark):</strong> ACP has a statistically significant overall positive effect on QOL in heart failure patients. High-quality RCTs needed to confirm findings.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div><!-- /2021/22 -->
+
+
+<!-- ═══════════════════ 2020/21 ═══════════════════ -->
+<div class="panel" id="y2021">
+<p class="panel-intro">Questions covering ITT vs PP analysis, treatment effect calculations, non-randomized trials, ICC, Cohen's kappa, screening biases, randomization, and placebo characteristics.</p>
+
+<div class="qcard topic-analysis" id="q2021q1">
+  <div class="qcard-head" onclick="toggle('q2021q1')">
+    <span class="qnum">Q1</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Analytical Approach</div>
+      <div class="qtopic-title">Advantages &amp; disadvantages of ITT vs Per-Protocol analysis</div>
+    </div>
+    <span class="marks-chip">10 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Describe the advantages and disadvantages of <strong>Intention-to-Treat</strong> over <strong>Per-Protocol Analysis</strong>.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">Intention-to-Treat (ITT)</div>
+        <div class="ans-text"><p><strong>Definition:</strong> All randomized participants analysed in originally assigned group regardless of completion or deviation.</p></div>
+        <ul class="ans-list">
+          <li><strong>Advantages:</strong> Preserves randomization; reflects real-world conditions; minimises attrition bias; conservative estimate of treatment effectiveness; preferred for superiority trials.</li>
+          <li><strong>Disadvantages:</strong> Including non-compliant participants dilutes true treatment effect; requires handling missing data (LOCF, multiple imputation); may mask safety signals from compliant subgroups.</li>
+        </ul>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">Per-Protocol (PP)</div>
+        <div class="ans-text"><p><strong>Definition:</strong> Only participants who strictly adhered to protocol are included.</p></div>
+        <ul class="ans-list">
+          <li><strong>Advantages:</strong> Clearer estimate of true efficacy under ideal conditions; preferred for non-inferiority/equivalence trials.</li>
+          <li><strong>Disadvantages:</strong> Loss of randomization benefits; reduced sample size decreases power; overestimates treatment effect; limits generalizability.</li>
+        </ul>
+      </div>
+      <div class="note-box"><strong>Best practice:</strong> Report both ITT (primary) and PP (secondary). Convergent results strengthen confidence.</div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-analysis" id="q2021q2">
+  <div class="qcard-head" onclick="toggle('q2021q2')">
+    <span class="qnum">Q2</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Analytical Approach</div>
+      <div class="qtopic-title">AR, ARR, NNT, RR, RRR — Treatment vs Placebo (mortality)</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Define, calculate and interpret AR, ARR, NNT, RR and RRR from the data below.</p>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th></th><th class="center">Died</th><th class="center">Survived</th><th class="center">Total</th></tr></thead>
+        <tbody>
+          <tr><td class="th-cell">Treatment</td><td class="num">10</td><td class="num">90</td><td class="num">100</td></tr>
+          <tr><td class="th-cell">Placebo</td><td class="num">20</td><td class="num">80</td><td class="num">100</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer — 6 marks each</span></div>
+      <div class="calc-box">
+        <div class="calc-label">(a) Absolute Risk (AR)</div>
+        <div>AR(Treatment) = 10/100 = <span class="val">0.10 (10%)</span></div>
+        <div>AR(Placebo) = 20/100 = <span class="val">0.20 (20%)</span></div>
+        <br>
+        <div class="calc-label">(b) Absolute Risk Reduction (ARR)</div>
+        <div>ARR = 0.20 − 0.10 = <span class="val">0.10 (10%)</span></div>
+        <div class="interp">Treatment reduces absolute risk of death by 10%.</div>
+        <br>
+        <div class="calc-label">(c) Number Needed to Treat (NNT)</div>
+        <div>NNT = 1/0.10 = <span class="val">10 patients</span></div>
+        <br>
+        <div class="calc-label">(d) Relative Risk (RR)</div>
+        <div>RR = 0.10/0.20 = <span class="val">0.50</span> — treatment group has 50% risk of dying compared to placebo.</div>
+        <br>
+        <div class="calc-label">(e) Relative Risk Reduction (RRR)</div>
+        <div>RRR = 1 − RR = <span class="val">0.50 (50%)</span></div>
+        <div class="interp">Treatment reduces relative risk of death by 50% vs placebo.</div>
+      </div>
+      <div class="note-box"><strong>Note:</strong> RRR (50%) appears more impressive than ARR (10%) — both describe the same data. Always report ARR alongside RRR.</div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-nonrct" id="q2021q3">
+  <div class="qcard-head" onclick="toggle('q2021q3')">
+    <span class="qnum">Q3</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Non-Randomized Trial</div>
+      <div class="qtopic-title">Threats to internal validity in non-randomized trials</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Discuss threats to internal validity due to non-randomized trials.</p>
+    <div class="note-box"><strong>Refer to 2023/24 Final Q2</strong> for full model answer — 10 major threats (selection bias, history, maturation, testing, instrumentation, regression to mean, attrition, contamination, confounding, Hawthorne effect), 2 marks each.</div>
+  </div>
+</div>
+
+<div class="qcard topic-agreement" id="q2021q4">
+  <div class="qcard-head" onclick="toggle('q2021q4')">
+    <span class="qnum">Q4</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Clinical Agreement</div>
+      <div class="qtopic-title">ICC interpretation — pain score by 5 raters (2-way random, consistency)</div>
+    </div>
+    <span class="marks-chip">15 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">ICC results from 5 raters measuring pain score. Interpret and justify the appropriate result, and justify the choice of model and type.</p>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Measure</th><th>ICC</th><th>95% CI</th><th>Interpretation</th></tr></thead>
+        <tbody>
+          <tr><td class="th-cell">Single Measure</td><td class="num">0.79</td><td>(0.68, 0.88)</td><td>Good</td></tr>
+          <tr><td class="th-cell">Average Measure</td><td class="num">0.95</td><td>(0.91, 0.97)</td><td>Excellent</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">(a) Appropriate result — 6 marks</div>
+        <div class="ans-text"><p>The <strong>Single Measure ICC = 0.79 (95% CI: 0.68, 0.88)</strong> is appropriate. In clinical practice, pain score is measured by any one rater — the relevant question is whether a single rater's score can be trusted. ICC (Two-way random, consistency, single measure) = 0.79 = <strong>good reliability</strong> (Koo &amp; Li, 2016: 0.75–0.90 = good).</p></div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(b) Justification — 9 marks</div>
+        <ul class="ans-list">
+          <li><strong>Two-way (3 marks):</strong> All 5 raters assessed all patients. Both subjects and raters are random — raters drawn from a larger pool, results should generalise to other raters from that pool.</li>
+          <li><strong>Random effects (3 marks):</strong> Raters were randomly selected and represent a larger pool; results should be generalisable — requires random effects approach.</li>
+          <li><strong>Consistency type (3 marks):</strong> Each rater may have a slightly different baseline rating style, but what matters is they rate in the same direction/rank order. Consistent direction is sufficient in clinical pain assessment.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-agreement" id="q2021q5">
+  <div class="qcard-head" onclick="toggle('q2021q5')">
+    <span class="qnum">Q5</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Clinical Agreement</div>
+      <div class="qtopic-title">Manual Cohen's kappa — two pathologists, cancer status by biopsy (N=77)</div>
+    </div>
+    <span class="marks-chip">15 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Assessment of cancer status by biopsy by two pathologists. Manually calculate unweighted Cohen's kappa, interpret, and discuss weakness of unweighted kappa.</p>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Pathologist 1</th><th class="center">P2: Yes</th><th class="center">P2: No</th><th class="center">Total</th></tr></thead>
+        <tbody>
+          <tr><td class="th-cell">Yes</td><td class="num">40</td><td class="num">3</td><td class="num">43</td></tr>
+          <tr><td class="th-cell">No</td><td class="num">4</td><td class="num">30</td><td class="num">34</td></tr>
+          <tr class="total"><td>Total</td><td class="num">44</td><td class="num">33</td><td class="num">77</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="calc-box">
+        <div class="calc-label">Step 1 — P₀</div>
+        <div>P₀ = (40+30)/77 = <span class="val">0.909</span></div>
+        <br>
+        <div class="calc-label">Step 2 — Pₑ</div>
+        <div>Pₑ (+) = (43×44)/77² = <span class="val">0.319</span></div>
+        <div>Pₑ (−) = (34×33)/77² = <span class="val">0.189</span></div>
+        <div>Pₑ = <span class="val">0.508</span></div>
+        <br>
+        <div class="calc-label">Step 3 — Kappa</div>
+        <div>K = (0.909−0.508)/(1−0.508) = <span class="val">0.815</span></div>
+        <br>
+        <div class="calc-label">Step 4 — 95% CI</div>
+        <div>SE = √[0.909×0.091/(77×0.492²)] = <span class="val">0.067</span></div>
+        <div>95% CI = <span class="val">(0.684, 0.946)</span></div>
+      </div>
+      <div class="ans-text" style="margin-top:10px"><p><strong>Interpretation:</strong> K = 0.815 (95% CI: 0.684, 0.946) — <strong>Almost perfect agreement</strong> (Landis &amp; Koch: 0.81–1.00).</p></div>
+      <div class="ans-text" style="margin-top:8px"><p><strong>Weaknesses of unweighted kappa:</strong></p></div>
+      <ul class="ans-list">
+        <li><strong>Treats all disagreements equally:</strong> Does not account for severity — disagreeing on cancer vs no cancer penalised same as stage disagreement.</li>
+        <li><strong>Sensitive to prevalence:</strong> In highly imbalanced categories, kappa can be artificially low even when observed agreement is high (kappa paradox).</li>
+        <li><strong>Assumes rater independence:</strong> If raters discuss cases, kappa is inflated.</li>
+        <li><strong>Solution:</strong> Use weighted kappa for ordinal categories; PABAK for highly imbalanced data.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-screening" id="q2021q6">
+  <div class="qcard-head" onclick="toggle('q2021q6')">
+    <span class="qnum">Q6</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Screening</div>
+      <div class="qtopic-title">Features of screening test + potential biases from screening programmes</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <div class="sub-parts">
+      <div class="sub-part"><span class="sp-label">(a)</span> Outline features of a screening test <span class="sp-marks">10 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(b)</span> Discuss potential biases from screening tests <span class="sp-marks">20 marks</span></div>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">(a) Features of a Screening Test — 10 marks</div>
+        <ul class="ans-list numbered">
+          <li><strong>Accurate:</strong> High sensitivity (few false negatives) and high specificity (few false positives).</li>
+          <li><strong>Reliable:</strong> Consistent results (test-retest; inter-rater reliability).</li>
+          <li><strong>Simple:</strong> Minimal preparation, quick, feasible for mass screening.</li>
+          <li><strong>Economical:</strong> Cost-effective for large-scale use.</li>
+          <li><strong>Safe:</strong> Minimal risk; non-invasive or minimally invasive.</li>
+          <li><strong>Acceptable:</strong> Culturally and socially acceptable to patients and clinicians.</li>
+          <li><strong>High PPV:</strong> High proportion of positives are true positives.</li>
+          <li><strong>Minimal labelling effect:</strong> Should not cause significant psychological or social harm from false labelling.</li>
+        </ul>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(b) Biases from Screening Programmes — 20 marks (5 marks each)</div>
+        <ul class="ans-list numbered">
+          <li><strong>Lead Time Bias:</strong> Earlier detection gives appearance of longer survival — patient doesn't actually live longer. E.g., prostate cancer detected at 60 by screening vs 65 by symptoms; death at 70 in both. Mitigation: measure disease-specific mortality rates.</li>
+          <li><strong>Length Time Bias:</strong> Screening preferentially detects slow-growing (indolent) tumours with longer pre-symptomatic phase. Fast-growing cancers are diagnosed symptomatically before screening catches them — screened populations appear to have better prognosis not due to effective screening but because detected tumours are inherently less aggressive. Mitigation: RCTs of screening vs no screening.</li>
+          <li><strong>Overdiagnosis Bias:</strong> Screening detects conditions that would never have caused symptoms or death during the patient's lifetime. E.g., thyroid microcarcinomas detected by screening — unnecessary surgery/radiation without benefit. Mitigation: Active surveillance protocols; long-term natural history data.</li>
+          <li><strong>Volunteer/Compliance Bias:</strong> Screening volunteers tend to be more health-conscious with healthier lifestyles independent of screening benefit. Better outcomes reflect healthy behaviours, not screening effectiveness. Mitigation: Randomized screening trials; adjust for confounders.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-rand" id="q2021q7">
+  <div class="qcard-head" onclick="toggle('q2021q7')">
+    <span class="qnum">Q7</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Randomization</div>
+      <div class="qtopic-title">Benefits of randomization + stratified randomization + concealment</div>
+    </div>
+    <span class="marks-chip">40 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <div class="sub-parts">
+      <div class="sub-part"><span class="sp-label">(a)</span> List benefits of randomization <span class="sp-marks">5 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(b)</span> Discuss stratified randomization with example <span class="sp-marks">25 marks</span></div>
+      <div class="sub-part"><span class="sp-label">(c)</span> Elaborate method of randomization concealment <span class="sp-marks">10 marks</span></div>
+    </div>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">(a) Benefits — 5 marks</div>
+        <ul class="ans-list">
+          <li>Reduces/eliminates selection bias</li>
+          <li>Balances known and unknown confounders between treatment groups</li>
+          <li>Validates use of probability theory in statistical testing</li>
+          <li>Facilitates masking (blinding)</li>
+          <li>Enhances generalizability when combined with representative sampling</li>
+        </ul>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(b) Stratified Randomization — 25 marks</div>
+        <div class="ans-text"><p><strong>Definition (5 marks):</strong> Participants first divided into strata based on key prognostic characteristics, then randomized within each stratum. Example: hypertension drug trial with age (below/above 50) and sex (male/female) forming 4 strata.</p></div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Stratum</th><th>Age</th><th>Sex</th><th>Allocation</th></tr></thead>
+            <tbody>
+              <tr><td class="th-cell">1</td><td>&lt;50</td><td>Male</td><td>Block randomize → A &amp; B</td></tr>
+              <tr><td class="th-cell">2</td><td>&lt;50</td><td>Female</td><td>Block randomize → A &amp; B</td></tr>
+              <tr><td class="th-cell">3</td><td>≥50</td><td>Male</td><td>Block randomize → A &amp; B</td></tr>
+              <tr><td class="th-cell">4</td><td>≥50</td><td>Female</td><td>Block randomize → A &amp; B</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ans-text"><p><strong>Effects (5 marks):</strong> Ensures each arm has similar age-sex distribution; reduces confounding; increases statistical power; improves internal validity.</p>
+        <p><strong>Drawbacks (5 marks):</strong> Complexity increases with strata number (practical limit 2–4 variables); may require centralised allocation systems.</p></div>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">(c) Randomization Concealment — 10 marks</div>
+        <ul class="ans-list">
+          <li><strong>SNOSE (5 marks):</strong> Sequentially Numbered Opaque Sealed Envelopes — each participant assigned next sequential sealed envelope for their stratum; opaque to prevent reading against light; opened only after formal enrollment.</li>
+          <li><strong>Centralised/Remote Randomization (5 marks):</strong> Independent central unit (phone/web-based IVRS/IWRS) holds allocation sequence; recruiter logs in after enrolling participant to receive allocation in real-time. Most robust method; provides audit trail; widely used in multi-centre RCTs.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-blinding" id="q2021q8">
+  <div class="qcard-head" onclick="toggle('q2021q8')">
+    <span class="qnum">Q8</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Blinding</div>
+      <div class="qtopic-title">Characteristics of a placebo</div>
+    </div>
+    <span class="marks-chip">10 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Briefly discuss the characteristics of a placebo.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-text"><p><strong>Definition (2 marks):</strong> A chemically inert preparation closely resembling the active compound in all physical characteristics but with no pharmacological effect. Permits blinding and isolates true drug effects from psychological/expectation effects.</p>
+      <p><strong>Physical characteristics (6 marks):</strong></p></div>
+      <ul class="ans-list">
+        <li><strong>Visual appearance:</strong> Identical colour, shape, size, sheen</li>
+        <li><strong>Taste &amp; local action:</strong> Same taste profile on the tongue</li>
+        <li><strong>Texture:</strong> Identical surface texture</li>
+        <li><strong>Weight &amp; specific gravity:</strong> Same weight and density</li>
+        <li><strong>Odour:</strong> Matching smell — especially critical for herbal preparations or fish oils</li>
+        <li><strong>Packaging:</strong> Identical containers, labels, and instructions</li>
+      </ul>
+      <div class="note-box"><strong>Limitation:</strong> Creating a perfect placebo is often impossible when the active drug produces characteristic side effects (e.g., flushing with niacin, bradycardia with beta-blockers) absent in the placebo group.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /2020/21 -->
+
+
+<!-- ═══════════════════ 2018/19 ═══════════════════ -->
+<div class="panel" id="y1819">
+<p class="panel-intro">Questions covering ITT vs PP analysis in detail, treatment effects with RRR, non-randomized trial threats, ROC curve, literature/systematic review/meta-analysis comparison, and ethics of preventive trials.</p>
+
+<div class="qcard topic-analysis" id="q1819q1">
+  <div class="qcard-head" onclick="toggle('q1819q1')">
+    <span class="qnum">Q1</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Analytical Approach</div>
+      <div class="qtopic-title">Advantages &amp; disadvantages of ITT vs Per-Protocol — detailed discussion</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Discuss advantages and disadvantages of <strong>Intention-to-Treat analysis</strong> and <strong>Per-Protocol analysis</strong>.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer — Extended Version</span></div>
+      <div class="ans-part">
+        <div class="ans-part-label">ITT Advantages (5 marks)</div>
+        <ul class="ans-list">
+          <li>Maintains randomization — groups remain statistically comparable</li>
+          <li>Reflects real-world effectiveness — includes inevitable non-compliance and dropouts</li>
+          <li>Conservative estimate — avoids overestimation of efficacy</li>
+          <li>Maximises statistical power using all available data</li>
+          <li>Minimises attrition and exclusion bias</li>
+        </ul>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">ITT Disadvantages (5 marks)</div>
+        <ul class="ans-list">
+          <li>Dilutes treatment effect — non-compliant participants dilute true drug effect toward null</li>
+          <li>Missing data problem — requires statistical strategies (LOCF, multiple imputation)</li>
+          <li>May mask differential safety signals from compliant subgroups</li>
+        </ul>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">PP Advantages (5 marks)</div>
+        <ul class="ans-list">
+          <li>Reflects treatment efficacy under ideal conditions</li>
+          <li>Clinically relevant for motivated, adherent patients</li>
+          <li>Preferred for non-inferiority/equivalence trials</li>
+          <li>Provides "ceiling estimate" of treatment benefit</li>
+        </ul>
+      </div>
+      <div class="ans-part">
+        <div class="ans-part-label">PP Disadvantages (5 marks)</div>
+        <ul class="ans-list">
+          <li>Compromises randomization — excluded non-compliers differ systematically → selection bias</li>
+          <li>Reduced sample size → decreased statistical power</li>
+          <li>Overestimates treatment effect — compliers are not representative</li>
+          <li>Reduces external validity</li>
+        </ul>
+      </div>
+      <div class="note-box"><strong>Conclusion:</strong> ITT preferred for superiority trials (primary); PP as secondary. For non-inferiority, both mandatory. Convergent results strengthen conclusions.</div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-analysis" id="q1819q2">
+  <div class="qcard-head" onclick="toggle('q1819q2')">
+    <span class="qnum">Q2</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Analytical Approach</div>
+      <div class="qtopic-title">Define, calculate &amp; interpret AR, ARR, NNT, RR, RRR</div>
+    </div>
+    <span class="marks-chip">30 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Define, calculate and interpret the following based on the data (Treatment: 10 died/90 survived; Placebo: 20 died/80 survived).</p>
+    <div class="note-box"><strong>Refer to 2020/21 Q2</strong> for full model answer — same dataset (AR Treatment=10%, AR Placebo=20%, ARR=10%, NNT=10, RR=0.5, RRR=50%).</div>
+  </div>
+</div>
+
+<div class="qcard topic-nonrct" id="q1819q3">
+  <div class="qcard-head" onclick="toggle('q1819q3')">
+    <span class="qnum">Q3</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Non-Randomized Trial</div>
+      <div class="qtopic-title">Threats to internal validity — non-randomized trial</div>
+    </div>
+    <span class="marks-chip">20 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Discuss threats to internal validity due to non-randomized trials.</p>
+    <div class="note-box"><strong>Refer to 2023/24 Final Q2</strong> for full model answer covering all 10 major threats.</div>
+  </div>
+</div>
+
+<div class="qcard topic-screening" id="q1819q4">
+  <div class="qcard-head" onclick="toggle('q1819q4')">
+    <span class="qnum">Q4</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Screening</div>
+      <div class="qtopic-title">ROC curve — usage in evaluation of a screening test</div>
+    </div>
+    <span class="marks-chip">10 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Describe the usage of the <strong>Receiver Operating Characteristic (ROC) curve</strong> in the evaluation of a screening test.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer</span></div>
+      <div class="ans-text"><p><strong>Definition (2 marks):</strong> The ROC curve displays the relationship (trade-off) between sensitivity (y-axis) and 1−specificity (x-axis) across every possible cut-off value. Useful when the optimal threshold is unknown.</p></div>
+      <ul class="ans-list numbered">
+        <li><strong>Assess discriminatory ability — AUC (3 marks):</strong> AUROC ranges from 0.5 (no discrimination) to 1.0 (perfect). AUROC 0.7–0.8 = acceptable; 0.8–0.9 = excellent; &gt;0.9 = outstanding.</li>
+        <li><strong>Determine optimal cut-off (3 marks):</strong> Cut-off closest to upper-left shoulder of curve maximises both Sn and Sp. Youden's Index (Sn+Sp−1) identifies this point. Clinically, cut-offs adjusted based on context: screening → prioritise sensitivity; confirmatory → prioritise specificity.</li>
+        <li><strong>Compare two tests (2 marks):</strong> Test with larger AUC is more accurate overall. If ROC curves do not cross, one test consistently outperforms the other. DeLong's test compares AUCs formally.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-meta" id="q1819q5">
+  <div class="qcard-head" onclick="toggle('q1819q5')">
+    <span class="qnum">Q5</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Evidence Synthesis</div>
+      <div class="qtopic-title">Compare Literature Review, Systematic Review and Meta-analysis</div>
+    </div>
+    <span class="marks-chip">15 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Compare Literature Review (LR), Systematic Review (SR), and Meta-analysis (MA) across definition, goals, research questions, and limitations.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer — 5 marks each</span></div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Aspect</th><th>Literature Review</th><th>Systematic Review</th><th>Meta-analysis</th></tr></thead>
+          <tbody>
+            <tr><td class="th-cell">Definition</td><td>Broad unsystematic overview</td><td>Structured, transparent review using predefined methodology</td><td>Statistical technique combining results for a pooled effect size</td></tr>
+            <tr><td class="th-cell">Search strategy</td><td>Informal; may not be reproducible</td><td>Comprehensive, systematic, reproducible</td><td>Same as SR; requires extractable quantitative data</td></tr>
+            <tr><td class="th-cell">Research question</td><td>Broad</td><td>Specific PICO question</td><td>Quantitative PICO requiring numerical outcomes</td></tr>
+            <tr><td class="th-cell">Critical appraisal</td><td>Informal; expert opinion</td><td>Formal; standardised tools (Cochrane RoB, GRADE)</td><td>Formal; includes heterogeneity and publication bias assessment</td></tr>
+            <tr><td class="th-cell">Synthesis</td><td>Narrative</td><td>Qualitative synthesis</td><td>Quantitative pooled estimate (OR, RR, SMD) with 95% CI</td></tr>
+            <tr><td class="th-cell">Key output</td><td>Summary; identifies gaps</td><td>Evidence-based conclusions; informs guidelines</td><td>Forest plot; funnel plot; pooled effect size</td></tr>
+            <tr><td class="th-cell">Limitations</td><td>Selection &amp; interpretation bias; not reproducible</td><td>Labour-intensive; needs updates</td><td>Susceptible to publication bias; requires homogeneous studies</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qcard topic-ethics" id="q1819q6">
+  <div class="qcard-head" onclick="toggle('q1819q6')">
+    <span class="qnum">Q6</span>
+    <div class="qtopic">
+      <div class="qtopic-label">Ethics</div>
+      <div class="qtopic-title">Ethical considerations of a preventive trial / community intervention</div>
+    </div>
+    <span class="marks-chip">15 marks</span>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="qbody">
+    <p class="qstem">Describe the ethical considerations of a preventive trial.</p>
+    <div class="answer-section">
+      <div class="ans-header"><span class="ans-badge">Model Answer — guided by the 4 pillars</span></div>
+      <div class="ans-text"><p>Guided by <strong>Autonomy, Beneficence, Non-maleficence, and Justice</strong>. Key tension: balancing individual rights against population-level benefits.</p></div>
+      <ul class="ans-list numbered">
+        <li><strong>Autonomy — Voluntary participation &amp; avoiding excessive incentives (4 marks):</strong> Participants must give informed, voluntary consent. Preventive trials recruit healthy volunteers — benefit-to-self less obvious, so consent processes must be especially thorough. Excessive financial incentives may coerce economically disadvantaged participants (undue inducement).</li>
+        <li><strong>Beneficence — Population needs &amp; risk-benefit balance (4 marks):</strong> Intervention must address genuine population health need. Benefits to community must outweigh individual-level risks. Risk-benefit assessment performed before and monitored during trial (DSMB).</li>
+        <li><strong>Non-maleficence — Cultural sensitivity &amp; minimising harm (4 marks):</strong> Interventions must be culturally appropriate. Mechanisms to detect and report adverse events; protocols for emergency unblinding. Research must not unnecessarily expose participants to risks.</li>
+        <li><strong>Justice — Fair subject selection &amp; community engagement (3 marks):</strong> Selection must be equitable — burdens and benefits fairly distributed. Vulnerable populations should not be disproportionately enrolled without additional protections.</li>
+      </ul>
+      <div class="note-box"><strong>Additional:</strong> Privacy and data confidentiality; result dissemination (including null results); post-trial continuation of effective interventions; ethics committee approval before initiation.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /2018/19 -->
+
+        </div><!-- /panels -->
+      </div><!-- /pyq-inline -->
+    </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const docs = [{"id":"intro","title":"Intro: Clinical Epidemiology & Clinical Trials"},{"id":"rand","title":"Randomization & Blinding"},{"id":"nonrand","title":"Non-Randomized Trials"},{"id":"outcomes","title":"Outcomes in Clinical Trials"},{"id":"analysis","title":"Analysis in Clinical Trials"},{"id":"prognosis","title":"Prognosis in Clinical Epidemiology"},{"id":"screening","title":"Screening and Diagnostic Tests"},{"id":"agreement","title":"Clinical Agreement"},{"id":"sr","title":"Systematic Review"},{"id":"meta","title":"Meta-analyses"},{"id":"ethics","title":"Ethics in Clinical Trials"},{"id":"pyq","title":"Exam Past Year Questions"}];
+  const navItems = document.querySelectorAll('.nav-item');
+  const frames = document.querySelectorAll('.doc-frame');
+  const pos = document.getElementById('posIndicator');
+  const crumb = document.getElementById('crumb');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  let current = 0;
+
+  const iframes = document.querySelectorAll('.doc-iframe');
+
+  function loadFrame(idx) {
+    const f = iframes[idx];
+    if (f && !f.getAttribute('src') && f.dataset.src) {
+      f.setAttribute('src', f.dataset.src);
+    }
+  }
+
+  function show(idx) {
+    if (idx < 0 || idx >= docs.length) return;
+    current = idx;
+    loadFrame(idx);
+    navItems.forEach((n, i) => n.classList.toggle('active', i === idx));
+    frames.forEach((f, i) => f.classList.toggle('active', i === idx));
+    pos.textContent = String(idx+1).padStart(2,'0') + ' / ' + docs.length;
+    crumb.textContent = docs[idx].title;
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === docs.length - 1;
+    // Update eyebrows for fixed notes
+    document.querySelectorAll('.doc-eyebrow').forEach((el, i) => {
+      if (!el.dataset.custom) el.textContent = 'Note ' + String(i+1).padStart(2,'0') + ' of 12';
+    });
+    try { history.replaceState(null, '', '#' + docs[idx].id); } catch(e) {}
+  }
+
+  navItems.forEach((n, i) => {
+    n.addEventListener('click', () => show(i));
+  });
+  prevBtn.addEventListener('click', () => show(current - 1));
+  nextBtn.addEventListener('click', () => show(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'IFRAME') return;
+    if (e.key === 'ArrowLeft')  { show(current - 1); }
+    if (e.key === 'ArrowRight') { show(current + 1); }
+  });
+
+  const hash = (location.hash || '').replace('#','');
+  const initIdx = Math.max(0, docs.findIndex(d => d.id === hash));
+  if (initIdx > 0) show(initIdx);
+  else show(0);
+})();
+</script>
+
+<script>
+/* ── PYQ: toggle answer cards ── */
+function toggle(id) {
+  const card = document.getElementById(id);
+  if (card) card.classList.toggle('open');
+}
+
+/* ── PYQ: year tab switching ── */
+(function() {
+  const tabs   = document.querySelectorAll('.ytab');
+  const panels = document.querySelectorAll('.panel');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      panels.forEach(function(p) { p.classList.remove('active'); });
+      tab.classList.add('active');
+      const target = document.getElementById(tab.dataset.year);
+      if (target) target.classList.add('active');
+      try { localStorage.setItem('pyq_tab', tab.dataset.year); } catch(e) {}
+    });
+  });
+  try {
+    const saved = localStorage.getItem('pyq_tab');
+    if (saved) {
+      const t = document.querySelector('.ytab[data-year="' + saved + '"]');
+      if (t) t.click();
+    }
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>
