@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Epidemiology Notes - DrPH Malaysia</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.95;
+    }
+    .content {
+      padding: 40px 30px;
+    }
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+    }
+    .note-card {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      padding: 25px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+    .note-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
+      border-color: #667eea;
+    }
+    .note-card h2 {
+      color: #667eea;
+      margin-bottom: 12px;
+      font-size: 1.3em;
+      line-height: 1.3;
+    }
+    .note-card p {
+      color: #6c757d;
+      font-size: 0.95em;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+    .note-card .course-code {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+    .footer {
+      background: #f8f9fa;
+      padding: 25px 30px;
+      text-align: center;
+      color: #6c757d;
+      font-size: 0.95em;
+      border-top: 1px solid #e9ecef;
+    }
+    .footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 640px) {
+      .header h1 { font-size: 1.8em; }
+      .header { padding: 30px 20px; }
+      .content { padding: 25px 20px; }
+      .notes-grid { gap: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>DrPH Epidemiology Notes</h1>
+      <p>Compilation of lecture notes and study materials</p>
+    </div>
+    <div class="content">
+      <div class="notes-grid">
+        <a href="notes/GET502_Advanced_Categorical_Analysis.html" class="note-card">
+          <span class="course-code">GET502</span>
+          <h2>Advanced Categorical Analysis</h2>
+          <p>Chi-square, logistic regression, survival analysis, categorical data methods</p>
+        </a>
+        <a href="notes/GET503_Advanced_Numerical_Analysis.html" class="note-card">
+          <span class="course-code">GET503</span>
+          <h2>Advanced Numerical Analysis</h2>
+          <p>Linear regression, multiple regression, ANOVA, numerical methods</p>
+        </a>
+        <a href="notes/GET512_Critical_Appraisal.html" class="note-card">
+          <span class="course-code">GET512</span>
+          <h2>Critical Appraisal Notes</h2>
+          <p>CASP checklists, evidence appraisal, study validity assessment</p>
+        </a>
+        <a href="notes/GET513_Special_Issues_Epid.html" class="note-card">
+          <span class="course-code">GET513</span>
+          <h2>Special Issues in Epidemiology</h2>
+          <p>Advanced topics in epidemiological methods and applications</p>
+        </a>
+        <a href="notes/Clinical_Epid_Notes.html" class="note-card">
+          <span class="course-code">CLINICAL</span>
+          <h2>Clinical Epidemiology Notes</h2>
+          <p>Clinical epidemiology combined notes and applications</p>
+        </a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>DrPH Epidemiology Study Notes | Malaysia</p>
+      <p style="margin-top: 10px; font-size: 0.85em;">Last updated: June 2026</p>
+    </div>
+  </div>
+</body>
+</html>
