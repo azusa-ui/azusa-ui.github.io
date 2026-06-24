@@ -194,16 +194,75 @@ tr:hover td { background: var(--tag-bg); }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-@media(max-width:768px){
-  #sidebar { transform: translateX(-100%); }
-  #sidebar.open { transform: none; }
-  #main, #topbar { margin-left: 0; left: 0; }
-  .section { padding: 20px 16px 40px; }
-  .grid2 { overflow: hidden; width: 100%; box-sizing: border-box;  grid-template-columns: 1fr; }
+/* MOBILE OVERLAY BACKDROP */
+#sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 99; cursor: pointer;
+}
+#sidebar-overlay.active { display: block; }
+
+/* ── MOBILE ≤ 768px ── */
+@media (max-width: 768px) {
+  /* Sidebar slides off-screen by default; overlays when .mobile-open */
+  #sidebar {
+    transform: translateX(calc(-1 * var(--sidebar-w)));
+    z-index: 200;
+  }
+  #sidebar.mobile-open { transform: none; }
+  /* Desktop .hidden class is irrelevant on mobile */
+  #sidebar.hidden { transform: translateX(calc(-1 * var(--sidebar-w))); }
+
+  /* Main & topbar: full width */
+  #main { margin-left: 0 !important; }
+  #topbar { left: 0 !important; margin-left: 0 !important; }
+
+  /* Topbar title: shrink & truncate */
+  #topbar h1 { font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Section: tighter padding */
+  .section { padding: 16px 14px 48px; }
+
+  /* Grid: single column */
+  .grid2 { grid-template-columns: 1fr !important; }
+
+  /* Tables: always scrollable, don't shrink text too much */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 420px; font-size: .8rem; }
+
+  /* Headings: scale down */
+  h1.section-title { font-size: 1.3rem; }
+  h2.h2 { font-size: 1rem; }
+  h3.h3 { font-size: .92rem; }
+
+  /* Callouts: tighter */
+  .callout { padding: 12px 14px; font-size: .85rem; }
+
+  /* IMRAD: tighter */
+  .imrad-section { padding: 12px 14px; }
+
+  /* Steps: tighter gap */
+  .steps { gap: 8px; }
+
+  /* Cards: full width */
+  .card { padding: 12px; }
+
+  /* Hamburger btn: slightly larger tap target */
+  #toggle-sidebar { padding: 7px 12px; font-size: 1rem; }
+}
+
+/* ── DESKTOP > 768px ── */
+@media (min-width: 769px) {
+  /* Overlay never shows on desktop */
+  #sidebar-overlay { display: none !important; }
+  /* Sidebar uses .hidden class to slide off */
+  #sidebar.hidden { transform: translateX(calc(-1 * var(--sidebar-w))); }
 }
 </style>
 </head>
 <body>
+
+<!-- MOBILE OVERLAY (tap to close sidebar) -->
+<div id="sidebar-overlay" onclick="closeSidebarMobile()"></div>
 
 <!-- SIDEBAR -->
 <nav id="sidebar">
@@ -2732,18 +2791,25 @@ tr:hover td { background: var(--tag-bg); }
 </div>
 <!-- END PYQ -->
 
-</div><!-- end main-content -->
-
-</div><!-- /pyq -->
-</div><!-- /main -->
+</div><!-- end #pyq section -->
+</div><!-- end #main -->
 
 <script>
+function isMobile() { return window.innerWidth <= 768; }
+
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-overlay').classList.remove('active');
+}
+
 function show(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
   var el = document.getElementById(id);
   if (el) { el.classList.add('active'); }
   buildSubNav(id);
-  window.scrollTo(0,0);
+  window.scrollTo(0, 0);
+  // Auto-close sidebar on mobile when topic selected
+  if (isMobile()) { closeSidebarMobile(); }
 }
 
 function buildSubNav(id) {
@@ -2752,8 +2818,7 @@ function buildSubNav(id) {
   container.innerHTML = '';
   var section = document.getElementById(id);
   if (!section) return;
-  var headings = section.querySelectorAll('h2.h2');
-  headings.forEach(function(h) {
+  section.querySelectorAll('h2.h2').forEach(function(h) {
     var a = document.createElement('a');
     a.textContent = h.textContent;
     a.href = '#';
@@ -2771,10 +2836,23 @@ function toggleTheme() {
 }
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('hidden');
-  document.getElementById('main-content').classList.toggle('full');
-  document.getElementById('topbar').classList.toggle('full');
+  var sb = document.getElementById('sidebar');
+  if (isMobile()) {
+    sb.classList.toggle('mobile-open');
+    document.getElementById('sidebar-overlay').classList.toggle('active');
+  } else {
+    var isHidden = sb.classList.toggle('hidden');
+    document.getElementById('main-content').classList.toggle('full', isHidden);
+    document.getElementById('topbar').classList.toggle('full', isHidden);
+  }
 }
+
+window.addEventListener('resize', function() {
+  if (!isMobile()) {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebar-overlay').classList.remove('active');
+  }
+});
 
 function toggleGroup(el) {
   el.parentElement.classList.toggle('open');
@@ -2786,14 +2864,19 @@ function toggleAcc(el) {
 
 function toggleTopicSubs(e, id) {
   e.stopPropagation();
-  var li = e.currentTarget.closest('li');
-  if (li) li.classList.toggle('open');
+  var wrap = e.currentTarget.closest('.nav-topic-wrap');
+  if (wrap) {
+    wrap.classList.toggle('open');
+    var btn = wrap.querySelector('.nav-expand-btn');
+    if (btn) btn.classList.toggle('open');
+    var subList = wrap.querySelector('.nav-sub-list');
+    if (subList) subList.classList.toggle('open');
+  }
   show(id);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
   show('t0');
-  // Wire up all nav topic links
   document.querySelectorAll('[data-topic]').forEach(function(el) {
     el.addEventListener('click', function(e) {
       e.preventDefault();
@@ -2802,5 +2885,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+</div><!-- end #main -->
 </body>
 </html>
