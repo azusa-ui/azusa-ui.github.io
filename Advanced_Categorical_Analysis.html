@@ -898,6 +898,7 @@ mjx-container[jax="SVG"] > svg {
 <button class="ctrl-btn" id="dark-toggle" onclick="toggleTheme()">☀ / ☾ Mode</button>
 <button class="ctrl-btn" onclick="expandAll()">Expand All</button>
 <button class="ctrl-btn" onclick="collapseAll()">Collapse All</button>
+<button class="ctrl-btn" onclick="switchTopic(9);setTimeout(()=>switchSubtab('t9',4),120)" style="background:#1B5E20;color:#fff;font-weight:700;border:none;padding:5px 13px;border-radius:6px;cursor:pointer">&#128196; R Quick Guide</button>
 </div>
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">↑</button>
 <!-- MAIN CONTENT -->
@@ -8975,6 +8976,7 @@ mean(DTaccuracy)</code></pre>
   <button class="subtab-btn"        id="t9-tab-1" role="tab" aria-selected="false" onclick="switchSubtab('t9',1)">2020/2021 Set B</button>
   <button class="subtab-btn"        id="t9-tab-2" role="tab" aria-selected="false" onclick="switchSubtab('t9',2)">2018/2019</button>
   <button class="subtab-btn"        id="t9-tab-3" role="tab" aria-selected="false" onclick="switchSubtab('t9',3)">Quick Reference</button>
+  <button class="subtab-btn"        id="t9-tab-4" role="tab" aria-selected="false" onclick="switchSubtab('t9',4)" style="background:#1B5E20;color:#fff;border-color:#1B5E20">&#128196; R Quick Guide</button>
 </div>
 
 <!-- CSS for marks badges -->
@@ -9600,6 +9602,345 @@ ConvertWeibull(wei.mod, conf.level=0.95)</code></pre>
 </div>
 
 </div><!-- end t9-pane-3 -->
+
+<!-- ══════════════════════════════
+     PANE 4  —  R Quick Guide
+     ══════════════════════════════ -->
+<div class="subtab-pane" id="t9-pane-4">
+<h2 style="color:#1B5E20">&#128196; Universal R Quick Guide — Exam Reference</h2>
+<p style="color:#555;margin-bottom:16px">Complete R code for all 8 GET502 topics. Select a topic tab below. Code is exam-ready and minimal.</p>
+
+<style>
+.rqg-tabs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:0; padding:10px 14px 0; border-bottom:2px solid #1B5E20; }
+.rqg-btn { background:#f1f8e9; border:1.5px solid #a5d6a7; border-bottom:none; border-radius:6px 6px 0 0; padding:6px 14px; font-size:0.82rem; font-weight:700; cursor:pointer; color:#2E7D32; transition:background 0.15s; }
+.rqg-btn:hover { background:#c8e6c9; }
+.rqg-btn.active { background:#1B5E20; color:#fff; border-color:#1B5E20; }
+.rqg-pane { display:none; background:#fafff8; border:1.5px solid #a5d6a7; border-top:none; border-radius:0 0 8px 8px; padding:18px 20px 24px; }
+.rqg-pane.active { display:block; }
+.rqg-pane pre { background:#1a1a2e; color:#e0e0e0; border-radius:8px; padding:14px 18px; overflow-x:auto; font-size:0.82rem; line-height:1.55; margin:0; }
+.rqg-pane code { font-family: "Fira Mono","Consolas","Courier New",monospace; }
+.rqg-comment { color:#80cbc4; }
+.rqg-section { color:#ff8a65; font-weight:700; }
+</style>
+
+<div class="rqg-tabs">
+  <button class="rqg-btn active" onclick="switchRQG(this,'rqg-t1')">T1: Multinomial</button>
+  <button class="rqg-btn" onclick="switchRQG(this,'rqg-t2')">T2: Ordinal</button>
+  <button class="rqg-btn" onclick="switchRQG(this,'rqg-t3')">T3: Conditional</button>
+  <button class="rqg-btn" onclick="switchRQG(this,'rqg-t4')">T4: Count / Rate</button>
+  <button class="rqg-btn" onclick="switchRQG(this,'rqg-t5')">T5: GEE / GLMM</button>
+  <button class="rqg-btn" onclick="switchRQG(this,'rqg-t6')">T6: Cox PH</button>
+  <button class="rqg-btn" onclick="switchRQG(this,'rqg-t7')">T7: Parametric Survival</button>
+  <button class="rqg-btn" onclick="switchRQG(this,'rqg-t8')">T8: ML Classification</button>
+</div>
+
+<!-- T1: Multinomial LR -->
+<div class="rqg-pane active" id="rqg-t1">
+<pre><code><span class="rqg-comment"># ── TOPIC 1: MULTINOMIAL LOGISTIC REGRESSION ──────────────────────────────</span>
+library(nnet); library(VGAM); library(lmtest); library(gtsummary)
+
+<span class="rqg-comment"># Fit model — multinom() (nnet)</span>
+fit.mn &lt;- multinom(outcome ~ pred1 + pred2 + pred3, data = df, ref = 1)
+summary(fit.mn)
+exp(coef(fit.mn))          <span class="rqg-comment"># RRR (Relative Risk Ratio)</span>
+exp(confint(fit.mn))       <span class="rqg-comment"># 95% CI for RRR</span>
+
+<span class="rqg-comment"># p-values (not shown by default in multinom)</span>
+z &lt;- summary(fit.mn)$coefficients / summary(fit.mn)$standard.errors
+p &lt;- (1 - pnorm(abs(z))) * 2
+print(p)
+
+<span class="rqg-comment"># VGAM alternative — vglm()</span>
+fit.vg &lt;- vglm(outcome ~ pred1 + pred2, data = df, family = multinomial(refLevel = 1))
+summary(fit.vg)
+exp(coef(fit.vg))          <span class="rqg-comment"># RRR</span>
+
+<span class="rqg-comment"># LRT: test significance of a predictor</span>
+fit.mn0 &lt;- multinom(outcome ~ pred2 + pred3, data = df, ref = 1)
+lrtest(fit.mn, fit.mn0)    <span class="rqg-comment"># p &lt; 0.05 = pred1 significant</span>
+
+<span class="rqg-comment"># Prediction</span>
+predict(fit.mn, newdata = new.data, type = "probs")  <span class="rqg-comment"># probability per category</span>
+predict(fit.mn, newdata = new.data, type = "class")  <span class="rqg-comment"># predicted class</span></code></pre>
+</div>
+
+<!-- T2: Ordinal LR -->
+<div class="rqg-pane" id="rqg-t2">
+<pre><code><span class="rqg-comment"># ── TOPIC 2: ORDINAL LOGISTIC REGRESSION ──────────────────────────────────</span>
+library(ordinal); library(MASS); library(brant); library(gtsummary)
+
+<span class="rqg-comment"># Ensure outcome is an ordered factor</span>
+df$outcome &lt;- factor(df$outcome, levels = c("low","medium","high"), ordered = TRUE)
+
+<span class="rqg-comment"># Fit PO model — clm() (preferred)</span>
+fit.ord &lt;- clm(outcome ~ pred1 + pred2, data = df, link = "logit")
+summary(fit.ord)
+exp(coef(fit.ord))         <span class="rqg-comment"># OR (only predictor coefs, not thresholds)</span>
+exp(confint(fit.ord))      <span class="rqg-comment"># 95% CI</span>
+
+<span class="rqg-comment"># polr() alternative (needed for brant test)</span>
+fit.polr &lt;- polr(outcome ~ pred1 + pred2, data = df, Hess = TRUE)
+summary(fit.polr)
+exp(coef(fit.polr))
+
+<span class="rqg-comment"># Proportional Odds (PO) assumption — Brant test</span>
+brant(fit.polr)            <span class="rqg-comment"># p &gt; 0.05 = PO assumption MET (not violated)</span>
+
+<span class="rqg-comment"># LRT model comparison</span>
+fit.ord0 &lt;- clm(outcome ~ pred2, data = df, link = "logit")
+anova(fit.ord0, fit.ord)   <span class="rqg-comment"># p &lt; 0.05 = adding pred1 improves fit</span>
+
+<span class="rqg-comment"># Prediction</span>
+predict(fit.ord, newdata = new.data, type = "prob")   <span class="rqg-comment"># probability per category</span>
+predict(fit.ord, newdata = new.data, type = "class")  <span class="rqg-comment"># predicted class</span></code></pre>
+</div>
+
+<!-- T3: Conditional LR -->
+<div class="rqg-pane" id="rqg-t3">
+<pre><code><span class="rqg-comment"># ── TOPIC 3: CONDITIONAL LOGISTIC REGRESSION (Matched Case-Control) ────────</span>
+library(survival); library(gtsummary)
+
+<span class="rqg-comment"># Conditional logistic — clogit() with strata() for matched sets</span>
+fit.cl &lt;- clogit(outcome ~ exp1 + exp2 + exp3 + strata(matchID), data = df)
+summary(fit.cl)
+exp(coef(fit.cl))          <span class="rqg-comment"># OR (conditional)</span>
+exp(confint(fit.cl))       <span class="rqg-comment"># 95% CI</span>
+
+<span class="rqg-comment"># LRT for variable significance</span>
+fit.cl0 &lt;- clogit(outcome ~ exp2 + exp3 + strata(matchID), data = df)
+anova(fit.cl0, fit.cl)     <span class="rqg-comment"># p &lt; 0.05 = exp1 significant</span>
+
+<span class="rqg-comment"># McNemar test (paired 2x2 table; 1:1 matched only)</span>
+mcnemar.test(table(case$exposure, control$exposure))
+
+<span class="rqg-comment"># gtsummary output</span>
+tbl_regression(fit.cl, exponentiate = TRUE)</code></pre>
+</div>
+
+<!-- T4: Count / Rate -->
+<div class="rqg-pane" id="rqg-t4">
+<pre><code><span class="rqg-comment"># ── TOPIC 4: POISSON COUNT / RATE REGRESSION ──────────────────────────────</span>
+library(MASS); library(gtsummary); library(lmtest)
+
+<span class="rqg-comment"># Poisson COUNT model (no offset)</span>
+fit.p &lt;- glm(count ~ pred1 + pred2, data = df, family = poisson(link = "log"))
+summary(fit.p)
+exp(coef(fit.p))           <span class="rqg-comment"># IRR (Incidence Rate Ratio)</span>
+exp(confint(fit.p))        <span class="rqg-comment"># 95% CI</span>
+
+<span class="rqg-comment"># Overdispersion check: ratio &gt;&gt; 1 = overdispersed → use NB</span>
+fit.p$deviance / fit.p$df.residual
+
+<span class="rqg-comment"># Poisson RATE model (with exposure offset)</span>
+fit.pr &lt;- glm(count ~ pred1 + pred2 + offset(log(personyears)),
+              data = df, family = poisson(link = "log"))
+summary(fit.pr)
+exp(coef(fit.pr))          <span class="rqg-comment"># IRR per unit predictor, per 1 personyear</span>
+
+<span class="rqg-comment"># Negative Binomial (for overdispersion)</span>
+fit.nb &lt;- glm.nb(count ~ pred1 + pred2, data = df)
+summary(fit.nb)
+exp(coef(fit.nb))
+exp(confint(fit.nb))
+
+<span class="rqg-comment"># LRT: Poisson vs NB</span>
+lrtest(fit.p, fit.nb)      <span class="rqg-comment"># p &lt; 0.05 = NB preferred</span>
+
+<span class="rqg-comment"># Zero-inflated models</span>
+library(pscl)
+fit.zip &lt;- zeroinfl(count ~ pred1 + pred2 | pred1, data = df, dist = "poisson")
+fit.znb &lt;- zeroinfl(count ~ pred1 + pred2 | pred1, data = df, dist = "negbin")
+vuong(fit.p, fit.zip)      <span class="rqg-comment"># compare standard vs zero-inflated</span></code></pre>
+</div>
+
+<!-- T5: GEE / GLMM -->
+<div class="rqg-pane" id="rqg-t5">
+<pre><code><span class="rqg-comment"># ── TOPIC 5: CORRELATED CATEGORICAL DATA — GEE / GLMM ─────────────────────</span>
+library(gee); library(lme4); library(gtsummary)
+
+<span class="rqg-comment"># GEE — population-averaged (marginal) model</span>
+<span class="rqg-comment"># corstr: "independence", "exchangeable", "ar1", "unstructured"</span>
+fit.gee &lt;- gee(outcome ~ pred1 + pred2,
+               id      = df$clusterID,
+               data    = df,
+               family  = binomial(link = "logit"),
+               corstr  = "exchangeable")
+summary(fit.gee)
+exp(coef(fit.gee))         <span class="rqg-comment"># OR (population-averaged)</span>
+
+<span class="rqg-comment"># 95% CI using robust SE (column 4 in summary)</span>
+robust.se &lt;- summary(fit.gee)$coefficients[, "Robust S.E."]
+exp(coef(fit.gee) + 1.96 * robust.se)   <span class="rqg-comment"># upper CI</span>
+exp(coef(fit.gee) - 1.96 * robust.se)   <span class="rqg-comment"># lower CI</span>
+
+<span class="rqg-comment"># GLMM — subject-specific (conditional) model</span>
+<span class="rqg-comment"># (1|clusterID) = random intercept per cluster</span>
+fit.glmm &lt;- glmer(outcome ~ pred1 + pred2 + (1 | clusterID),
+                  data   = df,
+                  family = binomial(link = "logit"))
+summary(fit.glmm)
+exp(fixef(fit.glmm))       <span class="rqg-comment"># conditional OR</span>
+exp(confint(fit.glmm, method = "Wald"))
+
+<span class="rqg-comment"># ICC (intra-class correlation) from random intercept variance</span>
+var.u &lt;- as.numeric(VarCorr(fit.glmm)$clusterID)
+ICC &lt;- var.u / (var.u + (pi^2 / 3))
+cat("ICC:", round(ICC, 3))</code></pre>
+</div>
+
+<!-- T6: Cox PH -->
+<div class="rqg-pane" id="rqg-t6">
+<pre><code><span class="rqg-comment"># ── TOPIC 6: COX PH / STRATIFIED COX / EXTENDED COX ──────────────────────</span>
+library(survival); library(gtsummary)
+
+<span class="rqg-comment"># Define Surv object</span>
+surv.obj &lt;- Surv(time = df$time, event = df$status == 1)
+
+<span class="rqg-comment"># Kaplan-Meier</span>
+km &lt;- survfit(surv.obj ~ group, data = df)
+summary(km)
+plot(km, col = c("blue","red"), xlab = "Time", ylab = "S(t)")
+survdiff(surv.obj ~ group, data = df)  <span class="rqg-comment"># log-rank test; p &lt; 0.05 = groups differ</span>
+
+<span class="rqg-comment"># Cox PH model</span>
+cox.mod &lt;- coxph(surv.obj ~ pred1 + pred2 + pred3, data = df)
+summary(cox.mod)            <span class="rqg-comment"># exp(coef) = HR directly</span>
+tbl_regression(cox.mod, exponentiate = TRUE)
+
+<span class="rqg-comment"># PH assumption — Schoenfeld residuals</span>
+ph.test &lt;- cox.zph(cox.mod)
+ph.test                    <span class="rqg-comment"># p &gt; 0.05 = PH assumption MET</span>
+plot(ph.test)              <span class="rqg-comment"># flat line = PH met; trend = violated</span>
+
+<span class="rqg-comment"># Stratified Cox (for variables violating PH — not estimated, adjusted)</span>
+cox.strat &lt;- coxph(surv.obj ~ pred1 + pred2 + strata(pred3), data = df)
+summary(cox.strat)
+
+<span class="rqg-comment"># Extended Cox (time-varying coefficient — interaction with log(t))</span>
+cox.tv &lt;- coxph(surv.obj ~ pred1 + pred2 + tt(pred3), data = df,
+                tt = function(x, t, ...) x * log(t))
+summary(cox.tv)
+<span class="rqg-comment"># tt(pred3) significant → pred3 violates PH → use stratification</span>
+
+<span class="rqg-comment"># LRT model comparison</span>
+anova(cox.mod, update(cox.mod, . ~ . - pred1))  <span class="rqg-comment"># p &lt; 0.05 = pred1 significant</span></code></pre>
+</div>
+
+<!-- T7: Parametric Survival -->
+<div class="rqg-pane" id="rqg-t7">
+<pre><code><span class="rqg-comment"># ── TOPIC 7: PARAMETRIC SURVIVAL — EXPONENTIAL / WEIBULL / LOG-LOGISTIC ───</span>
+library(survival); library(SurvRegCensCov); library(flexsurv); library(eha)
+
+surv.obj &lt;- Surv(time = df$survt, event = df$status == 1)
+
+<span class="rqg-comment"># ─ Exponential AFT ───────────────────────────────────────────────────────</span>
+<span class="rqg-comment"># ConvertWeibull() does NOT work on exponential — use manual conversion</span>
+exp.mod &lt;- survreg(surv.obj ~ pred1 + pred2, data = df, dist = 'exponential')
+summary(exp.mod)
+exp(coef(exp.mod))          <span class="rqg-comment"># TR (time ratio)</span>
+exp(-coef(exp.mod))         <span class="rqg-comment"># HR (exponential only: HR = 1/TR)</span>
+exp(confint(exp.mod))       <span class="rqg-comment"># 95% CI for TR</span>
+
+<span class="rqg-comment"># ─ Weibull AFT ───────────────────────────────────────────────────────────</span>
+wei.mod &lt;- survreg(surv.obj ~ pred1 + pred2, data = df, dist = 'weibull')
+summary(wei.mod)
+ConvertWeibull(wei.mod, conf.level = 0.95)  <span class="rqg-comment"># HR + ETR (Weibull only)</span>
+
+<span class="rqg-comment"># ─ Weibull PH via flexsurv ───────────────────────────────────────────────</span>
+wei.ph &lt;- flexsurvreg(surv.obj ~ pred1 + pred2, data = df, dist = 'weibullPH')
+print(wei.ph)               <span class="rqg-comment"># exp(est) = HR directly</span>
+
+<span class="rqg-comment"># ─ Log-logistic AFT ──────────────────────────────────────────────────────</span>
+logl.mod &lt;- survreg(surv.obj ~ pred1 + pred2, data = df, dist = 'loglogistic')
+summary(logl.mod)
+
+<span class="rqg-comment"># ─ AIC model comparison ──────────────────────────────────────────────────</span>
+data.frame(
+  Model = c("Exponential","Weibull","Log-logistic"),
+  AIC   = c(AIC(exp.mod), AIC(wei.mod), AIC(logl.mod))
+)                           <span class="rqg-comment"># lower AIC = better fit</span>
+
+<span class="rqg-comment"># ─ Distribution diagnostics ──────────────────────────────────────────────</span>
+WeibullDiag(surv.obj ~ group, data = df)  <span class="rqg-comment"># straight + parallel = Weibull OK</span>
+
+<span class="rqg-comment"># check.dist(): BOTH models must be eha (coxreg + phreg)</span>
+cox.eha &lt;- coxreg(surv.obj ~ pred1 + pred2, data = df)
+wei.eha &lt;- phreg(surv.obj ~ pred1 + pred2, data = df, dist = 'weibull')
+check.dist(cox.eha, wei.eha)
+
+<span class="rqg-comment"># ─ Survival prediction ───────────────────────────────────────────────────</span>
+new.data &lt;- data.frame(pred1 = 1, pred2 = 50)
+predict(wei.mod, newdata = new.data, type = 'quantile', p = 0.5)  <span class="rqg-comment"># median</span>
+predict(wei.mod, newdata = new.data, type = 'quantile', p = c(0.25, 0.5, 0.75))</code></pre>
+</div>
+
+<!-- T8: ML Classification -->
+<div class="rqg-pane" id="rqg-t8">
+<pre><code><span class="rqg-comment"># ── TOPIC 8: ML CLASSIFICATION — DT / KNN / ANN / 10-Fold CV ─────────────</span>
+library(mlbench); library(plyr); library(rpart); library(rpart.plot)
+library(class); library(neuralnet); library(caret)
+
+<span class="rqg-comment"># ─ Load & clean data ─────────────────────────────────────────────────────</span>
+data(PimaIndiansDiabetes)
+df = PimaIndiansDiabetes
+df1 = df[df['glucose'] != 0 &amp; df['pressure'] != 0 &amp;
+           df['triceps'] != 0 &amp; df['mass'] != 0,]
+
+<span class="rqg-comment"># Train/test split (80/20)</span>
+sRow = floor(nrow(df1) * 0.8)
+trainData = df1[1:sRow,]
+testData  = df1[(sRow+1):nrow(df1),]
+
+<span class="rqg-comment"># ─ Decision Tree ─────────────────────────────────────────────────────────</span>
+DTmodel = rpart(diabetes ~ ., data = trainData, method = "class",
+                parms = list(split = "information"))
+prp(DTmodel)
+DTpred = predict(DTmodel, testData, type = 'class')
+confusionMatrix(DTpred, testData$diabetes, positive = 'pos')
+
+<span class="rqg-comment"># ─ KNN (requires min-max normalisation) ──────────────────────────────────</span>
+df2 = df1
+normalize = function(x) (x - min(x)) / (max(x) - min(x))
+df2[1:8] = as.data.frame(lapply(df2[1:8], normalize))
+trainDataN = df2[1:sRow,]
+testDataN  = df2[(sRow+1):nrow(df2),]
+KNNpred = knn(train = trainDataN[,1:8], test = testDataN[,1:8],
+              cl = trainDataN[,9], k = 7)
+confusionMatrix(KNNpred, testDataN$diabetes, positive = 'pos')
+
+<span class="rqg-comment"># ─ ANN ───────────────────────────────────────────────────────────────────</span>
+<span class="rqg-comment"># hidden=c(2,2) = 2 hidden layers, 2 nodes each; linear.output=FALSE = classification</span>
+NNmodel = neuralnet(diabetes ~ ., data = trainDataN, hidden = c(2,2), linear.output = FALSE)
+plot(NNmodel)
+predicted = predict(NNmodel, testDataN, type = 'class')
+NNpred = ifelse(max.col(predicted) == 1, 'neg', 'pos')
+confusionMatrix(factor(NNpred), testDataN$diabetes, positive = 'pos')
+
+<span class="rqg-comment"># ─ 10-Fold Cross-Validation (Decision Tree) ──────────────────────────────</span>
+k = 10; DTaccuracy = rep(NA, k)
+folds = split(df1, cut(1:nrow(df1), k))
+for (i in 1:k) {
+  test  = ldply(folds[i],  data.frame); test$.id  = NULL
+  train = ldply(folds[-i], data.frame); train$.id = NULL
+  DTmodel = rpart(diabetes ~ ., data = train, method = 'class',
+                  parms = list(split = 'information'))
+  DTpred = predict(DTmodel, test, type = 'class')
+  DTaccuracy[i] = confusionMatrix(DTpred, test$diabetes,
+                                  positive = 'pos')$overall['Accuracy']
+}
+mean(DTaccuracy)   <span class="rqg-comment"># mean 10-fold CV accuracy</span></code></pre>
+</div>
+
+<script>
+function switchRQG(btn, paneId) {
+  document.querySelectorAll('.rqg-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.rqg-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+</script>
+
+</div><!-- end t9-pane-4 -->
 
 </section>
 
