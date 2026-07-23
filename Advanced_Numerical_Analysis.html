@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Advanced Numerical Analysis Compilation Notes — DrPH GET503</title>
+<title>Advanced Numerical Analysis Compilation Notes — Public Health GET503</title>
 <style>
 :root{
   --primary:#1a3a5c;--accent:#1565c0;--g:#1b7a3e;--p:#7b1fa2;--o:#e65100;--r:#c62828;--t:#00796b;--d:#bf360c;
@@ -334,8 +334,8 @@ body.sb-collapsed #sb-toggle:hover{background:var(--bg);}
 
 <!-- SIDEBAR -->
 <nav id="sb">
-  <div class="sb-logo"><h2>Adv. Numerical Analysis</h2><p>Compilation Notes · DrPH · USM 2025/2026</p>
-  <p style="font-size:.68rem;opacity:.8;margin-top:3px;">📝 Compiled by <strong style="color:#a8d8ea;">Dr Azul</strong></p></div>
+  <div class="sb-logo"><h2>Adv. Numerical Analysis</h2><p>Compilation Notes · Public Health 2025/2026</p>
+  <p style="font-size:.68rem;opacity:.8;margin-top:3px;">📝 Compiled by <strong style="color:#a8d8ea;">Instructor</strong></p></div>
   <div id="sb-search-wrap">
     <input id="sb-search" type="text" placeholder="🔍 Search topics…" oninput="filterNav(this.value)" autocomplete="off" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;color:#e0e6ef;padding:7px 14px;font-size:.8rem;outline:none;">
     <div id="search-drop" style="display:none;"></div>
@@ -384,8 +384,8 @@ body.sb-collapsed #sb-toggle:hover{background:var(--bg);}
 <section id="home-sec" class="topic-sec active">
 <div class="hero" style="background:linear-gradient(135deg,#1a3a5c,#2980b9);">
   <h1>Advanced Numerical Analysis Compilation Notes</h1>
-  <p>Complete interactive notes for DrPH Epidemiology — all 8 topics with SPSS step-by-step procedures, R code (REAAAPP framework), formulas, worked examples, and interpretation templates. By Assoc. Prof. Lecturer & Dr Lecturer, USM.</p>
-  <div class="hero-tags"><span class="hero-tag">📅 Sem 2 2025/2026</span><span class="hero-tag">🏫 USM</span><span class="hero-tag">📊 8 Topics</span><span class="hero-tag">⚙️ REAAAPP</span><span class="hero-tag">🖥️ SPSS + R</span></div>
+  <p>Complete interactive notes for Public Health Epidemiology — all 8 topics with SPSS step-by-step procedures, R code (REAAAPP framework), formulas, worked examples, and interpretation templates. By Assoc. Prof. Lecturer & Dr Lecturer, .</p>
+  <div class="hero-tags"><span class="hero-tag">📅 Sem 2 2025/2026</span><span class="hero-tag">🏫 </span><span class="hero-tag">📊 8 Topics</span><span class="hero-tag">⚙️ REAAAPP</span><span class="hero-tag">🖥️ SPSS + R</span></div>
 </div>
 <div class="hgrid">
   <div class="hcard" onclick="show('t1')" style="border-top-color:#2980b9;"><div class="n">01</div><h3>MANOVA</h3><p>Multivariate Analysis of Variance — groups × multiple continuous DVs simultaneously. Wilks' Λ, Pillai's Trace, Box's M.</p></div>
@@ -1733,7 +1733,7 @@ eff &lt;- <span class="fn">ggpredict</span>(fit, terms = <span class="str">"age"
 <section id="t5-sec" class="topic-sec" style="display:none">
   <div class="hero" style="background:linear-gradient(135deg,#004c8c,#1a73e8);">
   <h1>Topic 5: Correlated Numerical Data</h1>
-  <p>Linear Mixed Models (LMM) &amp; Generalised Estimating Equations (GEE) for nested, clustered, longitudinal and repeated-measures data &mdash; course lecturer, USM</p>
+  <p>Linear Mixed Models (LMM) &amp; Generalised Estimating Equations (GEE) for nested, clustered, longitudinal and repeated-measures data &mdash; course lecturer, </p>
   <div class="hero-tags">
     <span class="hero-tag">LMM</span>
     <span class="hero-tag">GEE</span>
@@ -2302,7 +2302,7 @@ gee_pois <- <span class="fn">geeglm</span>(count ~ time + treatment + <span clas
   <div id="t5-interp" class="tab-pane">
 
     <div class="card" style="border-left:5px solid #01579b;"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e1f5fe;">🔑</div><h3>LMM — Fixed Effects: How to Interpret</h3><span class="chev">▼</span></div><div class="cb">
-      <p><em>Based on: USM DrPH Lecture Notes (2022); Snijders &amp; Bosker (2012); Singer &amp; Willett (2003)</em></p>
+      <p><em>Based on:  Public Health Lecture Notes (2022); Snijders &amp; Bosker (2012); Singer &amp; Willett (2003)</em></p>
       <div style="background:#e1f5fe;border-radius:8px;padding:.8rem 1rem;margin-bottom:1rem;">
         <strong>Key principle:</strong> LMM fixed effects are <em>cluster-specific (conditional)</em> — the effect of X on Y for a given cluster (school/patient/site) with its average random effect.
       </div>
@@ -2323,7 +2323,7 @@ gee_pois <- <span class="fn">geeglm</span>(count ~ time + treatment + <span clas
         <strong>Worked example (Scottish Schools dataset):</strong><br>
         <em>"A two-level random intercept model was fitted with attainment score as the outcome and cohort year as the Level-1 predictor, nested within schools. The null model ICC was 0.191, indicating 19.1% of variance was attributable to between-school differences, justifying multilevel modelling (Snijders &amp; Bosker, 2012). After adjusting for cohort year and sex, attainment increased by 1.23 points per cohort year (β=1.23, 95% CI: 1.18–1.24, p&lt;0.001). Female students scored 1.94 points higher than males (β=1.94, 95% CI: 1.62–2.27, p&lt;0.001). The random intercept variance was τ₀²=45.99, indicating substantial between-school variation in baseline attainment."</em>
       </div>
-      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Lecturer. Linear Mixed Effect Models. USM DrPH, 2022; Snijders TAB
+      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Lecturer. Linear Mixed Effect Models.  Public Health, 2022; Snijders TAB
       <div style="background:#e1f5fe;border-radius:8px;padding:.85rem 1rem;margin-top:.8rem;border-left:4px solid #0277bd;">
         <strong style="color:#01579b;">📌 PYQ Worked Example — stress.csv (2023/24 Q3, 2020/21 Q2)</strong><br>
         <span style="font-size:.8rem;color:#444;"><em>Formula: score ~ time + sex + (1|districtid), REML=TRUE | n=511 districts</em></span>
@@ -2416,7 +2416,7 @@ gee_pois <- <span class="fn">geeglm</span>(count ~ time + treatment + <span clas
         <p style="font-size:.82rem;margin:.4rem 0 0;"><strong>Working correlation:</strong> Exchangeable (QIC used for selection). <strong>QIC comparison:</strong> Exchangeable (QIC=4512) &lt; Independence (QIC=4897) &lt; AR-1 (QIC=4688) → exchangeable structure selected.<br>
         <strong>Sentence:</strong> "Using GEE with an exchangeable working correlation structure (Liang &amp; Zeger, 1986), the population-averaged estimates indicated... These represent marginal effects applicable to the entire district population rather than specific district effects."</p>
         <p style="font-size:.82rem;margin:.3rem 0 0;"><strong style="color:#2e7d32;">LMM vs GEE decision (stress.csv context):</strong> "Since district-specific predictions are of interest for district health officers to target interventions, LMM was preferred over GEE. Had the aim been to estimate the population-average effect for national policy, GEE would be more appropriate (Fitzmaurice et al., 2011)."</p>
-      </div> Biometrika, 73:13–22; Diggle PJ, Heagerty P, Liang KY, Zeger SL (2002). Analysis of Longitudinal Data, 2nd ed. Oxford UP; Fitzmaurice GM, Laird NM, Ware JH (2011). Applied Longitudinal Analysis, 2nd ed. Wiley; Pan W (2001). Biometrics, 57:120–125; USM DrPH Notes.</em></p>
+      </div> Biometrika, 73:13–22; Diggle PJ, Heagerty P, Liang KY, Zeger SL (2002). Analysis of Longitudinal Data, 2nd ed. Oxford UP; Fitzmaurice GM, Laird NM, Ware JH (2011). Applied Longitudinal Analysis, 2nd ed. Wiley; Pan W (2001). Biometrics, 57:120–125;  Public Health Notes.</em></p>
     </div></div>
 
     <div class="card" style="border-left:5px solid #1a3a5c;"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e3f0ff;">📋</div><h3>Reporting Checklist — LMM &amp; GEE</h3><span class="chev">▼</span></div><div class="cb">
@@ -2631,7 +2631,7 @@ Number of clusters: 511   Maximum cluster size: 16</pre>
 <section id="t6-sec" class="topic-sec" style="display:none">
   <div class="hero" style="background:linear-gradient(135deg,#7a4100,#e59400);">
   <h1>Topic 6: Machine Learning &ndash; Regression</h1>
-  <p>Linear Regression &middot; Decision Tree Regression &middot; Neural Network Regression &mdash; Lecturers, School of Computer Sciences, USM</p>
+  <p>Linear Regression &middot; Decision Tree Regression &middot; Neural Network Regression &mdash; Lecturers, School of Computer Sciences, </p>
   <div class="hero-tags">
     <span class="hero-tag">Linear Regression</span>
     <span class="hero-tag">Decision Tree</span>
@@ -2950,7 +2950,7 @@ test$pred &lt;- <span class="fn">predict</span>(lr, test)
         <li>Can predict well even with correlated predictors, but multicollinearity lowers coefficient interpretation quality</li>
         <li>The fitted line is determined by <strong>least squares</strong> — minimising Σ(residual)²</li>
       </ul>
-      <p><em>Source: Lecturers, School of Computer Sciences, USM — Slides June 2026</em></p>
+      <p><em>Source: Lecturers, School of Computer Sciences,  — Slides June 2026</em></p>
     </div>
   </div>
 
@@ -3751,7 +3751,7 @@ pred &lt;- <span class="fn">h2o.predict</span>(nn, test)
 <section id="t7-sec" class="topic-sec" style="display:none">
   <div class="hero" style="background:linear-gradient(135deg,#004d4d,#00897b);">
   <h1>Topic 7: Factor Analysis</h1>
-  <p>Based on lecture notes &amp; practicals by <strong>Lecturer</strong> &amp; Lecturer &mdash; Biostatistics &amp; Research Methodology Unit, USM</p>
+  <p>Based on lecture notes &amp; practicals by <strong>Lecturer</strong> &amp; Lecturer &mdash; Biostatistics &amp; Research Methodology Unit, </p>
   <div class="hero-tags">
     <span class="hero-tag">EFA</span>
     <span class="hero-tag">CFA</span>
@@ -3777,9 +3777,9 @@ pred &lt;- <span class="fn">h2o.predict</span>(nn, test)
   <div id="t7-overview" class="tab-pane active">
 
     <div class="card" style="border-left:4px solid #00897b;background:#f0faf8;">
-      <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e0f4f1;">📚</div><h3>Resources — Lecturer (USM)</h3><span class="chev">▼</span></div>
+      <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e0f4f1;">📚</div><h3>Resources — Lecturer ()</h3><span class="chev">▼</span></div>
       <div class="cb">
-        <p style="margin-bottom:10px;">All content in this topic is based on the lecturer's notes and practicals, Unit of Biostatistics &amp; Research Methodology, USM. Licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>. &nbsp;|&nbsp; <a href="https://wnarifin.github.io/drph.html" target="_blank" style="color:#00695c;font-weight:600;">🌐 Lecturer's DrPH Portal</a></p>
+        <p style="margin-bottom:10px;">All content in this topic is based on the lecturer's notes and practicals, Unit of Biostatistics &amp; Research Methodology, . Licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>. &nbsp;|&nbsp; <a href="https://wnarifin.github.io/Public Health.html" target="_blank" style="color:#00695c;font-weight:600;">🌐 Lecturer's Public Health Portal</a></p>
         <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
           <thead><tr style="background:#00897b;color:#fff;"><th style="padding:8px;text-align:left;">Topic</th><th style="padding:8px;text-align:left;">Lecture Notes</th><th style="padding:8px;text-align:left;">Practical</th></tr></thead>
           <tbody>
@@ -3793,7 +3793,7 @@ pred &lt;- <span class="fn">h2o.predict</span>(nn, test)
               <td style="padding:8px;"><a href="https://wnarifin.github.io/lecture/mstat/cfa_medstat_lecture.pdf" target="_blank">cfa_medstat_lecture.pdf</a></td>
               <td style="padding:8px;"><a href="https://wnarifin.github.io/lecture/mstat/cfa_medstat_practical.html#1_Practical" target="_blank">cfa_medstat_practical.html</a></td>
             </tr>
-            <tr style="background:#e0f4f1;"><td style="padding:8px;font-weight:600;" colspan="3">🌐 <a href="https://wnarifin.github.io/drph.html" target="_blank" style="color:#00695c;">Lecturer's DrPH Portal</a> — all lecture notes, practicals &amp; datasets</td></tr>
+            <tr style="background:#e0f4f1;"><td style="padding:8px;font-weight:600;" colspan="3">🌐 <a href="https://wnarifin.github.io/Public Health.html" target="_blank" style="color:#00695c;">Lecturer's Public Health Portal</a> — all lecture notes, practicals &amp; datasets</td></tr>
           </tbody>
         </table>
         <p style="margin-top:10px;font-size:.82rem;color:#555;">Last update: January 2024. Use the tabs above — <strong>EFA — Lecture</strong> and <strong>CFA — Lecture</strong> — for the lecturer's full content and R code.</p>
@@ -3933,7 +3933,7 @@ pred &lt;- <span class="fn">h2o.predict</span>(nn, test)
     <div class="card">
       <div class="ch" onclick="tog(this)">Working Example — Exercise Motivation Scale</div>
       <div class="cb">
-        <p>Researcher would like to determine the validity and reliability of the <strong>Exercise Motivation Scale</strong> in assessing the motives of exercise among students in USM.</p>
+        <p>Researcher would like to determine the validity and reliability of the <strong>Exercise Motivation Scale</strong> in assessing the motives of exercise among students in .</p>
         <ul>
           <li><strong>Dataset:</strong> <code>exercise motivation.sav</code></li>
           <li>7 items: 4 items for Factor Mastery (M1–M4), 3 items for Factor Enjoyment (E1–E3)</li>
@@ -3963,8 +3963,8 @@ pred &lt;- <span class="fn">h2o.predict</span>(nn, test)
     <div class="card">
       <div class="ch" onclick="tog(this)">EFA – Step 1: State the Research Question / Hypothesis</div>
       <div class="cb">
-        <p><strong>Research question:</strong><br>Is Exercise Motivation Scale valid in measuring the motives of exercise among students in USM?</p>
-        <p><strong>Alternative hypothesis:</strong><br>Exercise Motivation Scale is a valid questionnaire in measuring the motives of exercise among students in USM.</p>
+        <p><strong>Research question:</strong><br>Is Exercise Motivation Scale valid in measuring the motives of exercise among students in ?</p>
+        <p><strong>Alternative hypothesis:</strong><br>Exercise Motivation Scale is a valid questionnaire in measuring the motives of exercise among students in .</p>
         <p><strong>Dataset:</strong> <code>exercise motivation.sav</code></p>
       </div>
     </div>
@@ -4063,7 +4063,7 @@ pred &lt;- <span class="fn">h2o.predict</span>(nn, test)
     <div class="card">
       <div class="ch" onclick="tog(this)">EFA – Step 6: Conclusion</div>
       <div class="cb">
-        <p>Exercise Motivation Scale is a valid questionnaire in measuring the motives of exercise among students in USM.</p>
+        <p>Exercise Motivation Scale is a valid questionnaire in measuring the motives of exercise among students in .</p>
       </div>
     </div>
 
@@ -4103,7 +4103,7 @@ pred &lt;- <span class="fn">h2o.predict</span>(nn, test)
       <tr><th>Method</th><th>Rule</th><th>Note</th></tr>
       <tr><td><strong>Kaiser's Rule</strong></td><td>Retain factors with eigenvalue &gt; 1</td><td>Most common; can over- or under-extract</td></tr>
       <tr><td><strong>Scree Plot</strong></td><td>Retain factors above the "elbow" (break/bend)</td><td>Subjective; use together with Kaiser</td></tr>
-      <tr><td><strong>Parallel Analysis</strong></td><td>Retain factors where observed eigenvalue &gt; simulated eigenvalue</td><td>Most accurate method (Dr Wan recommends)</td></tr>
+      <tr><td><strong>Parallel Analysis</strong></td><td>Retain factors where observed eigenvalue &gt; simulated eigenvalue</td><td>Most accurate method (Instructor recommends)</td></tr>
       <tr><td><strong>Cumulative Variance</strong></td><td>Retain enough factors to explain ≥ 60% variance (social sciences)</td><td>Supplementary criterion</td></tr>
     </table>
     <p style="font-size:.83rem;"><em>Write-up: "Eigenvalues greater than 1 and inspection of the scree plot suggested [n] factors, together explaining [X]% of total variance."</em></p>
@@ -4478,8 +4478,8 @@ alpha.F2 = <span class="fn">alpha</span>(dataEFA[F2])    <span class="cm"># Cron
     <div class="card">
       <div class="ch" onclick="tog(this)">Internal Consistency – Step 1: State the Research Question / Hypothesis</div>
       <div class="cb">
-        <p><strong>Research question:</strong><br>Is Exercise Motivation Scale reliable in measuring the motives of exercise among students in USM?</p>
-        <p><strong>Alternative hypothesis:</strong><br>Exercise Motivation Scale is a reliable questionnaire in measuring the motives of exercise among students in USM.</p>
+        <p><strong>Research question:</strong><br>Is Exercise Motivation Scale reliable in measuring the motives of exercise among students in ?</p>
+        <p><strong>Alternative hypothesis:</strong><br>Exercise Motivation Scale is a reliable questionnaire in measuring the motives of exercise among students in .</p>
       </div>
     </div>
 
@@ -4549,7 +4549,7 @@ alpha.F2 = <span class="fn">alpha</span>(dataEFA[F2])    <span class="cm"># Cron
     <div class="card">
       <div class="ch" onclick="tog(this)">Internal Consistency – Step 5: Conclusion</div>
       <div class="cb">
-        <p>Exercise Motivation Scale is a reliable questionnaire in measuring the motives of exercise among students in USM.</p>
+        <p>Exercise Motivation Scale is a reliable questionnaire in measuring the motives of exercise among students in .</p>
       </div>
     </div>
 
@@ -4654,10 +4654,10 @@ alpha.F2 = <span class="fn">alpha</span>(dataEFA[F2])    <span class="cm"># Cron
       <div class="cb">
         <h4>Validity</h4>
         <p>Two factors were extracted among the seven items in Exercise Motivation Scale. These factors were named as Mastery and Enjoyment. For Factor Mastery, items were found to have communalities ranging from 0.514 to 0.715. For Factor Enjoyment, items were found to have communalities ranging from 0.370 to 0.491. Factor loading ranging from 0.719 to 0.821 for Factor Mastery, and 0.638 to 0.688 for Factor Enjoyment. All items were retained in the EFA model as no deletion was required.</p>
-        <p><strong>Conclusion:</strong> Exercise Motivation Scale is a valid questionnaire in measuring the motives of exercise among students in USM.</p>
+        <p><strong>Conclusion:</strong> Exercise Motivation Scale is a valid questionnaire in measuring the motives of exercise among students in .</p>
         <h4>Reliability</h4>
         <p>For reliability of the questionnaire, internal consistency was assessed using Cronbach&apos;s alpha. Cronbach&apos;s alpha for Factor Mastery and Enjoyment were 0.859 and 0.683 respectively which indicated acceptable internal consistency reliability. No items were marked for deletion.</p>
-        <p><strong>Conclusion:</strong> Exercise Motivation Scale is a reliable questionnaire in measuring the motives of exercise among students in USM.</p>
+        <p><strong>Conclusion:</strong> Exercise Motivation Scale is a reliable questionnaire in measuring the motives of exercise among students in .</p>
       </div>
     </div>
 
@@ -4694,14 +4694,14 @@ alpha.F2 = <span class="fn">alpha</span>(dataEFA[F2])    <span class="cm"># Cron
   </div><!-- end t7-reporting -->
 
 
-  <!-- TAB: Dr Wan's Practical -->
+  <!-- TAB: Instructor's Practical -->
   <div id="t7-drwan" class="tab-pane">
 
     <!-- SOURCE CARD -->
     <div class="card" style="border-left:4px solid #00897b;background:#f0faf8;">
-      <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e0f4f1;">📚</div><h3>Source — Lecturer, USM</h3><span class="chev">▼</span></div>
+      <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e0f4f1;">📚</div><h3>Source — Lecturer, </h3><span class="chev">▼</span></div>
       <div class="cb">
-        <p><strong>Author:</strong> Lecturer, Unit of Biostatistics &amp; Research Methodology, USM. Last update: 17 January 2024. &nbsp;|&nbsp; <a href="https://wnarifin.github.io/drph.html" target="_blank" style="color:#00695c;font-weight:600;">🌐 Lecturer's DrPH Portal</a></p>
+        <p><strong>Author:</strong> Lecturer, Unit of Biostatistics &amp; Research Methodology, . Last update: 17 January 2024. &nbsp;|&nbsp; <a href="https://wnarifin.github.io/Public Health.html" target="_blank" style="color:#00695c;font-weight:600;">🌐 Lecturer's Public Health Portal</a></p>
         <p>Licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0</a>.</p>
         <table style="width:100%;border-collapse:collapse;font-size:.84rem;margin:10px 0;">
           <thead><tr style="background:#00897b;color:#fff;"><th style="padding:7px;text-align:left;">Resource</th><th style="padding:7px;text-align:left;">Link</th></tr></thead>
@@ -4733,7 +4733,7 @@ alpha.F2 = <span class="fn">alpha</span>(dataEFA[F2])    <span class="cm"># Cron
             <tr style="background:#eafbf2;"><td style="padding:7px;font-weight:600;">Step 3</td><td style="padding:7px;">Cronbach's alpha, CITC</td><td style="padding:7px;">Are factors reliable?</td></tr>
           </tbody>
         </table>
-        <p><strong>Extraction method choice (Dr Wan):</strong> If data are <em>normally distributed</em> → use <strong>Maximum Likelihood (ML)</strong>. If not → use <strong>Principal Axis Factoring (PAF)</strong> because it does not assume normality (Brown, 2015).</p>
+        <p><strong>Extraction method choice (Instructor):</strong> If data are <em>normally distributed</em> → use <strong>Maximum Likelihood (ML)</strong>. If not → use <strong>Principal Axis Factoring (PAF)</strong> because it does not assume normality (Brown, 2015).</p>
       </div>
     </div>
 
@@ -4896,7 +4896,7 @@ $df     = 66</pre>
     <div class="card">
       <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e3f2e8;">🔢</div><h3>Step 1b — Determine Number of Factors</h3><span class="chev">▼</span></div>
       <div class="cb">
-        <p>Use multiple criteria — convergence of methods gives more confidence. Dr Wan recommends checking at least: <strong>eigenvalue &gt;1, scree plot, and parallel analysis</strong>.</p>
+        <p>Use multiple criteria — convergence of methods gives more confidence. Instructor recommends checking at least: <strong>eigenvalue &gt;1, scree plot, and parallel analysis</strong>.</p>
 
         <p><strong>Method 1: Kaiser's Eigenvalue &gt; 1 Rule</strong></p>
         <p>Eigenvalue = amount of variance in the dataset explained by a factor. Factors with eigenvalue &gt; 1 contain more information than a single item → worth retaining.</p>
@@ -4947,7 +4947,7 @@ Eigen values of simulated factors:       0.65  0.38  0.29  0.20 ...
 <span class="cm"># cut=0.3 hides loadings below 0.3 (reduces clutter)</span></code></pre></div>
 
         <div style="background:#e3f2fd;border-left:3px solid #1565c0;padding:8px;margin:8px 0;font-size:.83rem;">
-          🔵 <strong>Why Promax?</strong> Dr Wan recommends <strong>oblique rotation (Promax)</strong> for most social/health science questionnaires because constructs realistically correlate. Varimax assumes independence (often unrealistic). If factor correlations turn out to be &lt;0.32, orthogonal rotation would also be acceptable.
+          🔵 <strong>Why Promax?</strong> Instructor recommends <strong>oblique rotation (Promax)</strong> for most social/health science questionnaires because constructs realistically correlate. Varimax assumes independence (often unrealistic). If factor correlations turn out to be &lt;0.32, orthogonal rotation would also be acceptable.
         </div>
 
         <p><strong>What to examine in the output:</strong></p>
@@ -5034,7 +5034,7 @@ alpha_F2 = <span class="fn">alpha</span>(data[F2_items])
 
     <!-- FULL CLEAN R CODE -->
     <div class="card">
-      <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e3f2e8;">💻</div><h3>Complete R Code — Dr Wan's Practical (Copy-Ready)</h3><span class="chev">▼</span></div>
+      <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e3f2e8;">💻</div><h3>Complete R Code — Instructor's Practical (Copy-Ready)</h3><span class="chev">▼</span></div>
       <div class="cb">
         <div class="prereq-box"><span class="prereq-label">⚠️ Prerequisites / Criteria to Run This Code</span><ul><li><strong>Object required:</strong> <code>data</code> loaded from import step — must not contain ID or group columns</li><li><strong>Remove non-items:</strong> Use <code>data = data[-1]</code> to drop the first column if it is an ID variable</li><li><strong>Expected item range:</strong> Know your scale (e.g., 1–5 Likert) to spot out-of-range values</li></ul></div>
 <div class="prereq-box"><span class="prereq-label">⚠️ Prerequisites / Criteria to Run This Code</span><ul><li><strong>Input:</strong> Subset of <code>data</code> with only the items belonging to that factor</li><li><strong>Item directionality:</strong> Reverse-score negatively worded items BEFORE computing alpha</li><li><strong>Acceptability:</strong> α ≥ 0.70 = acceptable; ≥ 0.80 = good; ≥ 0.90 = excellent (but &gt;0.95 may indicate redundancy)</li><li><strong>If α &lt; 0.70:</strong> Check "alpha if item deleted" column — remove the item with biggest improvement</li></ul></div>
@@ -5042,7 +5042,7 @@ alpha_F2 = <span class="fn">alpha</span>(data[F2_items])
 <div class="prereq-box"><span class="prereq-label">⚠️ Prerequisites / Criteria to Run This Code</span><ul><li><strong>Model specification:</strong> Must define measurement model (CFA) AND structural paths before fitting</li><li><strong>Sample size:</strong> Minimum n ≥ 200; SEM is sensitive to small samples (ML estimator needs n ≥ 200)</li><li><strong>Estimator:</strong> <code>"ML"</code> for continuous, multivariate-normal data; <code>"MLR"</code> if non-normal; <code>"WLSMV"</code> for ordinal</li><li><strong>Model identification:</strong> Check degrees of freedom ≥ 0; each latent variable needs ≥ 3 indicators or constraints</li><li><strong>Modification indices:</strong> Use with caution — only modify model if theoretically justified; risk of capitalising on chance</li><li><strong>Packages:</strong> <code>lavaan</code> (fitting), <code>semPlot</code> (diagram), <code>semTools</code> (reliability, AVE)</li></ul></div>
 <div class="prereq-box"><span class="prereq-label">⚠️ Prerequisites / Criteria to Run This Code</span><ul><li><strong>Mediation (indirect effects):</strong> Define <code>a</code>, <code>b</code> paths; compute <code>indirect := a*b</code> in lavaan model string</li><li><strong>Bootstrapping:</strong> Use <code>se="bootstrap"</code> and <code>bootstrap=1000</code> for robust CI of indirect effect</li><li><strong>Moderation:</strong> Requires creating an interaction term (<code>X × Z</code>) BEFORE specifying the model</li><li><strong>Baron & Kenny steps:</strong> Deprecated — use bootstrapped indirect effect (Hayes PROCESS or lavaan with boot CI) instead</li><li><strong>Effect size:</strong> Report proportion mediated = indirect / total; κ² (kappa squared) for indirect effect size</li></ul></div>
 <div class="prereq-box"><span class="prereq-label">⚠️ Prerequisites / Criteria to Run This Code</span><ul><li><strong>Complete workflow:</strong> This is the full EFA practical script — run section by section, not all at once</li><li><strong>Dataset:</strong> <code>Attitude_Statistics v3.sav</code> — 19 attitude items + 1 ID column; n = XXX</li><li><strong>Packages:</strong> <code>foreign</code>, <code>psych</code>, <code>GPArotation</code> all loaded</li><li><strong>ID column:</strong> Step 0 removes the first column (ID) — ensure column 1 is actually the ID, not an item</li><li><strong>Step-by-step:</strong> Check output of each step before proceeding to the next</li></ul></div>
-<div class="code-wrap"><div class="code-top"><span class="code-lang">R</span><button class="copy-btn" onclick="cp(this)">Copy</button></div><pre><code><span class="cm"># ══ EFA Practical — Lecturer, USM (Jan 2024) ════════════════════════</span>
+<div class="code-wrap"><div class="code-top"><span class="code-lang">R</span><button class="copy-btn" onclick="cp(this)">Copy</button></div><pre><code><span class="cm"># ══ EFA Practical — Lecturer,  (Jan 2024) ════════════════════════</span>
 
 <span class="cm"># ── 0. Setup ──────────────────────────────────────────────────────────────────</span>
 <span class="fn">library</span>(<span class="pkg">foreign</span>)   <span class="cm"># read SPSS .sav</span>
@@ -5131,10 +5131,10 @@ alpha_F2 = <span class="fn">alpha</span>(data[F2])
 
     <!-- REFERENCES -->
     <div class="card">
-      <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e3f2e8;">📖</div><h3>Key References (Dr Wan's Practical)</h3><span class="chev">▼</span></div>
+      <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e3f2e8;">📖</div><h3>Key References (Instructor's Practical)</h3><span class="chev">▼</span></div>
       <div class="cb">
         <ul style="font-size:.83rem;line-height:2;">
-          <li>Lecturer (2024). <em>Exploratory factor analysis</em>. Biostatistics &amp; Research Methodology Unit, USM. <a href="https://wnarifin.github.io/lecture/mstat/efa_medstat_practical.html" target="_blank">Practical</a> | <a href="https://wnarifin.github.io/lecture/mstat/efa_medstat_lecture.pdf" target="_blank">Lecture PDF</a></li>
+          <li>Lecturer (2024). <em>Exploratory factor analysis</em>. Biostatistics &amp; Research Methodology Unit, . <a href="https://wnarifin.github.io/lecture/mstat/efa_medstat_practical.html" target="_blank">Practical</a> | <a href="https://wnarifin.github.io/lecture/mstat/efa_medstat_lecture.pdf" target="_blank">Lecture PDF</a></li>
           <li>Bartlett MS (1951). The effect of standardization on a χ² approximation in factor analysis. <em>Biometrika</em>, 38, 337–344.</li>
           <li>Bentler PM (2006). <em>EQS 6 structural equations program manual</em>. Multivariate Software.</li>
           <li>Bland JM, Altman DG (1997). Cronbach's alpha. <em>BMJ</em>, 314, 572.</li>
@@ -5151,7 +5151,7 @@ alpha_F2 = <span class="fn">alpha</span>(data[F2])
       </div>
     </div>
 
-  <div class="card"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e0f4f1;">📝</div><h3>How to Interpret Dr Wan's EFA Output (R / psych)</h3><span class="chev">▼</span></div><div class="cb">
+  <div class="card"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e0f4f1;">📝</div><h3>How to Interpret Instructor's EFA Output (R / psych)</h3><span class="chev">▼</span></div><div class="cb">
 
     <h4>Reading the fa() Output in R</h4>
     <table class="tbl">
@@ -5193,7 +5193,7 @@ alpha_F2 = <span class="fn">alpha</span>(data[F2])
       </ol>
     </div>
 
-    <h4 style="margin-top:14px;">Example Write-Up — Dr Wan's EFA (Attitude towards Statistics)</h4>
+    <h4 style="margin-top:14px;">Example Write-Up — Instructor's EFA (Attitude towards Statistics)</h4>
     <div style="background:#f0fff4;border-left:4px solid #00897b;padding:12px;border-radius:0 6px 6px 0;font-size:.88rem;line-height:1.7;">
       "Exploratory factor analysis was conducted on the Attitude towards Statistics questionnaire (n = 150, 12 items). Prior to extraction, data suitability was confirmed: the Kaiser-Meyer-Olkin (KMO) measure of sampling adequacy was 0.XXX, and Bartlett's test of sphericity was statistically significant (χ²([df]) = [value], p &lt; 0.001). Parallel analysis suggested retaining [n] factors. Principal axis factoring (PAF) with Promax rotation was applied. Items Q[x], Q[y] were removed sequentially due to [low communality / cross-loading]. The final model retained [n] items across [n] factors, with factor loadings ranging from [min] to [max] (Pattern Matrix, loadings &lt; 0.30 suppressed) and communalities ranging from [min h²] to [max h²]. The inter-factor correlation was [value] (r &lt; 0.85), confirming discriminant validity (Brown, 2015). Internal consistency for each factor was assessed using Cronbach's alpha: Factor 1 (α = 0.XXX) and Factor 2 (α = 0.XXX), both indicating [acceptable/good] reliability."
     </div>
@@ -5279,7 +5279,7 @@ M2      2  XXX   3.XX  0.XX     4.0    1    5  -0.X    0.X
     <div class="card" style="border-left:4px solid #00897b;background:#f0faf8;">
       <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e0f4f1;">&#128216;</div><h3>Source &#8212; Lecturer</h3><span class="chev">&#9660;</span></div>
       <div class="cb">
-        <p><strong>Author:</strong> Lecturer, Unit of Biostatistics &amp; Research Methodology, USM.<br>Last update: 18 January 2024. &nbsp;|&nbsp; <a href="https://wnarifin.github.io/drph.html" target="_blank" style="color:#00695c;font-weight:600;">🌐 Lecturer's DrPH Portal</a></p>
+        <p><strong>Author:</strong> Lecturer, Unit of Biostatistics &amp; Research Methodology, .<br>Last update: 18 January 2024. &nbsp;|&nbsp; <a href="https://wnarifin.github.io/Public Health.html" target="_blank" style="color:#00695c;font-weight:600;">🌐 Lecturer's Public Health Portal</a></p>
         <table style="width:100%;border-collapse:collapse;margin-top:10px;">
           <tr style="background:#00897b;color:#fff;">
             <th style="padding:8px;text-align:left;">Resource</th>
@@ -5308,7 +5308,7 @@ M2      2  XXX   3.XX  0.XX     4.0    1    5  -0.X    0.X
           </tr>
         </table>
         <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:10px;margin-top:12px;border-radius:4px;">
-          <strong>&#9888; Prerequisite:</strong> CFA is performed on items retained from EFA. In Dr Wan's example, EFA retained <strong>Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11</strong> (Q1&#8211;Q3 removed during EFA). CFA will further refine this set.
+          <strong>&#9888; Prerequisite:</strong> CFA is performed on items retained from EFA. In Instructor's example, EFA retained <strong>Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11</strong> (Q1&#8211;Q3 removed during EFA). CFA will further refine this set.
         </div>
       </div>
     </div>
@@ -6058,7 +6058,7 @@ semPaths(fit2,
     <div class="card" style="border-left:4px solid #e65100;background:#fff8f0;">
       <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#ffe0cc;">&#128221;</div><h3>Results Presentation &#8212; 7 Required Elements</h3><span class="chev">&#9660;</span></div>
       <div class="cb">
-        <p>According to Dr Wan's practical, a complete CFA results report must include all 7 elements:</p>
+        <p>According to Instructor's practical, a complete CFA results report must include all 7 elements:</p>
         <table style="width:100%;border-collapse:collapse;font-size:13px;">
           <tr style="background:#e65100;color:#fff;">
             <th style="padding:8px;">#</th><th style="padding:8px;">Element</th><th style="padding:8px;">Example from Study</th>
@@ -6241,7 +6241,7 @@ semPaths(fit2,
 <section id="t8-sec" class="topic-sec" style="display:none">
   <div class="hero" style="background:linear-gradient(135deg,#1a237e,#4527a0);">
     <h1>Topic 8: Structural Equation Modelling</h1>
-    <p>Dr. Lecturer &mdash; Biostatistics &amp; Research Methodology Unit, USM &mdash; <em>Note updated May 09, 2023</em></p>
+    <p>Dr. Lecturer &mdash; Biostatistics &amp; Research Methodology Unit,  &mdash; <em>Note updated May 09, 2023</em></p>
     <div class="hero-tags">
       <span class="hero-tag">Correlational</span>
       <span class="hero-tag">Causal</span>
@@ -6266,7 +6266,7 @@ semPaths(fit2,
   <!-- ── TAB: Sources ── -->
   <div id="t8-src" class="tab-pane active">
     <div class="card"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e8eaf6;">&#128196;</div><h3>Course Materials &mdash; Lecturer</h3><span class="chev">&#9660;</span></div><div class="cb">
-      <p>All SEM content is based primarily on Lecturer's lecture notes and practical workshop (USM, Biostatistics &amp; Research Methodology Unit). Additional lecture content from USM GET503 course. &nbsp;|&nbsp; <a href="https://wnarifin.github.io/drph.html" target="_blank" style="color:#00695c;font-weight:600;">🌐 Lecturer's DrPH Portal</a></p>
+      <p>All SEM content is based primarily on Lecturer's lecture notes and practical workshop (, Biostatistics &amp; Research Methodology Unit). Additional lecture content from  GET503 course. &nbsp;|&nbsp; <a href="https://wnarifin.github.io/Public Health.html" target="_blank" style="color:#00695c;font-weight:600;">🌐 Lecturer's Public Health Portal</a></p>
       <table class="tbl">
         <tr><th>Resource</th><th>Type</th><th>Link</th></tr>
         <tr><td>Introduction to SEM</td><td>Lecture PDF</td><td><a href="https://wnarifin.github.io/lecture/mstat/Introduction%20to%20SEM.pdf" target="_blank">Open PDF</a></td></tr>
@@ -6560,7 +6560,7 @@ lavTestLRT(fit.model1, fit.model2, method = "satorra.bentler.2010")</code></pre>
   <div id="t8-corr" class="tab-pane">
 
     <div class="card"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e8f5e9;">&#128295;</div><h3>Setup: Libraries &amp; Data</h3><span class="chev">&#9660;</span></div><div class="cb">
-      <p>Same libraries and dataset as CFA practical (Dr Wan's workshop, 2023).</p>
+      <p>Same libraries and dataset as CFA practical (Instructor's workshop, 2023).</p>
       <pre style="background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:6px;overflow-x:auto;font-size:13px;"><code><span class="cm"># Load packages</span>
 library(foreign)   <span class="cm"># read SPSS .sav</span>
 library(psych)     <span class="cm"># describe(), mardia()</span>
@@ -6977,7 +6977,7 @@ WITH moderator M:      X ──────────────────�
         <tr style="background:#fce4ec;"><td><strong>No Moderation</strong></td><td>X*M NOT significant</td><td>M does not change the X&rarr;Y relationship.</td></tr>
       </table>
       <div class="callout callout-info" style="margin-top:10px;">
-        <strong>Note (Dr Wan):</strong> Moderation is typically applied to <em>observed variables only</em>. For latent variable moderation: (a) use <strong>multi-group CFA</strong> for categorical moderators; (b) create interaction latent variable (items of X × items of M) for numerical moderators. This is complex and beyond basic SEM scope.
+        <strong>Note (Instructor):</strong> Moderation is typically applied to <em>observed variables only</em>. For latent variable moderation: (a) use <strong>multi-group CFA</strong> for categorical moderators; (b) create interaction latent variable (items of X × items of M) for numerical moderators. This is complex and beyond basic SEM scope.
       </div>
     </div></div>
 
@@ -7115,12 +7115,12 @@ summary(fit.mod, fit.measures = T, standardized = T)
         <tr><td><strong>BIC</strong></td><td>Bayesian Information Criterion</td><td>Lower = better</td><td>&mdash;</td><td>Penalises more for parameters than AIC. Prefers parsimonious models.</td></tr>
       </table>
       <div class="callout callout-warn" style="margin-top:10px;">
-        <strong>Rule (Dr Wan):</strong> A model has acceptable fit if it meets most (not necessarily all) criteria. RMSEA 90% CI upper bound &lt;0.10 is acceptable. Report all indices together, not just those that look good.
+        <strong>Rule (Instructor):</strong> A model has acceptable fit if it meets most (not necessarily all) criteria. RMSEA 90% CI upper bound &lt;0.10 is acceptable. Report all indices together, not just those that look good.
       </div>
     </div></div>
 
     <div class="card"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e3f2fd;">&#128196;</div><h3>Results Presentation &mdash; 6 Required Elements</h3><span class="chev">&#9660;</span></div><div class="cb">
-      <p>When reporting SEM results in manuscripts (MJMS/USM DrPH standard), include:</p>
+      <p>When reporting SEM results in manuscripts (MJMS/ Public Health standard), include:</p>
       <table class="tbl">
         <tr><th>#</th><th>Element</th><th>What to Report</th></tr>
         <tr><td>1</td><td>Model description</td><td>State the SEM model type (correlational/causal/mediation), variables, software (R lavaan 0.6.15)</td></tr>
@@ -7132,7 +7132,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
       </table>
     </div></div>
 
-    <div class="card"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e3f2fd;">&#128221;</div><h3>Academic Paragraph Template (Dr Wan's Dataset)</h3><span class="chev">&#9660;</span></div><div class="cb">
+    <div class="card"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e3f2fd;">&#128221;</div><h3>Academic Paragraph Template (Instructor's Dataset)</h3><span class="chev">&#9660;</span></div><div class="cb">
       <div style="background:#f8f9fa;border-left:4px solid #4527a0;padding:14px;border-radius:0 8px 8px 0;font-style:italic;font-size:14px;line-height:1.8;">
         <p>Structural equation modelling (SEM) was conducted using the <code>lavaan</code> package (version 0.6.15) in R to examine the relationships between the Affective subscale (F1) and the Behavioural subscale (F2) of the Attitude towards Statistics scale.</p>
         <p>The correlational SEM model, specifying F1 and F2 as correlated factors with their respective indicators (F1: Q4, Q6, Q7, Q11; F2: Q8, Q9, Q10), demonstrated acceptable model fit: &#967;&sup2;(13) = 20.451, p = 0.085; CFI = 0.979; TLI = 0.966; RMSEA = 0.062 (90% CI: 0.000&#8211;0.111); SRMR = 0.063. All factor loadings were statistically significant and exceeded the recommended threshold of 0.50, ranging from 0.509 to 0.858 for F1 and 0.653 to 0.858 for F2. The correlation between F1 and F2 was weak and non-significant (r = 0.078, p = 0.424), suggesting that the affective and behavioural components of attitude towards statistics are largely independent constructs.</p>
@@ -7157,10 +7157,10 @@ summary(fit.mod, fit.measures = T, standardized = T)
 
   <!-- ── TAB: R Script ── -->
   <div id="t8-script" class="tab-pane">
-    <div class="card"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#f3e5f5;">&#128196;</div><h3>Complete Annotated R Script &mdash; Dr Wan's SEM Practical</h3><span class="chev">&#9660;</span></div><div class="cb">
+    <div class="card"><div class="ch open" onclick="tog(this)"><div class="ico" style="background:#f3e5f5;">&#128196;</div><h3>Complete Annotated R Script &mdash; Instructor's SEM Practical</h3><span class="chev">&#9660;</span></div><div class="cb">
       <pre style="background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:6px;overflow-x:auto;font-size:12px;"><code><span class="cm">########################################################</span>
 <span class="cm"># SEM in R using lavaan</span>
-<span class="cm"># Dr. Lecturer — USM, May 2023</span>
+<span class="cm"># Dr. Lecturer — , May 2023</span>
 <span class="cm"># Dataset: Attitude_Statistics v3.sav (n=150)</span>
 <span class="cm">########################################################</span>
 
@@ -7287,7 +7287,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
 <div class="topic-hero" style="background:linear-gradient(135deg,#2d1b69 0%,#11998e 100%);padding:2.5rem 2rem 2rem;border-radius:0 0 18px 18px;margin-bottom:1.5rem;">
   <div style="font-size:2.8rem;margin-bottom:.5rem;">📖</div>
   <h1 style="font-size:1.8rem;font-weight:800;color:#fff;margin:0 0 .4rem;">Interpretation Guide — All Topics</h1>
-  <p style="color:#b2f5ea;font-size:.95rem;margin:0;">GET503 Advanced Numerical Data Analysis · DrPH · USM · Based on lecturer notes &amp; textbook references</p>
+  <p style="color:#b2f5ea;font-size:.95rem;margin:0;">GET503 Advanced Numerical Data Analysis · Public Health · Based on lecturer notes &amp; textbook references</p>
   <div style="margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap;">
     <span style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.75rem;font-weight:700;">Universal Templates</span>
     <span style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.75rem;font-weight:700;">All 8 Topics</span>
@@ -7310,7 +7310,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
   <div class="card" style="border-left:5px solid #2d1b69;">
     <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#ede7f6;">🔑</div><h3>Universal Interpretation Framework — Overview</h3><span class="chev">▼</span></div>
     <div class="cb">
-      <p>All statistical interpretations in GET503 follow a structured template based on the <strong>REAAAPP framework</strong> (Prof Lecturer, USM DrPH). Every coefficient, test statistic, or model output must be interpreted in the context of: (1) direction, (2) magnitude, (3) precision (CI), (4) significance, and (5) practical meaning.</p>
+      <p>All statistical interpretations in GET503 follow a structured template based on the <strong>REAAAPP framework</strong> (Instructor,  Public Health). Every coefficient, test statistic, or model output must be interpreted in the context of: (1) direction, (2) magnitude, (3) precision (CI), (4) significance, and (5) practical meaning.</p>
       <div style="background:#f3e5f5;border-radius:8px;padding:.8rem 1rem;margin-top:.8rem;">
         <strong style="color:#4a148c;">The Five Elements of Every Interpretation:</strong>
         <ol style="margin:.5rem 0 0;padding-left:1.2rem;">
@@ -7321,7 +7321,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
           <li><strong>Practical meaning</strong> — what this means in the real-world context of the study</li>
         </ol>
       </div>
-      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Reference: Lecturer. DrPH Advanced Numerical Analysis Lecture Notes, USM, 2022–2024; Hair JF et al. (2019). Multivariate Data Analysis, 8th ed. Cengage.</em></p>
+      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Reference: Lecturer. Public Health Advanced Numerical Analysis Lecture Notes, , 2022–2024; Hair JF et al. (2019). Multivariate Data Analysis, 8th ed. Cengage.</em></p>
     </div>
   </div>
 
@@ -7388,7 +7388,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
               <td style="padding:7px 10px;">"There was no significant difference in outcome between Group A and Group B (β=0.23, 95% CI: −0.45 to 0.91, p=0.512)."</td></tr>
         </tbody>
       </table>
-      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Reference: Field A (2018); Lecturer, USM DrPH Lecture Notes.</em></p>
+      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Reference: Field A (2018); Lecturer,  Public Health Lecture Notes.</em></p>
       <div style="background:#dcfce7;border-radius:8px;padding:.8rem 1rem;margin-top:.8rem;border-left:4px solid #16a34a;">
         <strong style="color:#14532d;">📌 PYQ Worked Examples — sex &amp; group variables</strong>
         <ul style="margin:.5rem 0 0;padding-left:1.2rem;font-size:.83rem;">
@@ -7535,7 +7535,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
   <div class="card" style="border-left:5px solid #01579b;">
     <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e1f5fe;">🔗</div><h3>LMM — Fixed Effects Interpretation</h3><span class="chev">▼</span></div>
     <div class="cb">
-      <p><em>Ref: Snijders TAB, Bosker RJ (2012). Multilevel Analysis, 2nd ed. Sage; Singer JD, Willett JB (2003). Applied Longitudinal Data Analysis. Oxford UP; USM DrPH Notes.</em></p>
+      <p><em>Ref: Snijders TAB, Bosker RJ (2012). Multilevel Analysis, 2nd ed. Sage; Singer JD, Willett JB (2003). Applied Longitudinal Data Analysis. Oxford UP;  Public Health Notes.</em></p>
       <div style="background:#e1f5fe;border-radius:8px;padding:.8rem 1rem;margin-bottom:1rem;">
         <strong>LMM fixed effects = cluster-specific (conditional) effects</strong><br>
         β represents the expected change in Y for a 1-unit increase in X, <em>for a cluster with the same random effect value</em> (i.e., within-cluster effect). This is a subject-specific interpretation.
@@ -7580,7 +7580,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
       <div style="background:#fff3e0;border-radius:8px;padding:.7rem 1rem;margin-top:.8rem;">
         <strong style="color:#e65100;">⚠ SPSS note:</strong> In SPSS Mixed (Analyze → Mixed Models → Linear), ICC is not given directly. Compute: ICC = Variance(Intercept) / [Variance(Intercept) + Residual]. Use REML for final model, ML for LRT model comparisons.
       </div>
-      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Snijders TAB, Bosker RJ (2012). Multilevel Analysis, 2nd ed. Sage. p. 17–22; Hox JJ, Moerbeek M, van de Schoot R (2017). Multilevel Analysis: Techniques and Applications, 3rd ed. Routledge; Lecturer. USM DrPH Notes, 2022.</em></p>
+      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Snijders TAB, Bosker RJ (2012). Multilevel Analysis, 2nd ed. Sage. p. 17–22; Hox JJ, Moerbeek M, van de Schoot R (2017). Multilevel Analysis: Techniques and Applications, 3rd ed. Routledge; Lecturer.  Public Health Notes, 2022.</em></p>
     </div>
   </div>
 
@@ -7617,7 +7617,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
         <strong style="color:#2e7d32;">✓ Full GEE reporting template:</strong><br>
         <em>"Generalised estimating equations (GEE) with an exchangeable working correlation structure (QIC = [value]) were used to estimate population-averaged effects on [outcome], accounting for repeated measurements within [clusters/subjects]. Robust standard errors were applied. After adjusting for [covariates], [predictor] was associated with a population-averaged [increase/decrease] of [|β|] [units] in [outcome] (β = [value], 95% CI: [lower]–[upper], Wald χ²(1) = [value], p [&lt;/&gt;] 0.05). The estimated within-subject correlation was ρ = [value]."</em>
       </div>
-      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Diggle PJ et al. (2002). Analysis of Longitudinal Data, 2nd ed. Oxford UP; Fitzmaurice GM et al. (2011). Applied Longitudinal Analysis, 2nd ed. Wiley; Liang KY, Zeger SL (1986). Biometrika, 73:13–22; USM DrPH Notes.</em></p>
+      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Diggle PJ et al. (2002). Analysis of Longitudinal Data, 2nd ed. Oxford UP; Fitzmaurice GM et al. (2011). Applied Longitudinal Analysis, 2nd ed. Wiley; Liang KY, Zeger SL (1986). Biometrika, 73:13–22;  Public Health Notes.</em></p>
     </div>
   </div>
 
@@ -7629,7 +7629,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
   <div class="card" style="border-left:5px solid #bf360c;">
     <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#fbe9e7;">🤖</div><h3>MLR / OLS — Interpreting Regression Output</h3><span class="chev">▼</span></div>
     <div class="cb">
-      <p><em>Ref: Lecturer, USM GET503 ML Regression Lectures, June 2026; James G et al. (2021). An Introduction to Statistical Learning, 2nd ed. Springer (ISLR2); Hair et al. (2019).</em></p>
+      <p><em>Ref: Lecturer,  GET503 ML Regression Lectures, June 2026; James G et al. (2021). An Introduction to Statistical Learning, 2nd ed. Springer (ISLR2); Hair et al. (2019).</em></p>
       <div style="background:#fff8e1;border-radius:8px;padding:.85rem 1rem;margin-top:.8rem;border-left:4px solid #f57f17;">
         <strong style="color:#e65100;">📌 PYQ Worked Example — MLR vs Tree Models: Predictors of Stress Score (stress.csv)</strong><br>
         <span style="font-size:.8rem;color:#444;"><em>lm(score ~ time + sex); rpart(), randomForest(); 10-fold CV; caret package</em></span>
@@ -7670,7 +7670,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
       <div style="background:#fbe9e7;border-radius:8px;padding:.8rem 1rem;margin-bottom:1rem;">
         <em>"Model comparison using [k]-fold cross-validation indicated that [Model A] (RMSE = [value]) outperformed [Model B] (RMSE = [value]) and [Model C] (RMSE = [value]) in terms of predictive accuracy. The [Model A] was therefore selected as the final model. Based on this model, [X1] was the strongest predictor of [outcome] (β = [value] / importance = [value])."</em>
       </div>
-      <p style="font-size:.82rem;color:#596575;"><em>Ref: James G, Witten D, Hastie T, Tibshirani R (2021). An Introduction to Statistical Learning with R, 2nd ed. Springer; Lecturer, USM June 2026.</em></p>
+      <p style="font-size:.82rem;color:#596575;"><em>Ref: James G, Witten D, Hastie T, Tibshirani R (2021). An Introduction to Statistical Learning with R, 2nd ed. Springer; Lecturer,  June 2026.</em></p>
     </div>
   </div>
 
@@ -7682,7 +7682,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
   <div class="card" style="border-left:5px solid #4527a0;">
     <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#ede7f6;">🔬</div><h3>EFA — Interpreting Factor Analysis Output</h3><span class="chev">▼</span></div>
     <div class="cb">
-      <p><em>Ref: Lecturer, USM EFA Lecture Notes; Hair JF et al. (2019). Multivariate Data Analysis, 8th ed. Cengage. Ch. 3; Tabachnick BG, Fidell LS (2019). Ch. 13.</em></p>
+      <p><em>Ref: Lecturer,  EFA Lecture Notes; Hair JF et al. (2019). Multivariate Data Analysis, 8th ed. Cengage. Ch. 3; Tabachnick BG, Fidell LS (2019). Ch. 13.</em></p>
       <div style="background:#fbe9e7;border-radius:8px;padding:.85rem 1rem;margin-top:.8rem;border-left:4px solid #bf360c;">
         <strong style="color:#bf360c;">📌 PYQ Worked Example A — sleep.sav (EFA, n=100, 14 items)</strong><br>
         <span style="font-size:.8rem;color:#444;"><em>Sleep quality scale items; fa() from psych package, rotation=oblimin, fm=pa</em></span>
@@ -7730,7 +7730,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
   <div class="card" style="border-left:5px solid #5e35b1;">
     <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#ede7f6;">🎯</div><h3>CFA — Interpreting Confirmatory Factor Analysis</h3><span class="chev">▼</span></div>
     <div class="cb">
-      <p><em>Ref: Lecturer, USM CFA Lecture Notes; Brown TA (2015). Confirmatory Factor Analysis for Applied Research, 2nd ed. Guilford; Hair et al. (2019).</em></p>
+      <p><em>Ref: Lecturer,  CFA Lecture Notes; Brown TA (2015). Confirmatory Factor Analysis for Applied Research, 2nd ed. Guilford; Hair et al. (2019).</em></p>
       <table style="width:100%;border-collapse:collapse;font-size:.83rem;">
         <thead><tr style="background:#5e35b1;color:#fff;"><th style="padding:7px 10px;">Index</th><th style="padding:7px 10px;">Acceptable Threshold</th><th style="padding:7px 10px;">Interpretation Template</th></tr></thead>
         <tbody>
@@ -7761,7 +7761,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
         <strong>Full CFA reporting template:</strong><br>
         <em>"A CFA was conducted using lavaan (Rosseel, 2012) with maximum likelihood estimation. Model fit was assessed using multiple indices: χ²/df = [value], CFI = [value], TLI = [value], RMSEA = [value] (90% CI: [lower]–[upper]), SRMR = [value]. The model demonstrated [good/acceptable] fit. All standardised factor loadings were significant (p &lt; 0.001) and ranged from [min] to [max]. AVE ([value]) and CR ([value]) for [construct] exceeded minimum thresholds (Fornell &amp; Larcker, 1981; Hair et al., 2019), supporting convergent validity and construct reliability."</em>
       </div>
-      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Brown TA (2015). Confirmatory Factor Analysis for Applied Research, 2nd ed. Guilford; Hu L, Bentler PM (1999). Structural Equation Modeling, 6(1):1–55; Fornell C, Larcker DF (1981). Journal of Marketing Research, 18:39–50; Lecturer, USM Notes.</em></p>
+      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Brown TA (2015). Confirmatory Factor Analysis for Applied Research, 2nd ed. Guilford; Hu L, Bentler PM (1999). Structural Equation Modeling, 6(1):1–55; Fornell C, Larcker DF (1981). Journal of Marketing Research, 18:39–50; Lecturer,  Notes.</em></p>
       <div style="background:#e8eaf6;border-radius:8px;padding:.85rem 1rem;margin-top:.8rem;border-left:4px solid #283593;">
         <strong style="color:#1a237e;">📌 PYQ Worked Example — CFA: Coping 2-Factor Model (n=195, Q1–Q10)</strong><br>
         <span style="font-size:.8rem;color:#444;"><em>lavaan: approach=~Q1+Q3+Q5+Q7+Q9; avoidant=~Q2+Q4+Q6+Q8+Q10; approach~~avoidant</em></span>
@@ -7790,7 +7790,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
   <div class="card" style="border-left:5px solid #004d40;">
     <div class="ch open" onclick="tog(this)"><div class="ico" style="background:#e0f2f1;">🏗️</div><h3>SEM — Overall Model Fit Interpretation</h3><span class="chev">▼</span></div>
     <div class="cb">
-      <p><em>Ref: Kline RB (2016). Principles and Practice of Structural Equation Modeling, 4th ed. Guilford; Lecturer, USM SEM Lecture Notes.</em></p>
+      <p><em>Ref: Kline RB (2016). Principles and Practice of Structural Equation Modeling, 4th ed. Guilford; Lecturer,  SEM Lecture Notes.</em></p>
       <div style="background:#e0f2f1;border-radius:8px;padding:.8rem 1rem;margin-bottom:1rem;">
         <strong>Full reporting template:</strong><br>
         <em>"The hypothesised SEM was evaluated using lavaan (Rosseel, 2012) with maximum likelihood estimation. Model fit indices indicated [good/acceptable] overall fit: χ²([df]) = [value], p = [value]; χ²/df = [value]; CFI = [value]; TLI = [value]; RMSEA = [value] (90% CI: [lower]–[upper]); SRMR = [value]."</em>
@@ -7810,7 +7810,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
               <td style="padding:7px 10px;">"The conditional indirect effect of [X] on [Y] through [M] was significant when [Moderator] was high (indirect = [value], 95% BCa CI: [lower]–[upper]) but not when low (indirect = [value], 95% BCa CI: [lower]–[upper]), supporting moderated mediation (Hayes, 2018)."</td></tr>
         </tbody>
       </table>
-      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Kline RB (2016). Principles and Practice of SEM, 4th ed. Guilford; Hayes AF (2018). Introduction to Mediation, Moderation, and Conditional Process Analysis, 2nd ed. Guilford; Lecturer, USM SEM Notes &amp; wnarifin.github.io/drph.html.</em></p>
+      <p style="margin-top:.8rem;font-size:.82rem;color:#596575;"><em>Ref: Kline RB (2016). Principles and Practice of SEM, 4th ed. Guilford; Hayes AF (2018). Introduction to Mediation, Moderation, and Conditional Process Analysis, 2nd ed. Guilford; Lecturer,  SEM Notes &amp; wnarifin.github.io/Public Health.html.</em></p>
       <div style="background:#f3e5f5;border-radius:8px;padding:.85rem 1rem;margin-top:.8rem;border-left:4px solid #6a1b9a;">
         <strong style="color:#4a148c;">📌 PYQ Worked Example — SEM Partial Mediation: Coping as Mediator of Time→Stress (n=195)</strong><br>
         <span style="font-size:.8rem;color:#444;"><em>time (X) → approach_coping (M) → stress_score (Y); Estimator: MLR, Bootstrap N=5000 for indirect effect</em></span>
@@ -7849,7 +7849,7 @@ summary(fit.mod, fit.measures = T, standardized = T)
 <div class="topic-hero" style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);padding:2.5rem 2rem 2rem;border-radius:0 0 18px 18px;margin-bottom:1.5rem;">
   <div style="font-size:2.8rem;margin-bottom:.5rem;">📝</div>
   <h1 style="font-size:1.8rem;font-weight:800;color:#fff;margin:0 0 .4rem;">Past Year Questions — Model Answers</h1>
-  <p style="color:#a8d8ea;font-size:.95rem;margin:0;">GET503 Advanced Numerical Data Analysis &middot; DrPH &middot; USM</p>
+  <p style="color:#a8d8ea;font-size:.95rem;margin:0;">GET503 Advanced Numerical Data Analysis &middot; Public Health &middot; </p>
   <div style="margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap;">
     <span style="background:rgba(231,76,60,.25);color:#e74c3c;border:1px solid #e74c3c;border-radius:20px;padding:4px 14px;font-size:.75rem;font-weight:700;">2023/2024</span>
     <span style="background:rgba(52,152,219,.25);color:#3498db;border:1px solid #3498db;border-radius:20px;padding:4px 14px;font-size:.75rem;font-weight:700;">2020/2021</span>
@@ -8416,7 +8416,7 @@ TukeyHSD(aov(importance ~ group, data=data))</code></pre></div></div>
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Linear Mixed Model — Stress Score</h1>
-<p class="subtitle lead">GET503 Advanced Numerical Analysis | DrPH Epidemiology</p>
+<p class="subtitle lead">GET503 Advanced Numerical Analysis | Public Health Epidemiology</p>
 </div>
 
 
@@ -9443,13 +9443,13 @@ fit &lt;- <span class="fn">sem</span>(sem_model, data = data, estimator = <span 
 <div class="topic-hero" style="background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);padding:2.5rem 2rem 2rem;border-radius:0 0 18px 18px;margin-bottom:1.5rem;">
   <div style="font-size:2.5rem;margin-bottom:.5rem;">⚙️</div>
   <h1 style="font-size:1.8rem;font-weight:800;color:#fff;margin:0 0 .4rem;">REAAAPP Workflow</h1>
-  <p style="color:#a8d8ea;font-size:.92rem;margin:0;">Standard Epidemiological Analysis Framework · GET503 · DrPH USM</p>
+  <p style="color:#a8d8ea;font-size:.92rem;margin:0;">Standard Epidemiological Analysis Framework · GET503 · Public Health </p>
 </div>
 <div style="padding:0 1.5rem 2rem;">
 
   <!-- Overview card -->
   <div style="background:#fff;border-radius:12px;border:1px solid #dde3ea;padding:1.2rem 1.5rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.06);">
-    <p style="font-size:.92rem;color:#2c3e50;line-height:1.8;">REAAAPP is the structured analysis workflow taught at USM DrPH. Each letter represents a mandatory step — skipping any step compromises validity or reproducibility of results.</p>
+    <p style="font-size:.92rem;color:#2c3e50;line-height:1.8;">REAAAPP is the structured analysis workflow taught at  Public Health. Each letter represents a mandatory step — skipping any step compromises validity or reproducibility of results.</p>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem;">
       <span style="background:#e8f4fd;color:#2980b9;border-radius:20px;padding:3px 12px;font-size:.78rem;font-weight:700;">R</span>
       <span style="background:#eafaf1;color:#27ae60;border-radius:20px;padding:3px 12px;font-size:.78rem;font-weight:700;">E</span>
