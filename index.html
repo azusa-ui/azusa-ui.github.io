@@ -3,21 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Epidemiology Notes - DrPH Malaysia</title>
+  <title>Public Health Notes</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
     }
     .container {
-      max-width: 900px;
+      max-width: 1100px;
       width: 100%;
+      margin: 0 auto;
       background: white;
       border-radius: 12px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -41,10 +39,38 @@
     .content {
       padding: 40px 30px;
     }
+    .category-block {
+      margin-bottom: 40px;
+    }
+    .category-block:last-child {
+      margin-bottom: 0;
+    }
+    .category-title {
+      font-size: 1.4em;
+      font-weight: 700;
+      color: #444;
+      margin-bottom: 6px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e9ecef;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .category-tag {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #667eea;
+    }
+    .category-block.environmental .category-tag { background: #2fa66c; }
+    .category-block.occupational .category-tag { background: #e08a2c; }
+    .category-block.others .category-tag { background: #8b8f96; }
     .notes-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 25px;
+      margin-top: 20px;
     }
     .note-card {
       background: #f8f9fa;
@@ -82,6 +108,9 @@
       font-size: 0.85em;
       font-weight: 600;
     }
+    .environmental .note-card .course-code { background: #2fa66c; }
+    .occupational .note-card .course-code { background: #e08a2c; }
+    .others .note-card .course-code { background: #8b8f96; }
     .footer {
       background: #f8f9fa;
       padding: 25px 30px;
@@ -108,55 +137,78 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>DrPH Epidemiology Notes</h1>
+      <h1>Public Health Notes</h1>
       <p>Compilation of lecture notes and study materials</p>
     </div>
     <div class="content">
-      <div class="notes-grid">
-        <a href="Advanced_Categorical_Analysis.html" class="note-card">
-          <span class="course-code">GET502</span>
-          <h2>Advanced Categorical Analysis</h2>
-          <p>Chi-square, logistic regression, survival analysis, categorical data methods</p>
-        </a>
-        <a href="Advanced_Numerical_Analysis.html" class="note-card">
-          <span class="course-code">GET503</span>
-          <h2>Advanced Numerical Analysis</h2>
-          <p>Linear regression, multiple regression, ANOVA, numerical methods</p>
-        </a>
-        <a href="Critical_Appraisal.html" class="note-card">
-          <span class="course-code">GET512</span>
-          <h2>Critical Appraisal Notes</h2>
-          <p>CASP checklists, evidence appraisal, study validity assessment</p>
-        </a>
-        <a href="Special_Issues_Epid.html" class="note-card">
-          <span class="course-code">GET513</span>
-          <h2>Special Issues in Epidemiology</h2>
-          <p>Advanced topics in epidemiological methods and applications</p>
-        </a>
-        <a href="notes/missing-data-r.html" class="note-card">
-          <span class="course-code">DrPH</span>
-          <h2>Handling Missing Data in R</h2>
-          <p>MCAR/MAR/MNAR, deletion, single &amp; multiple imputation (mice), worked R syntax and outputs</p>
-        </a>
-        <a href="GVT502_Deep_Learning_Notes.html" class="note-card">
-          <span class="course-code">GVT502</span>
-          <h2>Sanitation and Environmental Health Management (Deep Notes)</h2>
-          <p>Detailed topic-by-topic learning notes with framework deep-dives on sanitation and environmental health</p>
-        </a>
-        <a href="GVT503_Deep_Learning_Notes.html" class="note-card">
-          <span class="course-code">GVT503</span>
-          <h2>Occupational Epidemiology & IT (Deep Notes)</h2>
-          <p>Detailed topic-by-topic learning notes with framework deep-dives on occupational health epidemiology</p>
-        </a>
-        <a href="Clinical Epid notes.html" class="note-card">
-          <span class="course-code">GET504</span>
-          <h2>Clinical Epidemiology Notes</h2>
-          <p>Clinical epidemiology combined notes and applications</p>
-        </a>
+
+      <div class="category-block epidemiology">
+        <div class="category-title"><span class="category-tag"></span>Epidemiology</div>
+        <div class="notes-grid">
+          <a href="Advanced_Categorical_Analysis.html" class="note-card">
+            <span class="course-code">GET502</span>
+            <h2>Advanced Categorical Analysis</h2>
+            <p>Chi-square, logistic regression, survival analysis, categorical data methods</p>
+          </a>
+          <a href="Advanced_Numerical_Analysis.html" class="note-card">
+            <span class="course-code">GET503</span>
+            <h2>Advanced Numerical Analysis</h2>
+            <p>Linear regression, multiple regression, ANOVA, numerical methods</p>
+          </a>
+          <a href="Critical_Appraisal.html" class="note-card">
+            <span class="course-code">GET512</span>
+            <h2>Critical Appraisal Notes</h2>
+            <p>CASP checklists, evidence appraisal, study validity assessment</p>
+          </a>
+          <a href="Special_Issues_Epid.html" class="note-card">
+            <span class="course-code">GET513</span>
+            <h2>Special Issues in Epidemiology</h2>
+            <p>Advanced topics in epidemiological methods and applications</p>
+          </a>
+          <a href="Clinical Epid notes.html" class="note-card">
+            <span class="course-code">GET504</span>
+            <h2>Clinical Epidemiology Notes</h2>
+            <p>Clinical epidemiology combined notes and applications</p>
+          </a>
+        </div>
       </div>
+
+      <div class="category-block environmental">
+        <div class="category-title"><span class="category-tag"></span>Environmental Health</div>
+        <div class="notes-grid">
+          <a href="GVT502_Deep_Learning_Notes.html" class="note-card">
+            <span class="course-code">GVT502</span>
+            <h2>Sanitation and Environmental Health Management</h2>
+            <p>Detailed topic-by-topic learning notes covering sanitation and environmental health, with published framework references</p>
+          </a>
+        </div>
+      </div>
+
+      <div class="category-block occupational">
+        <div class="category-title"><span class="category-tag"></span>Occupational Health</div>
+        <div class="notes-grid">
+          <a href="GVT503_Deep_Learning_Notes.html" class="note-card">
+            <span class="course-code">GVT503</span>
+            <h2>Occupational Epidemiology & Information Technology</h2>
+            <p>Detailed topic-by-topic learning notes covering occupational health epidemiology, with published framework references</p>
+          </a>
+        </div>
+      </div>
+
+      <div class="category-block others">
+        <div class="category-title"><span class="category-tag"></span>Others</div>
+        <div class="notes-grid">
+          <a href="notes/missing-data-r.html" class="note-card">
+            <span class="course-code">Notes</span>
+            <h2>Handling Missing Data in R</h2>
+            <p>MCAR/MAR/MNAR, deletion, single &amp; multiple imputation (mice), worked R syntax and outputs</p>
+          </a>
+        </div>
+      </div>
+
     </div>
     <div class="footer">
-      <p>DrPH Epidemiology Study Notes | Malaysia</p>
+      <p>Public Health Study Notes | Malaysia</p>
       <p style="margin-top: 10px; font-size: 0.85em;">Last updated: July 2026</p>
     </div>
   </div>
