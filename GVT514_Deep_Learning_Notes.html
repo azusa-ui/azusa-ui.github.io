@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GVT514 Deep-Dive Learning Notes</title>
+<style>
+
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .callout-yellow{background:rgba(217,119,6,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+:root.light .home-card:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(59,91,219,.1)}
+.callout strong{color:var(--text)}
+
+/* PYQ */
+.pyq-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.pyq-q{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.pyq-qhead{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.pyq-qnum{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.pyq-topic-badge{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.pyq-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.pyq-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.pyq-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.pyq-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.pyq-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.pyq-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+/* Checkboxes */
+.checkbox-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13.5px;color:var(--text2)}
+.checkbox-item input[type=checkbox]{accent-color:var(--accent3);width:15px;height:15px;margin-top:2px;flex-shrink:0}
+.checkbox-item.done{color:var(--text3);text-decoration:line-through}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE / MOBILE  (max-width: 768px)
+═══════════════════════════════════════════ */
+#sidebar-backdrop{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.55);z-index:999;
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+}
+#sidebar-backdrop.visible{display:block}
+
+@media(max-width:768px){
+  /* Sidebar becomes a slide-in overlay */
+  #sidebar{
+    position:fixed!important;
+    left:0;top:0;height:100vh;
+    z-index:1000;
+    width:280px!important;
+    min-width:280px!important;
+    transform:translateX(-100%);
+    transition:transform .3s ease;
+    box-shadow:4px 0 24px rgba(0,0,0,.4);
+  }
+  /* collapsed class has no effect on mobile — overlay state controls visibility */
+  #sidebar.collapsed{
+    width:280px!important;
+    min-width:280px!important;
+  }
+  #sidebar.mobile-open{
+    transform:translateX(0)!important;
+  }
+
+  /* Main fills full width */
+  #main{
+    width:100%;
+    flex:1;
+  }
+
+  /* Topbar: wrap items, shrink search */
+  #topbar{
+    flex-wrap:wrap;
+    padding:10px 12px;
+    gap:8px;
+  }
+  #search-bar{
+    width:100%;
+    margin-left:0;
+    flex:1 1 100%;
+  }
+  #search-bar input{
+    width:100%;
+    flex:1;
+    min-width:0;
+  }
+  .progress-pill{
+    font-size:11px;
+    padding:3px 8px;
+    margin-left:0;
+  }
+  #breadcrumb{
+    font-size:12px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:180px;
+  }
+
+  /* Content: tighter padding */
+  #content{
+    padding:16px 14px;
+  }
+
+  /* Cards: reduce padding */
+  .card{
+    padding:14px 12px;
+  }
+
+  /* Tables: horizontal scroll instead of overflow */
+  .accordion-body table,
+  .card > table,
+  table{
+    display:block;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    white-space:nowrap;
+  }
+  table th,table td{
+    white-space:normal;
+    min-width:120px;
+  }
+
+  /* PYQ head: stack on small screens */
+  .pyq-qhead{
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .pyq-marks{
+    margin-left:0;
+    width:100%;
+  }
+
+  /* Page title */
+  .page-title{font-size:20px}
+  .page-sub{font-size:13px}
+
+  /* Home cards grid: single column */
+  .home-grid{
+    grid-template-columns:1fr!important;
+  }
+
+  /* Accordion head font size */
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+
+@media(max-width:480px){
+  #content{padding:12px 10px}
+  .card{padding:12px 10px}
+  #topbar{padding:8px 10px}
+  .page-title{font-size:18px}
+  table th,table td{min-width:100px;font-size:12px}
+}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <span style="font-size:20px">&#127891;</span>
+    <div>
+      <h2>GVT514</h2>
+      <div style="font-size:11px;color:var(--text3)">Environmental Health Risk Assessment and Management</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+    <div class="nav-topic-header" id="nav-home" onclick="goHome()" style="cursor:pointer;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:8px">&#127968; Overview</div>
+    
+      <div class="nav-topic">
+        <div class="nav-topic-header" onclick="toggleNav(this.parentElement,'sec1')">
+          <span class="topic-num">1</span>
+          <span>1. Environmental Health Impact Assessment</span>
+          <span class="chevron">&#9656;</span>
+        </div>
+        <div class="nav-sub"><a onclick="scrollTo('1-environmental-health-impact-assessment-overview-0')">Overview</a><a onclick="scrollTo('1-environmental-health-impact-assessment-key-definitions-concepts-1')">Key Definitions & Concepts</a><a onclick="scrollTo('1-environmental-health-impact-assessment-legal-and-procedural-basis-for-eia-in-malaysia-2')">Legal and Procedural Basis for EIA in Malaysia</a><a onclick="scrollTo('1-environmental-health-impact-assessment-the-ehia-process-screening-scoping-and-baseline-assessment-3')">The EHIA Process: Screening, Scoping and Baseline Assessment</a><a onclick="scrollTo('1-environmental-health-impact-assessment-framework-deep-dive-the-human-health-risk-assessment-paradig-4')">Framework Deep-Dive: The Human Health Risk Assessment Paradigm (Hazard Identification, Exposure Assessment, Dose-Response Assessment, Risk Characterization)</a><a onclick="scrollTo('1-environmental-health-impact-assessment-mitigation-measures-and-residual-impact-5')">Mitigation Measures and Residual Impact</a><a onclick="scrollTo('1-environmental-health-impact-assessment-key-guidelines-standards-frameworks-for-good-practice-6')">Key Guidelines, Standards & Frameworks for Good Practice</a><a onclick="scrollTo('1-environmental-health-impact-assessment-public-health-relevance-7')">Public Health Relevance</a><a onclick="scrollTo('1-environmental-health-impact-assessment-possible-doctoral-drph-research-topics-8')">Possible Doctoral (DrPH) Research Topics</a>
+        </div>
+      </div>
+      <div class="nav-topic">
+        <div class="nav-topic-header" onclick="toggleNav(this.parentElement,'sec2')">
+          <span class="topic-num">2</span>
+          <span>2. Environmental Health Risk Assessment</span>
+          <span class="chevron">&#9656;</span>
+        </div>
+        <div class="nav-sub"><a onclick="scrollTo('2-environmental-health-risk-assessment-overview-0')">Overview</a><a onclick="scrollTo('2-environmental-health-risk-assessment-key-definitions-concepts-1')">Key Definitions & Concepts</a><a onclick="scrollTo('2-environmental-health-risk-assessment-the-four-step-environmental-health-risk-assessment-process-2')">The Four-Step Environmental Health Risk Assessment Process</a><a onclick="scrollTo('2-environmental-health-risk-assessment-risk-assessment-versus-risk-management-3')">Risk Assessment versus Risk Management</a><a onclick="scrollTo('2-environmental-health-risk-assessment-qualitative-versus-quantitative-approaches-4')">Qualitative versus Quantitative Approaches</a><a onclick="scrollTo('2-environmental-health-risk-assessment-uncertainty-and-variability-in-risk-assessment-5')">Uncertainty and Variability in Risk Assessment</a><a onclick="scrollTo('2-environmental-health-risk-assessment-application-to-malaysian-environmental-health-practice-gener-6')">Application to Malaysian Environmental Health Practice (General Considerations)</a><a onclick="scrollTo('2-environmental-health-risk-assessment-key-guidelines-standards-frameworks-for-good-practice-7')">Key Guidelines, Standards & Frameworks for Good Practice</a><a onclick="scrollTo('2-environmental-health-risk-assessment-framework-deep-dive-the-us-epa-nrc-environmental-health-risk-8')">Framework Deep-Dive: The US EPA/NRC Environmental Health Risk Assessment Framework</a><a onclick="scrollTo('2-environmental-health-risk-assessment-public-health-relevance-9')">Public Health Relevance</a><a onclick="scrollTo('2-environmental-health-risk-assessment-possible-doctoral-drph-research-topics-10')">Possible Doctoral (DrPH) Research Topics</a>
+        </div>
+      </div>
+      <div class="nav-topic">
+        <div class="nav-topic-header" onclick="toggleNav(this.parentElement,'sec3')">
+          <span class="topic-num">3</span>
+          <span>3. The Environmental Quality Act 1974</span>
+          <span class="chevron">&#9656;</span>
+        </div>
+        <div class="nav-sub"><a onclick="scrollTo('3-the-environmental-quality-act-1974-overview-0')">Overview</a><a onclick="scrollTo('3-the-environmental-quality-act-1974-key-definitions-concepts-1')">Key Definitions & Concepts</a><a onclick="scrollTo('3-the-environmental-quality-act-1974-structure-of-the-act-and-institutional-administration-2')">Structure of the Act and Institutional Administration</a><a onclick="scrollTo('3-the-environmental-quality-act-1974-pollution-control-air-water-land-and-scheduled-wastes-3')">Pollution Control: Air, Water, Land and Scheduled Wastes</a><a onclick="scrollTo('3-the-environmental-quality-act-1974-environmental-impact-assessment-eia-4')">Environmental Impact Assessment (EIA)</a><a onclick="scrollTo('3-the-environmental-quality-act-1974-compliance-licensing-enforcement-and-penalties-5')">Compliance, Licensing, Enforcement and Penalties</a><a onclick="scrollTo('3-the-environmental-quality-act-1974-key-guidelines-standards-frameworks-for-good-practice-6')">Key Guidelines, Standards & Frameworks for Good Practice</a><a onclick="scrollTo('3-the-environmental-quality-act-1974-framework-deep-dive-the-environmental-quality-act-1974-act-1-7')">Framework Deep-Dive: The Environmental Quality Act 1974 (Act 127) and its EIA Order 2015</a><a onclick="scrollTo('3-the-environmental-quality-act-1974-public-health-relevance-8')">Public Health Relevance</a><a onclick="scrollTo('3-the-environmental-quality-act-1974-possible-doctoral-drph-research-topics-9')">Possible Doctoral (DrPH) Research Topics</a>
+        </div>
+      </div>
+      <div class="nav-topic">
+        <div class="nav-topic-header" onclick="toggleNav(this.parentElement,'sec4')">
+          <span class="topic-num">4</span>
+          <span>4. Environmental Health Risk Management and Risk Communication</span>
+          <span class="chevron">&#9656;</span>
+        </div>
+        <div class="nav-sub"><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-overview-0')">Overview</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-key-definitions-concepts-1')">Key Definitions & Concepts</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-divergence-between-expert-and-public-risk-perception-is-it-s-2')">Divergence Between Expert and Public Risk Perception ("Is It Safe?")</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-trust-as-the-central-currency-of-risk-management-3')">Trust as the Central Currency of Risk Management</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-risk-management-goals-tools-and-options-4')">Risk Management: Goals, Tools, and Options</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-operational-challenges-in-risk-assessment-and-risk-managemen-5')">Operational Challenges in Risk Assessment and Risk Management</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-risk-communication-as-an-integral-component-of-risk-manageme-6')">Risk Communication as an Integral Component of Risk Management</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-risk-management-and-communication-in-emergencies-and-disaste-7')">Risk Management and Communication in Emergencies and Disasters</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-key-guidelines-standards-frameworks-for-good-practice-8')">Key Guidelines, Standards & Frameworks for Good Practice</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-framework-deep-dive-the-risk-analysis-triad-risk-assessment--9')">Framework Deep-Dive: The Risk Analysis Triad (Risk Assessment, Risk Management, Risk Communication) and the Analytic-Deliberative Process</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-public-health-relevance-10')">Public Health Relevance</a><a onclick="scrollTo('4-environmental-health-risk-management-and-risk-communicatio-possible-doctoral-drph-research-topics-11')">Possible Doctoral (DrPH) Research Topics</a>
+        </div>
+      </div>
+      <div class="nav-topic">
+        <div class="nav-topic-header" onclick="toggleNav(this.parentElement,'sec5')">
+          <span class="topic-num">5</span>
+          <span>5. Environmental Impact Assessment (EIA)</span>
+          <span class="chevron">&#9656;</span>
+        </div>
+        <div class="nav-sub"><a onclick="scrollTo('5-environmental-impact-assessment-eia-overview-0')">Overview</a><a onclick="scrollTo('5-environmental-impact-assessment-eia-key-definitions-concepts-1')">Key Definitions & Concepts</a><a onclick="scrollTo('5-environmental-impact-assessment-eia-eia-process-core-stages-2')">EIA Process: Core Stages</a><a onclick="scrollTo('5-environmental-impact-assessment-eia-report-structure-and-environmental-management-plans-3')">Report Structure and Environmental Management Plans</a><a onclick="scrollTo('5-environmental-impact-assessment-eia-key-guidelines-standards-frameworks-for-good-practice-4')">Key Guidelines, Standards & Frameworks for Good Practice</a><a onclick="scrollTo('5-environmental-impact-assessment-eia-framework-deep-dive-the-malaysian-eia-procedure-under-the-en-5')">Framework Deep-Dive: The Malaysian EIA Procedure under the Environmental Quality Act 1974 and the Prescribed Activities (EIA) Order 2015</a><a onclick="scrollTo('5-environmental-impact-assessment-eia-public-health-relevance-6')">Public Health Relevance</a><a onclick="scrollTo('5-environmental-impact-assessment-eia-possible-doctoral-drph-research-topics-7')">Possible Doctoral (DrPH) Research Topics</a>
+        </div>
+      </div>
+      <div class="nav-topic">
+        <div class="nav-topic-header" onclick="toggleNav(this.parentElement,'sec6')">
+          <span class="topic-num">6</span>
+          <span>6. International Frameworks on Environmental Health</span>
+          <span class="chevron">&#9656;</span>
+        </div>
+        <div class="nav-sub"><a onclick="scrollTo('6-international-frameworks-on-environmental-health-overview-0')">Overview</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-key-definitions-concepts-1')">Key Definitions & Concepts</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-historical-evolution-of-international-environmental-health-a-2')">Historical Evolution of International Environmental Health and Disaster Governance</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-the-disaster-risk-reduction-framework-continuum-yokohama-hyo-3')">The Disaster Risk Reduction Framework Continuum: Yokohama, Hyogo, Sendai</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-sustainable-development-goals-and-the-2015-triple-landmark-y-4')">Sustainable Development Goals and the 2015 Triple Landmark Year</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-causal-frameworks-for-environmental-health-dpseea-dpsir-and--5')">Causal Frameworks for Environmental Health: DPSEEA, DPSIR, and Integrated DPSIR</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-malaysia-s-institutional-architecture-and-policy-alignment-6')">Malaysia's Institutional Architecture and Policy Alignment</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-key-guidelines-standards-frameworks-for-good-practice-7')">Key Guidelines, Standards & Frameworks for Good Practice</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-framework-deep-dive-the-sendai-framework-for-disaster-risk-r-8')">Framework Deep-Dive: The Sendai Framework for Disaster Risk Reduction 2015-2030</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-public-health-relevance-9')">Public Health Relevance</a><a onclick="scrollTo('6-international-frameworks-on-environmental-health-possible-doctoral-drph-research-topics-10')">Possible Doctoral (DrPH) Research Topics</a>
+        </div>
+      </div>
+  </div>
+</nav>
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">&#9776;</button>
+    <div id="breadcrumb">GVT514 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input id="search-input" type="text" placeholder="Search topics...">
+      <button onclick="doSearch(document.getElementById('search-input').value)" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer">&#128269;</button>
+      <span class="progress-pill" id="progress-label">0/6 topics</span>
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer">&#127769;</button>
+  </div>
+  <div id="content">
+    <div class="section active" id="sec-home">
+      <div class="page-title">GVT514 &middot; Environmental Health Risk Assessment and Management</div>
+      <div class="page-sub">Penilaian dan Pengurusan Risiko Kesihatan Alam Sekitar</div>
+      <p style="color:var(--text3);font-size:13px;margin-bottom:4px">Deep-Dive Learning Notes &middot; DrPH Semester 2 &middot; Environmental &amp; Occupational Health</p>
+      <div class="callout callout-blue" style="margin-top:16px">
+        <strong>How to use these notes:</strong> Each topic below is a full, in-depth walkthrough of the lecture content &mdash; definitions, classifications, data tables, mechanisms, case studies, standards/guidelines, public health relevance, and diversified DrPH research directions. Use the sidebar sub-links to jump directly to a subsection, or use the search bar above. Lecturer/presenter names have been removed for anonymity; all legislative citations, agency names and academic references are retained for evidence transparency.
+      </div>
+      <div class="home-grid">
+      <div class="home-card" onclick="showSection('sec1')">
+        <div class="hc-num">01</div>
+        <div class="hc-title">1. Environmental Health Impact Assessment</div>
+        <div class="hc-sub">9 detailed sections &middot; definitions, data, guidelines, research directions</div>
+        <div class="hc-badge"><span class="tag tag-blue">Deep-dive</span><span class="tag tag-green">Guidelines</span><span class="tag tag-purple">Research</span></div>
+      </div>      <div class="home-card" onclick="showSection('sec2')">
+        <div class="hc-num">02</div>
+        <div class="hc-title">2. Environmental Health Risk Assessment</div>
+        <div class="hc-sub">11 detailed sections &middot; definitions, data, guidelines, research directions</div>
+        <div class="hc-badge"><span class="tag tag-blue">Deep-dive</span><span class="tag tag-green">Guidelines</span><span class="tag tag-purple">Research</span></div>
+      </div>      <div class="home-card" onclick="showSection('sec3')">
+        <div class="hc-num">03</div>
+        <div class="hc-title">3. The Environmental Quality Act 1974</div>
+        <div class="hc-sub">10 detailed sections &middot; definitions, data, guidelines, research directions</div>
+        <div class="hc-badge"><span class="tag tag-blue">Deep-dive</span><span class="tag tag-green">Guidelines</span><span class="tag tag-purple">Research</span></div>
+      </div>      <div class="home-card" onclick="showSection('sec4')">
+        <div class="hc-num">04</div>
+        <div class="hc-title">4. Environmental Health Risk Management and Risk Communication</div>
+        <div class="hc-sub">12 detailed sections &middot; definitions, data, guidelines, research directions</div>
+        <div class="hc-badge"><span class="tag tag-blue">Deep-dive</span><span class="tag tag-green">Guidelines</span><span class="tag tag-purple">Research</span></div>
+      </div>      <div class="home-card" onclick="showSection('sec5')">
+        <div class="hc-num">05</div>
+        <div class="hc-title">5. Environmental Impact Assessment (EIA)</div>
+        <div class="hc-sub">8 detailed sections &middot; definitions, data, guidelines, research directions</div>
+        <div class="hc-badge"><span class="tag tag-blue">Deep-dive</span><span class="tag tag-green">Guidelines</span><span class="tag tag-purple">Research</span></div>
+      </div>      <div class="home-card" onclick="showSection('sec6')">
+        <div class="hc-num">06</div>
+        <div class="hc-title">6. International Frameworks on Environmental Health</div>
+        <div class="hc-sub">11 detailed sections &middot; definitions, data, guidelines, research directions</div>
+        <div class="hc-badge"><span class="tag tag-blue">Deep-dive</span><span class="tag tag-green">Guidelines</span><span class="tag tag-purple">Research</span></div>
+      </div>
+      </div>
+    </div>
+    <div class="section" id="sec1">
+<div class="page-title">1. 1. Environmental Health Impact Assessment</div>
+<div class="page-sub">Deep-dive learning notes &middot; compiled from lecture material (anonymised) &middot; DrPH specialist level</div>
+<div id="1-environmental-health-impact-assessment-overview-0"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128218;</span>Overview</div>
+<p>Environmental Health Impact Assessment (EHIA) is the systematic process of identifying, predicting, evaluating and managing the potential health consequences, both beneficial and adverse, of a proposed policy, plan, programme or development project on an affected population. In the Malaysian regulatory context, EHIA is not a free-standing statutory instrument but is embedded within the broader Environmental Impact Assessment (EIA) mechanism administered by the Department of Environment (DOE) under the Ministry of Natural Resources, Environment and Climate Change. This topic examines the conceptual foundations of EHIA, its legal basis in Malaysia, the procedural steps by which health considerations are integrated into the EIA process, and the quantitative and qualitative methods used to characterize environmental health risk. The lecture material draws heavily on a cement manufacturing plant and an incinerator siting case study to illustrate how EHIA principles are applied in practice, alongside worked examples of dose-response and risk quantification relevant to air pollutant exposure.</p>
+</div>
+<div id="1-environmental-health-impact-assessment-key-definitions-concepts-1"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128203;</span>Key Definitions & Concepts</div>
+<p>The internationally referenced definition of Environmental Health Impact Assessment originates from a WHO consultation held in Sofia, Bulgaria in 1993, which framed EHIA as a structured means of assessing the health consequences of environmental change arising from development activity. Health Impact Assessment (HIA) more broadly is defined, per the EnHealth Council (2001) guidelines (Commonwealth Department of Health and Aged Care, Australia), as a combination of procedures, methods and tools by which a policy, programme or project may be judged as to its potential effects on the health of a population, and the distribution of those effects within the population.</p>
+<p>It is useful to distinguish three related but conceptually distinct terms that recur in this field:</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Term</th><th>Primary Focus</th><th>Typical Institutional Home</th></tr></thead><tbody><tr><td>EIA (Environmental Impact Assessment)</td><td>Biophysical and ecological effects of a proposed project (air, water, land, biodiversity)</td><td>Environmental regulatory authority (in Malaysia, DOE)</td></tr><tr><td>HIA (Health Impact Assessment)</td><td>Direct and indirect effects of a policy/project on human health and its social determinants</td><td>Health authority or intersectoral panel</td></tr><tr><td>EHIA (Environmental Health Impact Assessment)</td><td>The health-specific component nested within, or run parallel to, an EIA, focusing on environmentally mediated health hazards</td><td>Joint environmental-health regulatory process</td></tr></tbody></table></div>
+<p>In Malaysian practice, EHIA is generally not conducted as an entirely separate approval process; rather, health risk assessment is one of the technical components required within a Detailed EIA report when the project is likely to generate environmentally mediated health hazards (for example, emissions from a cement plant, incinerator or quarry).</p>
+</div>
+<div id="1-environmental-health-impact-assessment-legal-and-procedural-basis-for-eia-in-malaysia-2"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Legal and Procedural Basis for EIA in Malaysia</div>
+<p>The statutory foundation for EIA in Malaysia is Section 34A of the Environmental Quality Act 1974, which empowers the Director General of Environmental Quality to require an environmental impact assessment for prescribed activities before approval is granted. The DOE has issued technical guidelines operationalizing this requirement (DOE, "EIA Guideline in Malaysia"), which specify the categories of prescribed activities requiring either a Preliminary or a Detailed EIA, and the structure of the technical report to be submitted, including where relevant a health risk assessment component.</p>
+<p>The conceptual sequence of EIA in Malaysia, as presented in the lecture, generally proceeds from project identification and screening for prescribed activity status, through scoping of significant issues, to detailed baseline data collection, impact prediction, mitigation planning, and reporting for regulatory review. Health considerations are integrated at multiple points in this sequence rather than treated as an isolated add-on, which is consistent with the general principle in environmental health practice that health risk assessment should be iterative and embedded throughout the project life cycle rather than appended only at the end.</p>
+</div>
+<div id="1-environmental-health-impact-assessment-the-ehia-process-screening-scoping-and-baseline-assessment-3"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>The EHIA Process: Screening, Scoping and Baseline Assessment</div>
+<p>The lecture frames the steps of HIA within EIA broadly following a five-stage sequence: (1) screening, (2) scoping, (3) description of the existing environment and baseline public health status, (4) health risk assessment, and (5) mitigation measures.</p>
+<p><strong>Screening</strong> determines whether a proposed project is likely to generate health-relevant environmental hazards sufficient to warrant a full health risk assessment. The lecture's illustrative case, a cement manufacturing facility (including quarry operations for raw material extraction), is used to demonstrate how project characteristics (raw materials, process emissions, proximity to communities) trigger the need for closer health scrutiny.</p>
+<p><strong>Scoping</strong> identifies which health impacts are potentially significant and therefore warrant detailed assessment, differentiated across project phases (construction versus operation). For the cement plant case, scoping identifies emissions from the manufacturing process (particulates, gases) and construction-phase impacts (dust, noise, vector breeding from earthworks) as priority issues.</p>
+<p><strong>Description of the existing environment and baseline public health status</strong> establishes a reference condition against which predicted impacts can be judged. This includes environmental baseline data (ambient air quality, water quality, noise levels) and a baseline profile of community health status, commonly informed by a community health survey. The lecture notes that a community health survey is a particularly useful tool for characterizing current health status prior to project commencement, since it establishes a pre-project comparator that can later support (or refute) claims of project-attributable health change. Baseline mapping also involves defining the <strong>Zone of Impact (ZOI)</strong>, the geographic area within which project-related environmental changes are predicted to be of a magnitude sufficient to plausibly affect human receptors; this was illustrated using a satellite image of a proposed incinerator site and its surrounding population receptors.</p>
+</div>
+<div id="1-environmental-health-impact-assessment-framework-deep-dive-the-human-health-risk-assessment-paradig-4"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128737;&#65039;</span>Framework Deep-Dive: The Human Health Risk Assessment Paradigm (Hazard Identification, Exposure Assessment, Dose-Response Assessment, Risk Characterization)</div>
+<p>The quantitative core of EHIA, as presented in the lecture, follows the widely recognized four-step human health risk assessment paradigm (originating from the US National Research Council's 1983 "Red Book" framework and subsequently adopted, with adaptation, by agencies including the US EPA and referenced in WHO risk assessment guidance). This framework is genuinely well established internationally and structures Section 4 of the lecture material in full.</p>
+<p><strong>Step 1: Hazard Identification.</strong> This step identifies the type(s) of hazard present (chemical, physical, biological), their source or reservoir, and the intrinsic characteristics of the agent (toxicity profile, persistence, mode of action). The lecture illustrates this with leptospirosis as an example of a biological hazard with an identifiable environmental source or reservoir (contaminated water/soil from rodent urine), demonstrating that hazard identification is not restricted to chemical/industrial agents but extends to infectious and vector-related hazards relevant to construction and land-use change.</p>
+<p><strong>Step 2: Exposure Assessment.</strong> This estimates the magnitude, frequency, duration and route of exposure of the population of concern, and requires characterization of the exposed population (demographics, susceptibility, activity patterns, proximity to source). The lecture provides the standard equations used to back-calculate a "safe" environmental concentration from a toxicological reference dose:</p>
+<p>Safe air concentration: Cair = (RfD x 70 kg) / (alpha x sum(BR x t))</p>
+<p>Safe water concentration: Cwater = (RfD x 70 kg) / (2 L/day)</p>
+<p>where RfD is the reference (absorbed) dose, alpha is the lung absorption fraction (assumed 1 if unknown), BR is breathing rate (environmental exposure: 0.83 m3/hr, approximately 20 m3/day; occupational exposure: a weighted combination of heavy and moderate breathing activity, approximately 8.82 m3/day), and t is exposure duration (24 hours for environmental/community exposure versus 8 hours for occupational exposure). This distinction between environmental (community, continuous, 24-hour) and occupational (intermittent, task-based) exposure parameters is a recurring and doctrinally important theme in environmental versus occupational health risk assessment, since it materially changes the permissible concentration derived from the same toxicological reference dose.</p>
+<p><strong>Step 3: Dose-Response Assessment.</strong> This step characterizes the quantitative relationship between administered/absorbed dose and probability or severity of a health effect, differentiated by whether the endpoint is carcinogenic or non-carcinogenic. For carcinogens, the lecture presents the cancer slope factor as:</p>
+<p>Cancer slope factor (mg/kg.day)^-1 = Probability of cancer / Dose (mg/kg.day)</p>
+<p>The lecture also references estimation of morbidity and mortality attributable to ambient air pollution using epidemiological dose-response relationships, illustrated with a worked example estimating relative risk of chronic obstructive pulmonary disease (COPD) associated with total suspended particulate (TSP) exposure among the Kuala Lumpur population in 1997 (with TSP derived from PM10 using a conversion factor of PM10/0.6). This example is presented in the source material as a teaching illustration of applying epidemiologically derived relative risk/dose-response coefficients to a defined population exposure scenario, rather than as a citable epidemiological finding to be generalized beyond its original context.</p>
+<p><strong>Step 4: Risk Characterization.</strong> This integrates the outputs of the preceding three steps into a summary statement of risk, which may be expressed quantitatively or qualitatively.</p>
+<ul><li>For <strong>non-carcinogenic risk</strong>, the Hazard Quotient (HQ) is calculated as HQ = ADD (mg/kg.day) / RfD (mg/kg.day), or equivalently using air concentration terms, HQ = EC (mg/m3) / RfC (mg/m3), where ADD is average daily dose and EC is exposure concentration. An HQ below 1 is generally considered to indicate that adverse non-cancer effects are unlikely, while an HQ at or above 1 suggests a need for further evaluation or risk management action.</li><li>For <strong>carcinogenic risk</strong>, risk is generally expressed as excess lifetime cancer risk. The lecture notes that the "one in a million" (10^-6) acceptable risk level for a potentially fatal outcome such as cancer functions as a societal risk-management guideline or benchmark rather than a hard scientific or regulatory norm, reflecting the value-laden and policy-dependent nature of "acceptable risk" determinations.</li><li>Where sufficient quantitative dose-response data are unavailable, a <strong>qualitative health risk assessment</strong> may be used instead, typically operationalized through a risk assessment matrix that combines a qualitative likelihood category with a qualitative consequence/severity category to derive an overall risk ranking (e.g. low, moderate, high, extreme). This approach is consistent with general risk management practice (as reflected in frameworks such as ISO 31000) when precise exposure-response quantification is not feasible.</li></ul>
+<p>The concept of <strong>residual health impact</strong> follows risk characterization: where residual risk remains after accounting for design and standard controls, the lecture notes that a detailed EIA is deemed necessary, reinforcing that risk characterization outputs directly determine the required depth of subsequent assessment and regulatory scrutiny.</p>
+</div>
+<div id="1-environmental-health-impact-assessment-mitigation-measures-and-residual-impact-5"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Mitigation Measures and Residual Impact</div>
+<p>The final procedural step links identified health risks to specific, actionable mitigation measures, which the lecture illustrates through a project-specific hazard-mitigation matrix for the cement plant/quarry case:</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Potential Health Impact</th><th>Proposed Mitigation Measure</th></tr></thead><tbody><tr><td>Vector-borne diseases (dengue, chikungunya, malaria, filariasis)</td><td>Vector control via elimination of breeding sites, larviciding, adulticide fogging</td></tr><tr><td>Waterborne/foodborne diseases (cholera, typhoid, hepatitis A) from improper sewage/solid waste disposal</td><td>Hygienic sanitation, clean water supply, proper solid waste disposal</td></tr><tr><td>Health effects from pesticide/chemical exposure</td><td>Proper storage, use and disposal of pesticide waste; applicator training; regular medical examination and biomonitoring</td></tr><tr><td>Respiratory effects from dust (heavy vehicles, construction, mining)</td><td>Wet suppression methods; traffic management</td></tr><tr><td>Noise-induced hearing impairment (vehicle noise)</td><td>Sound barriers; traffic management</td></tr><tr><td>Noise-induced hearing impairment (piling, construction, blasting, quarrying)</td><td>Reduced operating hours; buffer zones</td></tr><tr><td>Silicosis and other respiratory effects from quarry dust</td><td>Wet dust suppression methods</td></tr><tr><td>Respiratory effects from flaring/accidental gaseous or particulate release</td><td>Proper flaring conditions; adequate stack height</td></tr></tbody></table></div>
+<p>This matrix demonstrates the general EHIA principle that mitigation should be hazard-specific and proportionate, addressing biological, chemical and physical hazard pathways with distinct engineering, administrative and personal protective interventions.</p>
+</div>
+<div id="1-environmental-health-impact-assessment-key-guidelines-standards-frameworks-for-good-practice-6"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#127973;</span>Key Guidelines, Standards & Frameworks for Good Practice</div>
+<div class="callout callout-blue"><ul><li>WHO (1993) Sofia consultation definition of Environmental Health Impact Assessment.</li><li>EnHealth Council (2001), *Health Impact Assessment Guidelines*, Commonwealth Department of Health and Aged Care, Australia, defining HIA procedures, methods and tools.</li><li>Environmental Quality Act 1974, Section 34A (Malaysia), the statutory basis compelling EIA for prescribed activities.</li><li>Department of Environment Malaysia, *EIA Guideline in Malaysia* (procedural and technical guidance for preparing Preliminary and Detailed EIA reports, including health risk assessment components).</li><li>The four-step human health risk assessment paradigm (hazard identification, exposure assessment, dose-response assessment, risk characterization), consistent with frameworks used by the US EPA and referenced in WHO environmental health risk guidance.</li><li>General risk management principles (as reflected in internationally recognized frameworks such as ISO 31000) underpinning qualitative risk matrix approaches when quantitative dose-response data are unavailable.</li></ul></div>
+</div>
+<div id="1-environmental-health-impact-assessment-public-health-relevance-7"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128200;</span>Public Health Relevance</div>
+<div class="callout callout-green"><p>EHIA operationalizes the precautionary and preventive orientation of public health practice at the point where development decisions are made, rather than after adverse health outcomes have already manifested in a community. Its relevance to DrPH-level practice is considerable: it requires competency in environmental toxicology and exposure science, epidemiological interpretation of dose-response relationships, community health assessment methods (including survey design for baseline health status), risk communication (particularly around the socially constructed nature of "acceptable risk"), and regulatory/legal literacy regarding instruments such as the Environmental Quality Act 1974. The explicit inclusion of vector-borne, waterborne, occupational and noise-related pathways in the mitigation matrix illustrates that EHIA in the Malaysian context is deliberately broad in scope, encompassing infectious disease ecology alongside chemical and physical hazard exposure, which is consistent with a determinants-of-health perspective rather than a narrowly toxicological one. Furthermore, the distinction drawn between environmental (24-hour, community-wide, often more vulnerable population including children and the elderly) and occupational (time-limited, healthy worker population) exposure parameters has direct implications for setting differential regulatory standards and for equity considerations in risk management, since communities near a facility may bear risks without receiving the economic benefits that accrue to an occupationally exposed workforce.</p></div>
+</div>
+<div id="1-environmental-health-impact-assessment-possible-doctoral-drph-research-topics-8"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128169;</span>Possible Doctoral (DrPH) Research Topics</div>
+<div class="callout callout-purple"><ol><li><strong>Cross-sectional study</strong>: Assessment of self-reported respiratory symptoms and objective lung function among communities residing within versus outside the defined Zone of Impact of a cement manufacturing or quarrying operation in Malaysia, examining dose-response gradients by proximity and modeled exposure concentration.</li><li><strong>Case-control study</strong>: Investigation of the association between residential proximity to industrial particulate emission sources and clinically diagnosed COPD or asthma exacerbation, using hospital or primary care case ascertainment with community controls matched on age and socioeconomic status.</li><li><strong>Qualitative study</strong>: An exploration of community risk perception and trust in regulatory processes among residents affected by a proposed incinerator or cement plant, examining how "acceptable risk" thresholds set by regulators (e.g. the 10^-6 cancer risk benchmark) are understood, contested or accepted by affected populations, using in-depth interviews or focus group discussion.</li><li><strong>Policy analysis</strong>: A comparative analysis of how health risk assessment requirements under Section 34A of the Environmental Quality Act 1974 are operationalized across DOE-approved Detailed EIA reports for prescribed industrial activities, evaluating consistency, transparency and the extent to which mitigation commitments are subsequently monitored and enforced.</li><li><strong>Quasi-experimental / pre-post design</strong>: Evaluation of the effectiveness of dust and noise mitigation measures (e.g. wet suppression, buffer zones, restricted operating hours) implemented following an EHIA, comparing community-reported symptom burden and, where feasible, ambient monitoring data before and after mitigation implementation.</li><li><strong>Implementation science study</strong>: An investigation into the barriers and facilitators to integrating baseline community health surveys into the EIA scoping and baseline assessment stage in Malaysia, examining institutional capacity, intersectoral coordination between DOE and health authorities, and fidelity of health risk assessment components within submitted Detailed EIA reports.</li></ol></div>
+</div>
+</div><div class="section" id="sec2">
+<div class="page-title">2. 2. Environmental Health Risk Assessment</div>
+<div class="page-sub">Deep-dive learning notes &middot; compiled from lecture material (anonymised) &middot; DrPH specialist level</div>
+<div id="2-environmental-health-risk-assessment-overview-0"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128218;</span>Overview</div>
+<p>A transparency note is warranted before proceeding. The two primary source materials designated for this topic, the lecture file "2 EH RISK ASSESSMENT [lecturer initials].pptx" and the supplementary reading "2A SENDIRI ENVIRONMENTAL HEALTH RISK ASSESSMENT [author initials].pdf", were both found to be technically unusable for content extraction. The PowerPoint file was corrupted (it failed zipfile structural validation on repeated extraction attempts), and the PDF was a scanned, image-based document that yielded no extractable text and was not put through optical character recognition. Consequently, the substantive content below has been compiled from well-established, internationally recognised environmental health risk assessment theory and practice rather than from the specific course slides. Where the original lecture may have emphasised particular local case studies, agency terminology, or examples specific to Malaysian regulatory practice, this note cannot reproduce that content and the learner is advised to cross-check against the original materials once accessible, or against the facilitator's own teaching notes.</p>
+<p>Environmental Health Risk Assessment (EHRA) is the systematic, scientifically grounded process of estimating the nature and probability of adverse health effects in human populations arising from exposure to environmental hazards, whether chemical, physical, biological, or psychosocial in origin. It sits at the interface of toxicology, epidemiology, exposure science, and policy, and forms the analytic backbone of environmental and occupational health decision-making. EHRA is distinct from, but closely linked to, risk management (the process of deciding what to do about identified risks) and risk communication (the process of conveying risk information to stakeholders).</p>
+</div>
+<div id="2-environmental-health-risk-assessment-key-definitions-concepts-1"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128203;</span>Key Definitions & Concepts</div>
+<div style="overflow-x:auto"><table><thead><tr><th>Term</th><th>Working Definition</th></tr></thead><tbody><tr><td>Hazard</td><td>An agent or condition with the inherent potential to cause harm (e.g., a chemical, a pathogen, ionising radiation, extreme heat)</td></tr><tr><td>Risk</td><td>The probability that harm will occur, combining both the likelihood and severity of an adverse outcome under specified exposure conditions</td></tr><tr><td>Exposure</td><td>Contact between an agent and a target (human receptor) at a boundary, over a defined duration and frequency</td></tr><tr><td>Dose</td><td>The amount of an agent that enters or interacts with the body, often distinguished into applied, absorbed, or internal dose</td></tr><tr><td>Risk assessment</td><td>The scientific, evidence-based process of characterising the nature and magnitude of health risks</td></tr><tr><td>Risk management</td><td>The subsequent, value-laden process of weighing risk assessment findings against social, economic, legal, and political considerations to select a course of action</td></tr><tr><td>Risk communication</td><td>The interactive exchange of information about risk among assessors, managers, and affected communities</td></tr><tr><td>Acceptable/tolerable risk</td><td>A risk level judged, through societal and regulatory processes, to be reasonably low given the benefits, costs, and alternatives involved</td></tr></tbody></table></div>
+<p>A conceptually important distinction is between hazard (the intrinsic capacity to cause harm) and risk (the actual probability of harm occurring given real-world exposure). A highly toxic substance stored safely with no pathway to human contact may pose negligible risk, whereas a modestly toxic substance with widespread, high-frequency exposure may pose substantial risk. This distinction underlies the entire logic of the risk assessment paradigm described below.</p>
+</div>
+<div id="2-environmental-health-risk-assessment-the-four-step-environmental-health-risk-assessment-process-2"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>The Four-Step Environmental Health Risk Assessment Process</div>
+<p>The dominant conceptual framework internationally, originating from the United States National Research Council's 1983 report "Risk Assessment in the Federal Government: Managing the Process" (commonly known as the "Red Book"), and subsequently adopted and refined by the US Environmental Protection Agency (EPA) and numerous other national and international bodies, decomposes risk assessment into four sequential, interlinked steps.</p>
+<p><strong>1. Hazard Identification</strong> This step addresses the qualitative question of whether an agent is capable of causing an adverse health effect at all, and, if so, what type of effect (carcinogenic, reproductive, neurotoxic, respiratory, etc.). Evidence is typically drawn from toxicological studies (animal bioassays, in vitro assays, structure-activity relationships), epidemiological studies, and case reports. Weight-of-evidence approaches are used to synthesise heterogeneous and sometimes conflicting evidence into a judgement about the plausibility of a causal hazard.</p>
+<p><strong>2. Dose-Response Assessment</strong> This step characterises the quantitative relationship between the dose (or exposure level) of an agent and the probability or severity of the adverse health effect. For threshold effects (e.g., most non-carcinogenic, non-heritable effects), reference values such as a reference dose (RfD) or reference concentration (RfC) may be derived, often anchored to a no-observed-adverse-effect-level (NOAEL) or benchmark dose, divided by uncertainty and safety factors. For non-threshold effects, most classically genotoxic carcinogenesis, a linear or other extrapolation model may be used to estimate a slope factor or unit risk, describing incremental risk per unit of exposure with no assumed safe threshold.</p>
+<p><strong>3. Exposure Assessment</strong> This step estimates the magnitude, frequency, duration, and route (inhalation, ingestion, dermal contact) of human contact with the agent, for defined populations or subgroups. It draws on environmental monitoring data, modelling (e.g., dispersion or fate-and-transport models), biomonitoring, and questionnaire-based activity data. Exposure assessment must account for variability across the population (e.g., children versus adults, occupational versus general population) and, where relevant, aggregate exposure across multiple pathways and cumulative exposure across multiple sources.</p>
+<p><strong>4. Risk Characterization</strong> This final, integrative step combines the outputs of the preceding three steps to produce a quantitative or qualitative estimate of risk to the population or subgroup of concern, typically expressed as an excess lifetime cancer risk (for non-threshold agents) or a hazard quotient/hazard index (ratio of estimated exposure to a reference dose, for threshold agents). Risk characterization should also transparently communicate the assumptions, uncertainties, and variability underlying the estimate, so that risk managers and stakeholders can appropriately weigh the strength of the evidence.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Step</th><th>Central Question</th><th>Typical Output</th></tr></thead><tbody><tr><td>Hazard identification</td><td>Can this agent cause harm, and of what kind?</td><td>Qualitative hazard classification</td></tr><tr><td>Dose-response assessment</td><td>How does risk/severity change with dose?</td><td>RfD/RfC, slope factor, benchmark dose</td></tr><tr><td>Exposure assessment</td><td>How much contact occurs, by whom, how often?</td><td>Estimated exposure/dose distribution</td></tr><tr><td>Risk characterization</td><td>What is the overall estimated risk, and how confident are we?</td><td>Risk estimate (e.g., hazard index, excess lifetime risk) with uncertainty statement</td></tr></tbody></table></div>
+</div>
+<div id="2-environmental-health-risk-assessment-risk-assessment-versus-risk-management-3"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Risk Assessment versus Risk Management</div>
+<p>Risk assessment is intended to be a scientific, evidence-based enterprise, while risk management is inherently a policy process incorporating risk assessment findings alongside economic feasibility, technical achievability, legal mandates, public values, and political considerations. The Red Book's deliberate separation of these two functions was intended to protect the scientific integrity of risk assessment from being distorted by policy pressures, although in practice the boundary is porous, since risk assessors must still make numerous judgement calls (choice of models, default assumptions, uncertainty factors) that carry implicit value dimensions. Doctoral-level practitioners should appreciate that this separation is an ideal rather than an absolute reality, and that transparency about assumptions is essential to preserving the credibility of the assessment.</p>
+</div>
+<div id="2-environmental-health-risk-assessment-qualitative-versus-quantitative-approaches-4"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Qualitative versus Quantitative Approaches</div>
+<p>Risk assessment can be conducted along a spectrum from purely qualitative (e.g., ranking hazards as low/medium/high based on expert judgement, useful for rapid screening or resource-limited settings) to fully quantitative (e.g., probabilistic risk assessment using Monte Carlo simulation of exposure and dose-response distributions). Semi-quantitative approaches, such as risk matrices combining likelihood and severity scores, are commonly used in occupational and environmental health practice as a pragmatic middle ground. The choice of approach should be guided by the decision context, the availability and quality of data, and the resources available for the assessment; more resource-intensive quantitative approaches are generally reserved for higher-stakes or more contested decisions.</p>
+</div>
+<div id="2-environmental-health-risk-assessment-uncertainty-and-variability-in-risk-assessment-5"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Uncertainty and Variability in Risk Assessment</div>
+<p>A recurring theme in doctoral-level treatment of EHRA is the careful distinction between uncertainty (lack of knowledge about a true value, which in principle could be reduced with more or better data) and variability (true, inherent heterogeneity in a population or system, which cannot be reduced by further study but can be better characterised). Sources of uncertainty include model uncertainty (e.g., choice of dose-response extrapolation model), parameter uncertainty (e.g., imprecise exposure measurements), and scenario uncertainty (e.g., assumptions about future land use or behaviour). Default uncertainty factors (commonly factors of 10, applied for interspecies extrapolation, intraspecies variability, subchronic-to-chronic extrapolation, and database deficiencies) are conventionally used in deriving reference doses, reflecting a precautionary stance in the face of incomplete knowledge. Sensitivity analysis and probabilistic techniques are increasingly used to characterise how uncertainty in individual inputs propagates to uncertainty in the final risk estimate.</p>
+</div>
+<div id="2-environmental-health-risk-assessment-application-to-malaysian-environmental-health-practice-gener-6"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Application to Malaysian Environmental Health Practice (General Considerations)</div>
+<p>While this note cannot draw on the specific course slides, it is well established in general practice that Malaysian environmental health regulation (encompassing agencies such as the Department of Environment, the Ministry of Health, and the Department of Occupational Safety and Health) draws substantially on international risk assessment frameworks, including EPA and World Health Organization (WHO) guidance values, while adapting them to local exposure contexts (e.g., tropical climate influences on chemical fate and vector ecology, industrial and agricultural land use patterns, and haze/transboundary air pollution episodes). Doctoral learners should be cautious about assuming direct transferability of reference values derived in temperate, high-income settings to Malaysian populations without consideration of differing dietary patterns, occupational exposure profiles, and background disease burden.</p>
+</div>
+<div id="2-environmental-health-risk-assessment-key-guidelines-standards-frameworks-for-good-practice-7"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#127973;</span>Key Guidelines, Standards & Frameworks for Good Practice</div>
+<div class="callout callout-blue"><ul><li>US EPA Risk Assessment Guidance for Superfund and related EPA guidance documents on human health risk assessment</li><li>WHO Environmental Health Criteria (EHC) monographs and WHO guidance on chemical risk assessment</li><li>International Programme on Chemical Safety (IPCS) harmonisation framework for risk assessment terminology and methods</li><li>Codex Alimentarius principles for risk analysis in food safety (illustrating the risk assessment-management-communication triad in another sectoral context)</li><li>ISO 31000 general risk management principles (applicable as an overarching governance framework, though not health-specific)</li><li>National regulatory standards (e.g., permissible exposure limits, ambient air quality standards, drinking water quality standards) that operationalise risk assessment outputs into enforceable limits</li></ul></div>
+</div>
+<div id="2-environmental-health-risk-assessment-framework-deep-dive-the-us-epa-nrc-environmental-health-risk-8"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128737;&#65039;</span>Framework Deep-Dive: The US EPA/NRC Environmental Health Risk Assessment Framework</div>
+<p>The US NRC/EPA framework, as elaborated above, remains the most widely taught and applied paradigm globally for environmental health risk assessment, and merits closer examination of its internal logic. The framework is deliberately linear in presentation but iterative in practice: findings at the risk characterization stage frequently prompt a return to earlier steps, for instance when risk characterization reveals that exposure assessment was too coarse to support a confident hazard index estimate, or when new toxicological data emerges that revises the dose-response relationship. The framework's enduring strength lies in its explicit separation of the biological question (hazard and dose-response, which are properties of the agent) from the situational question (exposure, which is a property of the specific population and setting), allowing dose-response relationships derived in one context to be reused across many different exposure scenarios. Its principal criticisms, discussed extensively in the risk assessment literature, include a historical tendency to assess single agents and single pathways in isolation (rather than cumulative, multi-stressor exposures), an implicit assumption of a relatively homogeneous "reference" population that may not adequately capture vulnerable subgroups (children, pregnant women, the elderly, those with pre-existing disease, or communities facing cumulative environmental and social disadvantage), and a reliance on default assumptions and extrapolation models that, while scientifically defensible, embed value judgements that are not always made explicit to risk managers or the public. Contemporary refinements, such as cumulative risk assessment and environmental justice-informed risk assessment, attempt to address these limitations while retaining the four-step logical structure as their foundation.</p>
+</div>
+<div id="2-environmental-health-risk-assessment-public-health-relevance-9"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128200;</span>Public Health Relevance</div>
+<div class="callout callout-green"><p>EHRA underpins a wide range of public health functions: setting ambient air and water quality standards, establishing occupational exposure limits, evaluating contaminated land for remediation priority, assessing food safety hazards, informing environmental impact assessments for new industrial or infrastructure projects, and guiding public health responses to emerging environmental threats (e.g., novel chemicals, climate-related exposures). It provides the evidentiary basis that allows limited public health resources to be allocated according to the magnitude of risk, and it offers a transparent, defensible basis for regulatory and legal decision-making that can withstand scientific and judicial scrutiny. For DrPH practitioners, EHRA competency is essential not only for technical risk estimation but for bridging scientific evidence with policy formulation and community risk communication.</p></div>
+</div>
+<div id="2-environmental-health-risk-assessment-possible-doctoral-drph-research-topics-10"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128169;</span>Possible Doctoral (DrPH) Research Topics</div>
+<div class="callout callout-purple"><ol><li><strong>Cross-sectional design</strong>: A survey-based assessment of the association between residential proximity to an industrial or agricultural emission source and self-reported or biomarker-confirmed exposure indicators among an adult population, examining whether modelled exposure estimates correlate with measured biomarkers.</li><li><strong>Cohort design</strong>: A prospective cohort study following occupationally exposed workers (e.g., in a specific industry with defined chemical hazards) to examine the relationship between cumulative exposure dose and incident chronic disease outcomes over time, contributing empirical dose-response data to refine existing reference values.</li><li><strong>Case-control design</strong>: A case-control study examining the association between historical residential or occupational exposure to a suspected environmental carcinogen and a specific cancer outcome, with attention to exposure misclassification and recall bias as key methodological challenges.</li><li><strong>Qualitative design</strong>: An in-depth qualitative study exploring how communities living near contaminated sites perceive, interpret, and respond to risk communication messages derived from formal quantitative risk assessments, with implications for improving the translation of technical risk estimates into actionable public understanding.</li><li><strong>Quasi-experimental / policy evaluation design</strong>: A quasi-experimental evaluation (e.g., difference-in-differences or interrupted time series) of the health impact of a regulatory intervention, such as tightening of an ambient air quality standard or a phased industrial emission control policy, comparing affected and unaffected populations or pre- and post-intervention periods.</li><li><strong>Economic evaluation / implementation science</strong>: A cost-effectiveness or cost-benefit analysis comparing alternative environmental health risk mitigation strategies (e.g., source control versus exposure-reduction interventions), paired with an implementation science assessment of the barriers and facilitators to translating risk assessment outputs into enforced regulatory or clinical practice within the Malaysian regulatory context.</li></ol></div>
+</div>
+</div><div class="section" id="sec3">
+<div class="page-title">3. 3. The Environmental Quality Act 1974</div>
+<div class="page-sub">Deep-dive learning notes &middot; compiled from lecture material (anonymised) &middot; DrPH specialist level</div>
+<div id="3-the-environmental-quality-act-1974-overview-0"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128218;</span>Overview</div>
+<p>The Environmental Quality Act 1974 (Act 127) is Malaysia's principal environmental statute and the legal backbone of the country's pollution control and environmental impact management regime. It came into force on 1 March 1975, and in the same year the Department of Environment (DOE) was established under its administering ministry (now the Ministry of Natural Resources and Environmental Sustainability, NRES) to operationalise the Act. The EQA established, for the first time in Malaysia, a comprehensive statutory scheme regulating discharges into air, water, and land, and creating a licensing regime for "prescribed premises" and "prescribed activities."</p>
+<p>Over five decades the Act has undergone repeated legislative revision reflecting an evolving regulatory philosophy, from largely administrative and civil-penalty oriented control toward a criminalised, deterrence-based enforcement model. Key milestones identified in the source material include the 1985 amendment (strengthened licensing and penalties), the 1987 introduction of Environmental Impact Assessment (EIA) via subsidiary legislation, the 1996 insertion of Part IVA on Scheduled Wastes (Act A953), the 2012 amendment (Act A1441, introducing stop-work orders, arrest powers, and enhanced investigation powers), the 2015 EIA Order (establishing the current two-track First/Second Schedule EIA system), and the 2024 amendment (Act A1712), which introduced mandatory imprisonment for a range of serious offences and raised maximum fines to as much as RM10 million. This trajectory, from an original maximum penalty on the order of RM10,000 in 1974 to RM10 million and mandatory custodial sentences in 2024, is presented in the source material as emblematic of the Act's evolution from a largely regulatory instrument toward one with substantial criminal-deterrence characteristics.</p>
+<p>For DrPH purposes, the EQA is best understood as the primary legal determinant of environmental exposure control in Malaysia: it sets the statutory floor for permissible pollution, establishes the institutional actor (the DOE Director General) with authority over environmental health-relevant decisions, and creates the preventive (EIA) and curative (licensing, enforcement, penalties) mechanisms through which environmental and occupational health risks are, in principle, managed at the population level.</p>
+</div>
+<div id="3-the-environmental-quality-act-1974-key-definitions-concepts-1"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128203;</span>Key Definitions & Concepts</div>
+<p>Section 2 of the EQA (Part I, Preliminary) provides the interpretive foundation for the entire Act. Several definitions are of particular relevance to environmental and occupational health analysis:</p>
+<ul><li><strong>Environment</strong>: defined broadly as "the physical factors of the surroundings of human beings including land, water, atmosphere, climate, sound, odour, taste, visual phenomena, and any form of energy." This definition is notably anthropocentric, framing environment relative to human surroundings rather than ecological integrity per se.</li><li><strong>Pollution</strong>: "the direct or indirect alteration of the properties of any segment or element of the environment" that detrimentally affects present or future use, causes harm to public health, or renders property unsafe. The explicit reference to public health harm links the Act directly to public health law, even though it is not itself framed as a health statute.</li><li><strong>Environmentally Hazardous Substance</strong>: any natural or artificial substance (solid, semi-solid, liquid, or gaseous) with the potential to cause adverse environmental effects when discharged or deposited.</li><li><strong>Prescribed Premises</strong>: premises requiring a licence under section 18, encompassing factories, palm oil mills, rubber processing plants, and waste treatment facilities, as designated by regulation.</li><li><strong>Open Burning</strong>: only formally defined in section 2 following the 2024 amendment (Act A1712), as "any fire, combustion or smouldering that occurs in the open air and which is not directed there through a chimney or stack."</li><li><strong>Director General (DG) of the DOE</strong>: the central statutory office-holder, empowered to issue licences, approve EIA reports, issue stop-work orders, compound offences, and direct enforcement across the Act.</li></ul>
+</div>
+<div id="3-the-environmental-quality-act-1974-structure-of-the-act-and-institutional-administration-2"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Structure of the Act and Institutional Administration</div>
+<p>The EQA is organised into seven substantive Parts, summarised below.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Part</th><th>Content</th><th>Key Sections</th></tr></thead><tbody><tr><td>Part I</td><td>Preliminary, definitions and interpretation</td><td>s.2</td></tr><tr><td>Part II</td><td>Administration, DOE establishment and functions</td><td>s.3</td></tr><tr><td>Part III</td><td>Licences for prescribed premises</td><td>ss.15 to 21</td></tr><tr><td>Part IV</td><td>Prohibition and control of pollution (air, water, land, noise)</td><td>ss.22 to 34</td></tr><tr><td>Part IVA</td><td>Control of scheduled wastes</td><td>ss.34A, 34AA, 34B</td></tr><tr><td>Part V</td><td>Appeal and Appeal Board</td><td>ss.35 to 36</td></tr><tr><td>Part VI</td><td>Enforcement powers (inspection, search, arrest)</td><td>ss.37 to 40</td></tr><tr><td>Part VII</td><td>Miscellaneous (compounding, liability, regulations)</td><td>ss.41 to 51</td></tr></tbody></table></div>
+<p>Administration is vested in the Director General under section 3, whose statutory functions include advising government on environmental matters, issuing/refusing/suspending/revoking prescribed-premises licences (ss.18 to 21), approving or rejecting EIA reports under section 34A, issuing stop-work and prohibition orders (s.34AA), directing polluter-funded monitoring programmes (s.31), and delegating inspection, search, arrest, and seizure powers to officers (ss.37A to 38). Following the 2024 amendment, the DG was also empowered to determine uniforms for appointed environmental officers (new s.3(1)(p)), a comparatively minor but illustrative example of the Act's continual incremental expansion. The DOE sits under NRES, maintains offices across all 13 states and 3 Federal Territories, operates 66 continuous air quality monitoring stations, publishes an annual Environmental Quality Report (EQR), and coordinates joint enforcement with the Departments of Mines, Forestry, Irrigation, and Marine.</p>
+</div>
+<div id="3-the-environmental-quality-act-1974-pollution-control-air-water-land-and-scheduled-wastes-3"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Pollution Control: Air, Water, Land and Scheduled Wastes</div>
+<p><strong>Air quality.</strong> Section 21 empowers the Minister, after consultation with the Environmental Quality Council, to specify by regulation acceptable conditions for emission, discharge, or deposit of hazardous substances, pollutants, wastes, or noise. Section 22(1) prohibits emission or discharge of environmentally hazardous substances into the atmosphere without a licence, including placement of matter that may later be released, and odour discharges detrimental to health. Subsidiary regulations include the Environmental Quality (Clean Air) Regulations 2014 and separate regulations governing petrol engine emissions (1996), diesel engine emissions (1996), halon management (1999), and refrigerant management (1999). The Air Pollutant Index (API), a public-facing risk communication tool, classifies air quality as Good (0 to 50), Moderate (51 to 100), Unhealthy (101 to 200), Very Unhealthy (201 to 300), and Hazardous (above 300).</p>
+<p><strong>Open burning.</strong> Section 29A, substituted by Act A1712 (2024), prohibits committing, allowing, instructing, or causing open burning on any premises. The Minister may by Gazette order exempt specified activities from the definition of open burning, but even exempted activities may be prohibited if air quality reaches unhealthy levels. This provision sits against the recurring context of Malaysian haze episodes (identified in the source material as occurring in 1997, 2005, 2013, 2015, 2019, and 2023), driven substantially by agricultural and peatland burning in Malaysia and neighbouring countries, and is linked to Malaysia's ratification of the ASEAN Agreement on Transboundary Haze Pollution (2002).</p>
+<p><strong>Water quality.</strong> Sections 25 (inland waters), 27 (oil discharge), and 29 (marine waters) prohibit, respectively, unlicensed discharge of hazardous substances into inland waters, discharge or spillage of oil into Malaysian waters, and discharge of hazardous substances or wastes into Malaysian waters. Subsidiary regulations include the Environmental Quality (Industrial Effluents) Regulations 2009 (33 regulations, 13 schedules) and the Environmental Quality (Sewage) Regulations 2009 (27 regulations, 7 schedules), alongside older sector-specific regulations for crude palm oil (1977) and raw natural rubber (1978) designated premises. Effluent discharge is governed by a two-tier standard: Standard A for discharges upstream of drinking-water intake points, and Standard B for other receiving waters, assessed against parameters such as BOD, COD, pH, suspended solids, ammoniacal nitrogen, and heavy metals.</p>
+<p>The National Water Quality Standards classify rivers into five classes:</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Class</th><th>Beneficial Use</th><th>Indicative Parameters</th></tr></thead><tbody><tr><td>Class I</td><td>Conservation, sensitive aquatic life</td><td>Very low BOD, COD, suspended solids</td></tr><tr><td>Class IIA</td><td>Drinking water supply (conventional treatment)</td><td>BOD less than or equal to 1, COD less than or equal to 10, pH 6.5 to 8.5</td></tr><tr><td>Class IIB</td><td>Recreational use with body contact</td><td>BOD less than or equal to 3, COD less than or equal to 25, low E. coli</td></tr><tr><td>Class III</td><td>Fisheries, crop irrigation</td><td>BOD less than or equal to 6, COD less than or equal to 50</td></tr><tr><td>Class IV</td><td>Irrigation only</td><td>BOD less than or equal to 12, COD less than or equal to 100</td></tr><tr><td>Class V</td><td>Heavily polluted, no beneficial use</td><td>BOD greater than 12, COD greater than 100</td></tr></tbody></table></div>
+<p><strong>Scheduled wastes.</strong> Part IVA, inserted by Act A953 (1996), governs hazardous waste. Section 34B(1)(a) prohibits placement, deposit, or disposal of scheduled wastes except at prescribed premises. Scheduled wastes are enumerated in the First Schedule of the Environmental Quality (Scheduled Wastes) Regulations 2005, comprising over 100 waste types across categories SW1 to SW11 (for example SW1 metal-bearing wastes, SW2/SW4 organic solvents, and further categories covering oils, PCBs, sludge, clinical waste, and fly ash). Generators are obliged to store waste on-site for a maximum of 180 days, label and package per DG guidelines, maintain inventory records, submit annual notifications to DOE, use only licensed transport contractors, and deliver waste to a licensed Treatment, Storage and Disposal Facility (TSDF, e.g., Kualiti Alam Sdn Bhd, Bukit Nanas, Negeri Sembilan). The regulatory design follows a "cradle-to-grave" documentation model: generation, on-site storage, licensed transportation with a consignment note (manifest) system, treatment/disposal at a licensed TSDF, and a signed documentation trail among generator, transporter, and TSDF, with copies to DOE.</p>
+</div>
+<div id="3-the-environmental-quality-act-1974-environmental-impact-assessment-eia-4"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Environmental Impact Assessment (EIA)</div>
+<p>Section 34A requires any person intending to carry out a "prescribed activity" to appoint a DG-approved qualified person to conduct an EIA and submit a report to the Director General. No prescribed activity may lawfully proceed without DG approval of the EIA (s.34A(6)). The current EIA framework operates under the Environmental Quality (Prescribed Activities)(EIA) Order 2015 (P.U.(A) 195/2015), which establishes a two-track system.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Feature</th><th>First Schedule</th><th>Second Schedule</th></tr></thead><tbody><tr><td>Nature of activity</td><td>Smaller scale, lower sensitivity</td><td>Larger scale, environmentally sensitive</td></tr><tr><td>EIA type</td><td>Preliminary (or Detailed at DG discretion)</td><td>Detailed (mandatory)</td></tr><tr><td>Public display</td><td>Not required</td><td>Required, 30-day period</td></tr><tr><td>Written comments</td><td>Not applicable</td><td>Public/NGOs may object in writing</td></tr><tr><td>Examples</td><td>Small quarrying, minor resorts, small logging</td><td>Dams over 50m height, airports, ports, sensitive-area resorts</td></tr></tbody></table></div>
+<p>Distinct EIA-equivalent frameworks apply in the Malaysian states of Sarawak (Natural Resources and Environment (Prescribed Activities) Order 1994) and Sabah (Conservation of Environment (Prescribed Activities) Order 1999), reflecting Malaysia's federal structure and the constitutional allocation of land and natural resource matters substantially to the states in Borneo.</p>
+<p>The EIA process, as presented in the source slides, proceeds through ten broad steps: identification of the prescribed activity against the EIA Order; appointment of a DG-listed qualified consultant (who must carry professional indemnity insurance under s.34A(2B)); scoping; baseline studies; impact prediction and evaluation; mitigation measure design; report preparation; submission and (for Second Schedule projects) public display; DG decision (approval with or without conditions, rejection, or requirement for revision); and, where approved, development of an Environmental Management Plan (EMP), whose conditions are legally binding under section 34A(7). Post-approval compliance is monitored via quarterly Environmental Monitoring and Audit (EMA) reports, independent audit, and Notices of Non-Compliance, with repeat non-compliance risking licence suspension. Section 34AA (introduced by Act A1441, 2012) empowers the DG to issue prohibition or stop-work orders where a prescribed activity proceeds without approval, breaches approval conditions, or is, in the DG's opinion, being conducted in a manner likely to cause environmental damage; such orders may be issued absolutely, conditionally, or for a specified period, without prior notice in emergency circumstances.</p>
+</div>
+<div id="3-the-environmental-quality-act-1974-compliance-licensing-enforcement-and-penalties-5"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Compliance, Licensing, Enforcement and Penalties</div>
+<p><strong>Licensing (Part III).</strong> Section 18(1) prohibits use of premises for a prescribed activity without a licence. The DG may approve applications with or without conditions (common conditions include emission/discharge limits, mandatory pollution abatement equipment, continuous emission or effluent monitoring (CEMS/COMS), periodic reporting, emergency response plans, and phased compliance schedules for existing premises), and may vary conditions (s.20) or suspend/revoke licences for non-compliance (s.21). Section 12 allows the DG to require installation of monitoring programmes at the operator's own expense.</p>
+<p><strong>Enforcement powers.</strong> Act A1441 (2012) substantially strengthened DOE's investigative and coercive powers: section 37A confers on the DG and authorised officers the full investigative powers of a police officer under the Criminal Procedure Code; section 37B requires officers to carry and produce an authority card signed by the Minister; section 37C empowers arrest without warrant of any person reasonably believed to have committed or attempted an EQA offence; and section 38 permits entry, inspection, and seizure of equipment, records, and documents from any premises without a warrant.</p>
+<p><strong>Penalty framework.</strong> Act A1712 (2024) represents, according to the source material, the most significant penalty overhaul since the Act's inception, introducing mandatory imprisonment for a number of serious offences and raising maximum fines to as high as RM10 million.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Offence (Section)</th><th>Penalty prior to 2024</th><th>Penalty under Act A1712 (2024)</th></tr></thead><tbody><tr><td>Air pollution (s.22)</td><td>RM100,000 / 5 years</td><td>RM10,000 to RM1 million / 5 years + RM1,000/day continuing</td></tr><tr><td>Noise pollution (s.23)</td><td>RM50,000 / 2 years</td><td>RM10,000 to RM250,000 / 5 years + RM1,000/day</td></tr><tr><td>Soil/land pollution (s.24)</td><td>RM50,000 / 2 years</td><td>RM50,000 to RM500,000 / 5 years + RM1,000/day</td></tr><tr><td>Inland water pollution (s.25)</td><td>RM500,000 / 5 years</td><td>Mandatory imprisonment up to 5 years + RM50,000 to RM10 million</td></tr><tr><td>Oil discharge, marine (s.27)</td><td>RM500,000 / 5 years</td><td>RM100,000 to RM10 million / 5 years or both</td></tr><tr><td>Marine waste discharge (s.29)</td><td>RM500,000 / 5 years</td><td>RM50,000 to RM10 million / 5 years or both</td></tr><tr><td>Open burning (s.29A)</td><td>RM500,000 / 5 years</td><td>RM25,000 to RM1 million / 5 years + RM5,000/day</td></tr><tr><td>EIA violation (s.34A)</td><td>RM500,000 / 5 years</td><td>Mandatory imprisonment up to 5 years + RM100,000 to RM1 million</td></tr><tr><td>Scheduled waste (s.34B)</td><td>RM500,000 / 5 years</td><td>Mandatory imprisonment up to 5 years + RM100,000 to RM10 million</td></tr><tr><td>Unlicensed premises (s.18/19)</td><td>RM25,000 / 2 years</td><td>RM25,000 to RM250,000 / 5 years + RM1,000/day</td></tr></tbody></table></div>
+<p>Section 46 imposes personal liability on directors, managers, secretaries, or similarly placed corporate officers where an offence by a body corporate was committed with their consent, connivance, or neglect, reversing the burden onto the officer to prove absence of consent/connivance and exercise of due diligence. Section 45 permits the DG to compound offences in lieu of prosecution, subject, following the 2024 amendment, to written Public Prosecutor consent and a compound ceiling of 50 percent of the maximum applicable fine.</p>
+<p><strong>Appeals.</strong> Section 35 grants a right of appeal to an Appeal Board for persons aggrieved by refusal, conditioning, revocation, or suspension of a licence, or rejection of an EIA report, within 30 days of the DG's decision. The DG's decision is not automatically stayed pending appeal. The Appeal Board (s.36) comprises a legally qualified chairperson and two further members appointed by the Minister, and its decisions are subject to further judicial review in the High Court.</p>
+</div>
+<div id="3-the-environmental-quality-act-1974-key-guidelines-standards-frameworks-for-good-practice-6"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#127973;</span>Key Guidelines, Standards & Frameworks for Good Practice</div>
+<div class="callout callout-blue"><p>The operative "good practice" architecture surrounding the EQA is composed principally of subsidiary legislation and DOE guidance documents rather than free-standing voluntary standards. These include: the EQ (Prescribed Activities)(EIA) Order 2015 (P.U.(A) 195/2015); the EQ (Scheduled Wastes) Regulations 2005 (P.U.(A) 294/2005); the EQ (Industrial Effluents) Regulations 2009 (P.U.(A) 434/2009); the EQ (Sewage) Regulations 2009; the EQ (Clean Air) Regulations 2014 (P.U.(A) 184/2014); the National Water Quality Standards (NWQS) river classification system; the DOE Green Book (1995, revised 2007) on stakeholder consultation during EIA scoping; and international/regional instruments referenced as comparators or commitments, including the ASEAN Agreement on Transboundary Haze Pollution (2002), the Aarhus Convention (1998) on access to environmental information/participation/justice (not adopted in Malaysia), UNDRIP (2007, voted for but not domesticated), and ILO Convention No. 169 on indigenous and tribal peoples. Industry-level good practice references noted include ISO 14001 environmental management certification and DOE's Industry Liaison Committee mechanism. These instruments collectively operationalise the EQA's general prohibitions into measurable emission/effluent limits, procedural EIA steps, and waste-handling protocols, and should be read as the practical compliance layer beneath the statute.</p></div>
+</div>
+<div id="3-the-environmental-quality-act-1974-framework-deep-dive-the-environmental-quality-act-1974-act-1-7"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128737;&#65039;</span>Framework Deep-Dive: The Environmental Quality Act 1974 (Act 127) and its EIA Order 2015</div>
+<p>The EQA warrants deep-dive treatment because it functions simultaneously as (a) a substantive pollution-control code, (b) a preventive risk-assessment mechanism via EIA, and (c) a criminal enforcement statute, a combination that is somewhat unusual among comparable environmental statutes internationally, which more often separate these functions across multiple instruments.</p>
+<p>Structurally, the Act's core preventive logic rests on section 34A and the EIA Order 2015's two-track schedule system: lower-risk (First Schedule) prescribed activities receive an abbreviated, non-public assessment, while higher-risk or ecologically sensitive (Second Schedule) activities require detailed assessment and mandatory 30-day public display and comment. This tiering is a resource-rationing device, it concentrates the more onerous procedural safeguards (public consultation, longer review) on activities judged more likely to generate significant environmental and, by extension, public health impact.</p>
+<p>A defining and much-litigated feature of the framework is its characterisation as public law rather than private law. The Court of Appeal in Ketua Pengarah Jabatan Alam Sekitar & Anor v Kajing Tubek & Ors [1997] 3 MLJ 23 held that EIA provisions under the EQA "do not create private law rights in favour of individuals," that enforcement is vested solely in the Director General, and that affected third parties, including directly impacted indigenous communities, lack locus standi to challenge EIA approval decisions in court. This reversed a 1996 Kuching High Court decision (Hishamudin J) that had found the EIA consultation process for the Bakun Dam project deficient, that Native Customary Rights (NCR) had not been adequately considered, and had granted an injunction halting construction. The Court of Appeal's reversal permitted the Bakun Dam project (2,400 MW installed capacity, approximately 695 sq km reservoir, roughly RM7.7 billion cost) to proceed, with approximately 10,000 indigenous people (Iban, Kenyah, Kayan, Penan) resettled to the Sungai Asap Resettlement Scheme and roughly 80,000 hectares of primary rainforest flooded.</p>
+<p>The legal principles drawn from the Bakun cases, as presented in the source material, are: (1) no automatic third-party standing to challenge EIA approvals; (2) EIA is a public law function enforced exclusively by the DG; (3) courts exercise judicial deference to the DG's technical assessment; and (4) a valid EIA approval does not, by itself, protect or validate the extinguishment of customary land rights. Reforms since Bakun (the EIA Order 2015's strengthened Second Schedule public display, online EIA availability since 2020, and incremental Act A1712 provisions) have improved procedural transparency but have not altered the underlying standing doctrine; the source material explicitly notes that Kajing Tubek "remains good law," and that Free, Prior and Informed Consent (FPIC), an ILO 169/UNDRIP standard, is still not a legal requirement under the EQA/EIA framework. A comparison against Aarhus Convention principles (access to information, participation, and justice) is presented in the slides, concluding that Malaysia satisfies "information" partially, "participation" only in a limited comment-only form, and does not provide the "access to justice" element at all for third parties.</p>
+<p>This framework deep-dive illustrates a structural tension recurrent in Malaysian environmental governance: an increasingly punitive compliance regime (mandatory imprisonment, RM10 million fines under Act A1712) coexists with a persistently restrictive standing doctrine that limits affected communities' ability to invoke the law's protective purposes directly.</p>
+</div>
+<div id="3-the-environmental-quality-act-1974-public-health-relevance-8"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128200;</span>Public Health Relevance</div>
+<div class="callout callout-green"><p>The EQA is directly relevant to environmental and occupational health practice in several ways. First, its statutory definition of "pollution" explicitly incorporates harm to public health as a triggering criterion, situating the Act as a de facto (if not formally titled) public health instrument. Second, the ambient standards it underpins, the API for air quality and the NWQS river classification for water quality, function as exposure surveillance and risk communication tools directly usable in environmental epidemiology and health impact assessment. Third, the EIA mechanism constitutes Malaysia's principal ex ante instrument for anticipating and mitigating population health impacts of major development projects (including impacts on water supply, air quality, occupational exposures during construction and operation, and psychosocial/livelihood disruption from displacement), though the source material's critique of standing limitations suggests that affected communities have limited legal leverage to ensure health considerations are adequately weighted in DG decision-making. Fourth, the scheduled wastes regime governs hazardous and clinical waste management, of direct relevance to occupational exposure control in healthcare and industrial settings. Fifth, the open burning provisions and their link to recurrent transboundary haze episodes place the EQA at the centre of a recognised regional air-quality public health hazard, with direct implications for respiratory and cardiovascular morbidity. Finally, the persistent legislative gaps identified in the source material, absence of mandatory GHG reporting, absence of climate/carbon impact assessment requirements in EIA, and absence of FPIC, represent unresolved determinants of environmental health equity, particularly for indigenous and rural communities disproportionately exposed to extractive and infrastructure development.</p></div>
+</div>
+<div id="3-the-environmental-quality-act-1974-possible-doctoral-drph-research-topics-9"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128169;</span>Possible Doctoral (DrPH) Research Topics</div>
+<div class="callout callout-purple"><ol><li><strong>Cross-sectional study</strong>: Assessment of DOE licensing compliance status (self-monitoring reports, CEMS/COMS data) among prescribed premises in a defined industrial zone, correlated with surrounding community-reported respiratory symptom prevalence, to examine the association between regulatory compliance status and proximate population health indicators.</li></ol>
+<ol><li><strong>Qualitative study</strong>: An interpretive phenomenological or grounded-theory inquiry into indigenous community members' lived experience of, and perceived legitimacy of, the EIA public participation process under the Second Schedule regime, examining how the post-Kajing Tubek "comment without standing" framework shapes trust in environmental governance and willingness to engage with future consultations.</li></ol>
+<ol><li><strong>Policy analysis</strong>: A doctrinal and policy-comparative analysis of Act A1712 (2024)'s introduction of mandatory imprisonment and escalated fines, evaluating (through documentary analysis of Parliamentary debates, DOE enforcement statistics pre/post 2024, and comparator jurisdiction penalty regimes) whether criminalisation-based deterrence models are likely to achieve the intended compliance improvements, with attention to unintended effects such as reduced voluntary self-reporting.</li></ol>
+<ol><li><strong>Quasi-experimental / interrupted time series</strong>: Evaluation of ambient air quality index trends and haze-related hospital admission rates before and after the 2024 substitution of section 29A (open burning provisions) and associated penalty escalation, using segmented regression to test for level and slope changes attributable to the legislative change, with appropriate control for concurrent regional (transboundary) burning activity as a confounder.</li></ol>
+<ol><li><strong>Economic evaluation</strong>: A cost-of-illness or cost-benefit analysis comparing the direct compliance costs imposed on scheduled waste generators under the cradle-to-grave system (storage, licensed transport, TSDF disposal fees) against averted health and environmental remediation costs, to inform Extended Producer Responsibility (EPR) policy design currently under consideration in Malaysia.</li></ol>
+<ol><li><strong>Implementation science</strong>: A mixed-methods study applying an implementation science framework (e.g., Consolidated Framework for Implementation Research) to examine barriers and facilitators to Environmental Management Plan (EMP) compliance among Second Schedule project proponents, focusing on the role of Environmental Monitoring and Audit (EMA) reporting, independent audit capacity, and DOE resource constraints (limited officer-to-premises ratios) as implementation determinants.</li></ol></div>
+</div>
+</div><div class="section" id="sec4">
+<div class="page-title">4. 4. Environmental Health Risk Management and Risk Communication</div>
+<div class="page-sub">Deep-dive learning notes &middot; compiled from lecture material (anonymised) &middot; DrPH specialist level</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-overview-0"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128218;</span>Overview</div>
+<p>This topic addresses the applied, decision-oriented phase of environmental health risk analysis: how risk assessment findings are translated into management action, and how information about risk is communicated to affected publics, stakeholders, and decision-makers. Whereas risk assessment (the subject of the preceding topic in this module) is a predominantly technical-scientific exercise, risk management and risk communication are inherently socio-political processes that must reconcile scientific evidence with values, resources, trust, and public perception. The lecture material frames the entire topic around a deceptively simple question, "Is it safe?", to illustrate that risk management is rarely a purely technical problem; it is a negotiated judgment shaped by uncertainty, institutional credibility, and differing frames of reference between experts and the public. This tension between technical risk characterisation and lay risk perception underpins the entire topic and is a recurring theme in doctoral-level environmental health scholarship.</p>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-key-definitions-concepts-1"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128203;</span>Key Definitions & Concepts</div>
+<ul><li><strong>Risk management</strong>: the process of weighing policy alternatives in light of the results of risk assessment and, if necessary, selecting and implementing appropriate control options, including the option of no action. It integrates scientific, economic, legal, ethical, political, social, and technological considerations.</li><li><strong>Risk communication</strong>: an interactive process of exchange of information and opinion among individuals, groups, and institutions concerning a risk or potential risk to health or the environment. The lecture material explicitly frames risk communication as "part and parcel of risk management" rather than a discrete, downstream activity.</li><li><strong>Risk perception</strong>: the subjective judgment that people make about the characteristics and severity of a risk; the lecture notes that "risk is a social construct," meaning that lay perception of risk is shaped by voluntariness, familiarity, controllability, dread, trust, and fairness rather than by probability estimates alone.</li><li><strong>Risk acceptability</strong>: the socially and politically determined threshold at which a given level of risk is considered tolerable; the slides note that government benchmarks (e.g., risk not exceeding 10^-6, compliance with WHO/NHMRC/EU/USEPA standards) represent one operational definition of "safe," which frequently diverges from the public's experiential definition of safety.</li><li><strong>Vulnerable groups</strong>: population subgroups (children, the elderly, the sick, and other susceptible individuals) who bear disproportionate risk from a given exposure and who are explicitly identified in the lecture as the primary focus of health risk management ("to protect people's health especially people at greatest risk").</li><li><strong>Analytic-deliberative process</strong>: an approach to risk management, echoed in the lecture's description of a shift "away from autocratic pronouncement," in which technical analysis is combined with structured public and stakeholder deliberation.</li></ul>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-divergence-between-expert-and-public-risk-perception-is-it-s-2"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Divergence Between Expert and Public Risk Perception ("Is It Safe?")</div>
+<p>The lecture material contrasts government/expert and public conceptions of safety directly. The government's operational definition of "safe" rests on quantitative and standards-based criteria (risk thresholds, compliance with recognised health reference values, absence of demonstrable effect in testing, expert and research consensus). The public's conception of "safe," by contrast, is described as multidimensional and largely non-quantitative: absence of any risk, a sense of harmony or comfort, voluntariness of exposure, presence of a perceived benefit, absence of lasting harm, and social cues such as reassurance from neighbours or media framing. This divergence is presented as the central practical difficulty of risk management: a risk level that is scientifically negligible may nonetheless be perceived as unacceptable by the public, and vice versa. From a risk communication theory perspective (general public health knowledge, not stated explicitly in the slides but consistent with the established literature, e.g., Slovic's psychometric paradigm), this gap is attributable to qualitative risk characteristics, dread, catastrophic potential, involuntariness, inequitable distribution, and lack of personal control, that are not captured by expected-value risk metrics.</p>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-trust-as-the-central-currency-of-risk-management-3"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Trust as the Central Currency of Risk Management</div>
+<p>A substantial portion of the lecture is devoted to institutional trust as a determinant of risk acceptance. The material identifies several structural sources of distrust: perceived lack of independence of engaged experts, lack of transparency in how expert advice is elicited, divergence between expert and lay views, and public spectacles of disagreement among experts (which undermine confidence in any single authoritative voice). A trust survey table is presented in the lecture (source not further specified in the slide content) illustrating differential public and expert confidence across institutions:</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Institution/actor</th><th>% public lacking trust</th><th>% experts lacking trust</th></tr></thead><tbody><tr><td>Experts at government agencies</td><td>59</td><td>15</td></tr><tr><td>Experts at universities</td><td>35</td><td>20</td></tr><tr><td>Experts in the nuclear industry</td><td>37</td><td>8</td></tr><tr><td>Politicians</td><td>93</td><td>82</td></tr><tr><td>Authorities</td><td>41</td><td>5</td></tr><tr><td>Nuclear industry (institution)</td><td>57</td><td>16</td></tr></tbody></table></div>
+<p>This pattern (illustrative of nuclear-risk contexts specifically per the lecture annotation) demonstrates that trust deficits are not uniform: politicians attract distrust from both public and expert communities, while universities and technical agencies retain comparatively higher (though still incomplete) credibility. The pedagogical implication drawn in the lecture is that risk communicators should move from an "autocratic pronouncement" stance ("I'm the expert, do what I say") toward an approach of explicit acknowledgment of uncertainty ("this is what is known and not known, this is my opinion, but there are other schools of thought"), openness to scrutiny and peer review, and joint work with stakeholders in framing risk issues.</p>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-risk-management-goals-tools-and-options-4"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Risk Management: Goals, Tools, and Options</div>
+<p>The stated goal of health risk management in the lecture is to protect health, particularly among vulnerable groups, anchored in "evidence-based preventive medicine," with risk assessment identified as the principal tool supporting this goal. A hierarchy of generic risk management response options is implied by the risk-analysis diagram (slides 28-29) and is consistent with standard environmental risk management practice:</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Option category</th><th>Example (as depicted/implied in lecture)</th></tr></thead><tbody><tr><td>No action</td><td>Accept risk as within tolerable limits</td></tr><tr><td>Regulatory control</td><td>Ban, emissions standards</td></tr><tr><td>Economic instruments</td><td>Incentives</td></tr><tr><td>Behavioural/informational measures</td><td>Education, public advisories</td></tr><tr><td>Engineering controls</td><td>Control devices</td></tr></tbody></table></div>
+<p>The lecture stresses that intervention selection must be customised to the specific hazard and target population, illustrated through the haze (transboundary air pollution) example: "stay indoor" advice is undermined by naturally ventilated housing typical in Malaysia; surgical masks provide limited particulate filtration efficacy; N95 respirators are not designed for young children, are costly, and are often unavailable in sufficient quantity during large-scale events. This example is used to demonstrate that generic risk-reduction advice may be impractical or inequitable in the local socio-environmental context, and that protecting the most vulnerable (young children) may be the most operationally difficult sub-problem within a broader risk management strategy.</p>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-operational-challenges-in-risk-assessment-and-risk-managemen-5"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Operational Challenges in Risk Assessment and Risk Management</div>
+<p>The lecture enumerates practical constraints on effective risk management in the Malaysian/regional context:</p>
+<ul><li>Shortage of trained human resources capable of conducting technical risk assessment.</li><li>High technical complexity of risk assessment methodology.</li><li>Insufficient scientific evidence for newly introduced or emerging hazards, and pervasive uncertainty.</li><li>Limitations in environmental monitoring technology (lack of availability, high cost, poor usability, difficulty addressing multiple exposure routes, multiple hazards, and pollutant interactions).</li><li>Difficulty establishing health-based standards that adequately protect the most susceptible subgroups.</li><li>Institutional ambiguity: the health sector is frequently positioned as the "receiving end" of risks generated by other sectors' activities, yet is expected to bear responsibility for management.</li><li>Difficulty changing stakeholder attitudes and behaviour toward accepting responsibility for risk management (e.g., unsafe occupational practices among workers, unsafe pesticide application among farmers leading to residues in produce, and unhealthy lifestyle behaviours contributing to chronic disease).</li><li>Failure to integrate local cultural and social values with technical risk assessment, which the lecture identifies as a driver of poor public acceptance of proposed risk-reduction strategies.</li><li>Cost constraints, requiring cost-benefit and cost-effectiveness analysis, which themselves demand specialised expertise and resources not always available.</li></ul>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-risk-communication-as-an-integral-component-of-risk-manageme-6"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Risk Communication as an Integral Component of Risk Management</div>
+<p>The lecture explicitly positions risk communication as inseparable from risk management rather than as a separate "public relations" add-on. It highlights that empirical risk perception research demonstrates risk to be socially constructed, and poses an open question regarding the availability of local (Malaysian) empirical data on public risk perception across hazard types, implicitly identifying a research gap.</p>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-risk-management-and-communication-in-emergencies-and-disaste-7"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Risk Management and Communication in Emergencies and Disasters</div>
+<p>A distinct set of challenges is described for the emergency/disaster context, drawing on the presenter's stated experience with search-and-rescue (SAR) operations, the Nipah virus outbreak, tsunami response, and haze episodes. Key challenges include: the premium on timeliness (information must be collected, analysed, and transmitted rapidly to enable immediate action), the difficulty of inter-agency coordination, the tendency toward public panic and public outrage that pressures health authorities, the risk of reactive (rather than evidence-based) decision-making under crisis conditions, and the burden of managing multiple concurrent health problems during a single disaster event. The lecture frames a "strong evidence base to guide decision-making" as essential to resisting purely reactive crisis management.</p>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-key-guidelines-standards-frameworks-for-good-practice-8"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#127973;</span>Key Guidelines, Standards & Frameworks for Good Practice</div>
+<div class="callout callout-blue"><p>The lecture does not cite a specific named guideline document verbatim, but it articulates several practice principles consistent with internationally recognised risk communication and risk governance guidance (e.g., US EPA risk communication principles, WHO outbreak communication guidance, and the International Risk Governance Council framework), namely:</p>
+<ul><li>Transparency in the process by which expert advice is elicited and used.</li><li>Explicit acknowledgment of scientific uncertainty rather than false certainty.</li><li>Openness to public scrutiny and independent peer review of risk assessments.</li><li>Joint engagement of experts, stakeholders, and decision-makers in framing and addressing risk issues (a deliberative, participatory model rather than a top-down expert pronouncement model).</li><li>Development of human capital and capacity building in risk assessment and management.</li><li>Establishment of risk information systems and inter-agency/inter-institutional networks for sharing expertise and resources.</li><li>Reorientation of research agendas toward practical, affordable, field-deployable monitoring and management tools, prioritising protection of the most vulnerable.</li></ul>
+<p>The suggested key issues to overcome challenges (capacity building, research reorientation, technology development, and risk information networks) function collectively as a de facto institutional-strengthening framework for environmental health risk management in resource-constrained settings.</p></div>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-framework-deep-dive-the-risk-analysis-triad-risk-assessment--9"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128737;&#65039;</span>Framework Deep-Dive: The Risk Analysis Triad (Risk Assessment, Risk Management, Risk Communication) and the Analytic-Deliberative Process</div>
+<p>The diagram reproduced in the lecture (slides 28 to 29) depicts the classic risk analysis paradigm widely used in environmental health and regulatory toxicology, closely paralleling the structure formalised by the US National Research Council (the "Red Book," 1983, and subsequently elaborated in *Understanding Risk: Informing Decisions in a Democratic Society*, NRC, 1996). In this framework:</p>
+<ol><li><strong>Scientific research</strong> (epidemiology, clinical studies, animal toxicology, in vitro studies, computational methods, monitoring/surveillance, and social sciences/psychology) feeds into <strong>risk assessment</strong>, comprising hazard identification, dose-response assessment, exposure assessment, and risk characterisation.</li><li><strong>Risk assessment outputs</strong> feed into <strong>risk management</strong>, which additionally incorporates economic, ethical, legal, moral, political, social, and technological considerations, and generates a menu of possible decisions (no action, ban, emissions standards, incentives, education, control devices).</li><li>Critically, the later version of the diagram (slide 29) adds <strong>public involvement</strong> and <strong>risk perception and communication</strong> as explicit inputs feeding into the decision node, alongside impact assessment. This modification reflects the historically significant conceptual evolution from a strictly linear, technocratic risk assessment-to-management pipeline toward the <strong>analytic-deliberative process</strong> advocated by the NRC (1996): risk decisions are treated as jointly informed by rigorous scientific analysis and structured public/stakeholder deliberation, rather than being handed down after assessment is "complete." This deep-dive is warranted because the diagram is a direct visual restatement of this internationally recognised paradigm, and because the surrounding lecture content (the critique of "autocratic pronouncement," the emphasis on transparency and joint stakeholder engagement) is a direct pedagogical operationalisation of the analytic-deliberative model. For DrPH practitioners, the practical implication is that risk communication should not be conceived merely as message dissemination after a management decision has been made, but as a structural input into the decision-making architecture itself.</li></ol>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-public-health-relevance-10"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128200;</span>Public Health Relevance</div>
+<div class="callout callout-green"><p>Effective integration of risk management and risk communication is central to DrPH practice in several respects. First, environmental and occupational health decisions (air quality advisories during haze episodes, food and water safety standards, pesticide regulation, industrial emissions control) routinely require balancing incomplete scientific evidence against urgent public expectations for protective action, particularly for vulnerable subgroups such as children, the elderly, and those with pre-existing illness. Second, institutional trust, shown in the lecture's survey data to be low for several categories of authority, is itself a modifiable determinant of risk mitigation uptake (e.g., adherence to advisories, vaccination, evacuation compliance) and therefore merits direct public health intervention and measurement. Third, the emergency/disaster risk communication challenges described (timeliness, coordination, evidence-based decision-making under panic conditions) are directly relevant to Malaysia's demonstrated experience with infectious disease outbreaks (Nipah), natural disasters (tsunami), and recurrent transboundary haze, all of which remain active public health concerns. Finally, the lecture's emphasis on customising interventions to local context (housing ventilation patterns, mask feasibility for children) underscores that risk management guidance generated in other jurisdictions cannot be uncritically transplanted without contextual adaptation, a principle of direct relevance to environmental health policy formulation in Malaysia and comparable settings.</p></div>
+</div>
+<div id="4-environmental-health-risk-management-and-risk-communicatio-possible-doctoral-drph-research-topics-11"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128169;</span>Possible Doctoral (DrPH) Research Topics</div>
+<div class="callout callout-purple"><ol><li><strong>Cross-sectional study</strong>: Assessment of public risk perception and trust in government health authorities regarding transboundary haze exposure across different Malaysian states, examining associations between socio-demographic factors, prior exposure experience, and perceived risk acceptability.</li><li><strong>Qualitative study</strong>: An exploratory qualitative investigation (in-depth interviews or focus group discussions) of how caregivers of young children interpret and act upon official air quality advisories during haze episodes, examining barriers to adherence such as housing ventilation and mask feasibility.</li><li><strong>Quasi-experimental/time-series study</strong>: Interrupted time-series analysis evaluating the impact of a revised risk communication strategy (e.g., introduction of a colour-coded Air Pollutant Index public alert system) on hospital admissions or clinic attendances for respiratory conditions during subsequent haze events.</li><li><strong>Policy analysis</strong>: A comparative policy analysis of inter-agency coordination mechanisms for health risk communication during declared public health emergencies in Malaysia (e.g., Nipah virus outbreak response versus more recent outbreak responses), identifying structural facilitators and barriers to timely information transmission.</li><li><strong>Economic evaluation</strong>: A cost-effectiveness analysis comparing alternative personal protective interventions (e.g., N95 respirator distribution versus indoor air filtration subsidy programmes) for reducing particulate matter exposure among vulnerable populations during haze episodes.</li><li><strong>Implementation science study</strong>: Application of an implementation science framework (e.g., Consolidated Framework for Implementation Research) to evaluate the adoption and institutionalisation of participatory, analytic-deliberative risk management processes (joint expert-stakeholder engagement) within a Malaysian environmental health regulatory agency, identifying organisational and contextual determinants of successful implementation.</li></ol></div>
+</div>
+</div><div class="section" id="sec5">
+<div class="page-title">5. 5. Environmental Impact Assessment (EIA)</div>
+<div class="page-sub">Deep-dive learning notes &middot; compiled from lecture material (anonymised) &middot; DrPH specialist level</div>
+<div id="5-environmental-impact-assessment-eia-overview-0"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128218;</span>Overview</div>
+<p>Environmental Impact Assessment (EIA) is a structured, anticipatory decision-support tool used to identify, predict, evaluate, and mitigate the biophysical, social, cultural, health, and economic consequences of proposed development projects, plans, programmes, or legislative actions before irreversible commitments of resources are made. As a discipline, EIA sits at the interface of environmental science, planning law, and public health practice, and it is one of the principal instruments by which the precautionary principle is operationalised in project-level decision-making. In the Malaysian context, EIA is a statutory requirement administered under the Environmental Quality Act 1974 and its subsidiary legislation, and it is directly relevant to DrPH practice because many of the environmental determinants of population health (air and water quality, occupational hazards, vector breeding sites, noise, displacement, and psychosocial stress from land-use change) are first identified, quantified, and (ideally) mitigated through the EIA process. This topic note synthesises the generic international EIA process (screening, scoping, impact analysis, mitigation, review, decision-making, and follow-up) as presented in the source lecture material, and situates it within the Malaysian statutory framework for the purposes of doctoral-level analysis.</p>
+</div>
+<div id="5-environmental-impact-assessment-eia-key-definitions-concepts-1"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128203;</span>Key Definitions & Concepts</div>
+<p>Canter (1996) defines EIA as "the systematic identification and evaluation of the potential impacts (effects) of proposed projects, plans, programs, or legislative actions relative to the physical-chemical, biological, cultural, and socioeconomic components of the total environment." This definition is notable for its breadth: "environment" is not restricted to biophysical media but explicitly extends to human health and safety, flora, fauna, ecosystems and biodiversity, soil, water, climate and landscape, land and natural resource use, protected areas and heritage sites, and the livelihood, lifestyle, and well-being of affected communities. This broad conceptualisation is the doctrinal basis for treating EIA as a legitimate vehicle for embedding health considerations into environmental decision-making, rather than treating health impact assessment (HIA) as an entirely separate exercise.</p>
+<p>The stated aims and objectives of EIA, as presented in the lecture material, are to modify and improve project design, ensure efficient resource use, identify key impacts and mitigation measures, inform decision-making and condition-setting, avoid serious and irreversible environmental damage, and protect human health and safety. These objectives underscore that EIA is intended to be an iterative and formative tool (feeding back into design) rather than a purely evaluative or terminal one.</p>
+<p>Different jurisdictions use different names for what is substantively the same instrument: Environmental Impact Assessment report (EIA), Environmental Impact Statement (EIS, the US terminology under NEPA), Environmental Statement (ES, UK terminology), Environmental Assessment Report, and Environmental Effects Statement. In Malaysia, the statutory local terminology under the Environmental Quality Act 1974 is simply "EIA report," submitted to the Department of Environment (DOE), Ministry of Natural Resources and Environmental Sustainability.</p>
+</div>
+<div id="5-environmental-impact-assessment-eia-eia-process-core-stages-2"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>EIA Process: Core Stages</div>
+<p>The lecture material presents a generalised EIA process flowchart comprising a sequence of stages. These are summarised below.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Stage</th><th>Core Purpose</th><th>Key Outputs</th></tr></thead><tbody><tr><td>Screening</td><td>Determine whether a proposal requires an EIA, and if so, at what level</td><td>Screening decision (full EIA, limited EIA, further study needed, or exempt)</td></tr><tr><td>Scoping</td><td>Identify the boundaries of study, key issues, and information needs</td><td>Terms of Reference (TOR)</td></tr><tr><td>Impact analysis (detailed study)</td><td>Identify, predict, and evaluate the significance of impacts</td><td>Impact predictions, significance ratings</td></tr><tr><td>Mitigation</td><td>Develop measures to avoid, minimise, or compensate for impacts</td><td>Mitigation hierarchy, Environmental Management Plan (EMP)</td></tr><tr><td>Reporting</td><td>Compile findings into a decision-ready document</td><td>EIA report / EIS</td></tr><tr><td>Review</td><td>Assess adequacy of the EIA report for decision-making</td><td>Review findings, deficiency list</td></tr><tr><td>Decision-making</td><td>Political and administrative choice among alternatives</td><td>Approval, conditional approval, or rejection</td></tr><tr><td>Implementation & follow-up</td><td>Verify predicted impacts, ensure compliance, adapt as needed</td><td>Monitoring data, audits, post-project analysis</td></tr></tbody></table></div>
+<p><strong>Screening.</strong> The purpose of screening is to determine whether a proposal requires an EIA and, if so, what level of assessment is warranted (pre-project, present-project, or post-project). Four possible screening outcomes are identified: a full/comprehensive EIA is required, a more limited EIA is required, further investigation is needed to determine EIA requirement, or no further EIA requirement applies. Extended screening methods include the Initial Environmental Evaluation/Examination (IEE), environmental overview, and class screening (grouping similar, low-risk project types for streamlined treatment).</p>
+<p><strong>Scoping.</strong> Scoping is an early, interactive process, beginning once screening is complete, that lays the foundation of the EIA by identifying study boundaries, information necessary for decision-making, and the key issues and significant impacts to be examined. Its objectives include eliciting stakeholder concerns, identifying feasible alternatives, defining study boundaries, agreeing on methods of public involvement, and establishing the Terms of Reference (TOR). The outline TOR typically covers objectives and background, study area, alternatives, opportunities for public involvement, impacts to be studied, methodological approach, mitigation and monitoring requirements, data requirements, and a timetable. Guiding principles emphasise that scoping is a *process*, not a single event; it should be tailored to each proposal, started early, systematic yet flexible in implementation, and responsive to new information.</p>
+<p>Screening and scoping are frequently conflated but serve distinct functions: screening determines *whether* and *what level* of EIA is required and establishes the level of review necessary, whereas scoping identifies the *key issues and impacts* and establishes the *TOR*.</p>
+<p><strong>Impact analysis.</strong> The detailed study phase involves identifying impacts more specifically, predicting their characteristics (magnitude, duration, reversibility, probability), and evaluating the significance of residual impacts (those remaining after mitigation). A range of impact identification methods is used, each with distinct strengths and limitations.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Method</th><th>Advantages</th><th>Disadvantages</th></tr></thead><tbody><tr><td>Checklists</td><td>Simple to understand and use; good for site selection and priority setting</td><td>Do not distinguish direct from indirect impacts; do not link action to impact; value-laden weighting can be controversial</td></tr><tr><td>Matrices</td><td>Link actions to impacts; good for displaying results</td><td>Difficult to separate direct/indirect impacts; risk of double-counting</td></tr><tr><td>Networks</td><td>Link action to impact; handle direct and indirect (second-order) impacts</td><td>Become unwieldy in complex, non-simplified form</td></tr><tr><td>Overlays / GIS</td><td>Easy to understand; good display and siting tool</td><td>Overlays alone address only direct impacts and not duration/probability</td></tr><tr><td>Expert systems / GIS-based computer tools</td><td>Strong for impact identification, analysis, and scenario "experimentation"</td><td>Heavy data/knowledge dependence; often complex and costly</td></tr></tbody></table></div>
+<p>Significance determination should follow established procedures or guidance, adapt criteria from comparable cases, be assigned rationally and defensibly, remain consistent across alternatives, and be documented. A three-question significance test is proposed: are there residual impacts; if so, are they likely significant; and if so, are the significant effects likely to actually occur. Significance criteria include environmental loss/deterioration, social impacts arising from environmental change, non-conformity with environmental standards, and the probability and acceptability of risk.</p>
+<p><strong>Mitigation.</strong> The mitigation hierarchy prioritises avoidance and prevention first, then consideration of feasible alternatives, then customised minimisation measures, ensuring cost-effectiveness and appropriateness, with compensation/offsetting reserved as a last resort. This is consistent with the internationally recognised mitigation hierarchy (avoid, minimise, restore, offset) used in biodiversity and environmental safeguard policy more broadly (general knowledge, not explicit in the source slides).</p>
+<p><strong>Review.</strong> The review stage establishes whether the EIA report contains sufficient information for decision-making. Aspects considered include compliance with the TOR, technical soundness, adequate treatment of public comments, clarity, and overall sufficiency for decision-making. A four-step review approach is described: identify deficiencies, focus on critical shortcomings, recommend remedial measures, and (in some systems) advise on implications for decision-making. A qualitative A-to-F rating scale (with an N/A category) is used in some systems to grade report adequacy, ranging from "generally well performed" (A) to "very unsatisfactory" (F).</p>
+<p><strong>Decision-making.</strong> Decision-making is characterised as a political process involving choice between alternatives, weighing of benefits and costs, negotiation and trade-offs, and balancing of economic, social, and environmental factors. Decision-makers need to understand EIA aims and concepts, relevant legislation and procedure, the practical effectiveness and limitations of EIA information, international benchmarks, and issues of public consultation and third-party challenge.</p>
+<p><strong>Implementation and follow-up.</strong> Post-approval activities aim to enforce conditions, verify that impacts occur as predicted, manage unforeseen changes, and improve future EIA practice. Key components include surveillance and supervision, impact-effects monitoring, compliance monitoring, environmental auditing, evaluation of EIA effectiveness, and post-project analysis.</p>
+</div>
+<div id="5-environmental-impact-assessment-eia-report-structure-and-environmental-management-plans-3"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Report Structure and Environmental Management Plans</div>
+<p>The main elements of an EIA report typically comprise an executive summary, the need for and aims of the proposal, a description of the proposal and alternatives, a description of the affected environment and community, a record of public consultation and views, main impacts and their mitigation, evaluation of significant residual impacts, and an Environmental Management Plan (EMP). The EMP is the operational instrument that translates EIA findings into enforceable action, and should include a summary of impacts, recommended mitigation measures, a statement of compliance with standards, allocation of resources and responsibilities, a schedule of required actions, a surveillance/monitoring/auditing programme, contingency measures for impacts exceeding predictions, and reference to relevant state policy and standards.</p>
+</div>
+<div id="5-environmental-impact-assessment-eia-key-guidelines-standards-frameworks-for-good-practice-4"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#127973;</span>Key Guidelines, Standards & Frameworks for Good Practice</div>
+<div class="callout callout-blue"><p>The lecture material articulates three core values that should underpin good EIA practice: integrity (conformity with agreed standards), utility (provision of balanced, credible information for decision-making), and sustainability (delivery of environmental safeguards). These values are operationalised through nine guiding principles: EIA should be purposive, focused, adaptive, participative, transparent, rigorous (employing "best practicable methodology"), practical, credible, and efficient (imposing the least cost burden on proponents consistent with meeting objectives). These principles closely mirror the good-practice guidance historically promulgated by the International Association for Impact Assessment (IAIA) (general knowledge, not explicit in the slides, but consistent with the terminology used).</p>
+<p>Benefits attributed to well-conducted EIA include environmentally sound and sustainable design, improved regulatory compliance, savings in capital and operating costs, reduced time and cost for approvals, increased project acceptance by communities and regulators, and better protection of the environment and human health. In the Malaysian regulatory context, the applicable statutory framework and technical guidance are the Environmental Quality Act 1974, the Environmental Quality (Prescribed Activities)(Environmental Impact Assessment) Order 2015 (which prescribes the categories of activities requiring EIA and superseded the earlier 1987 Order), and DOE Malaysia's EIA guidelines and handbook, which set out procedural, technical, and public-participation requirements (this paragraph reflects general knowledge of the Malaysian regulatory landscape and is not itself drawn from the lecture slides, which present a generic international EIA process).</p></div>
+</div>
+<div id="5-environmental-impact-assessment-eia-framework-deep-dive-the-malaysian-eia-procedure-under-the-en-5"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128737;&#65039;</span>Framework Deep-Dive: The Malaysian EIA Procedure under the Environmental Quality Act 1974 and the Prescribed Activities (EIA) Order 2015</div>
+<p>Although the lecture slides present a generic, internationally applicable EIA process, DrPH candidates practising in Malaysia must situate this process within the domestic statutory framework. Under Section 34A of the Environmental Quality Act 1974, any person intending to carry out a "prescribed activity" is required to submit a report (the EIA report) to the Director General of Environmental Quality before approval to commence the activity may be granted. The Environmental Quality (Prescribed Activities)(Environmental Impact Assessment) Order 2015 operationalises this requirement by classifying prescribed activities into two schedules, which broadly correspond to the two-tier EIA system used in Malaysia. This two-tier structure can be understood as a jurisdiction-specific institutionalisation of the generic screening principle described in the lecture material, whereby the *level* of assessment required is determined by the nature, scale, and location-sensitivity of the proposed activity.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Feature</th><th>Preliminary EIA (First Schedule activities)</th><th>Detailed EIA (Second Schedule activities)</th></tr></thead><tbody><tr><td>Trigger</td><td>Lower-risk or smaller-scale prescribed activities (e.g. smaller-scale land development, certain infrastructure projects)</td><td>Higher-risk, larger-scale, or environmentally sensitive activities (e.g. large dams, major industrial facilities, activities near environmentally sensitive areas)</td></tr><tr><td>Scope of assessment</td><td>Narrower; focused on identification of key issues and preliminary mitigation</td><td>Comprehensive; includes detailed impact prediction, alternatives analysis, and full EMP</td></tr><tr><td>Public review</td><td>More limited, though public inspection provisions apply</td><td>Mandatory public display period and structured opportunity for public comment/objection</td></tr><tr><td>Approving authority process</td><td>Generally processed at state DOE level in many cases</td><td>Typically subject to more extensive technical review, potentially involving a formal review panel</td></tr><tr><td>Analogue in generic process</td><td>Corresponds to "more limited EIA required" screening outcome</td><td>Corresponds to "full or comprehensive EIA required" screening outcome</td></tr></tbody></table></div>
+<p>Typical prescribed activities requiring EIA in Malaysia, broadly consistent with the categories of "proposals typically requiring a full EIA" identified in the lecture material, include dams and reservoirs, land reclamation and resettlement/urban development schemes, transport and sanitation infrastructure, industrial and manufacturing facilities, oil and gas and mineral extraction, hazardous and toxic waste management and disposal facilities, and power generation and transmission infrastructure. The Malaysian system requires that Detailed EIA reports be made available for public inspection and comment, and the DOE's review process (echoing the generic review stage described above) assesses technical soundness, compliance with the Terms of Reference, treatment of public feedback, and sufficiency of information for decision-making before the Director General issues a decision (approval, conditional approval, or rejection).</p>
+<p>A structural limitation frequently discussed in the EIA literature (general knowledge) is that the Malaysian system, in common with many EIA regimes internationally, evaluates projects individually rather than cumulatively, and health-specific expertise is not always systematically embedded in the review panel or the report preparation team, meaning that health outcomes may be addressed unevenly unless a dedicated Health Impact Assessment (HIA) component, environmental health risk assessment (EHRA), or Ministry of Health input is explicitly incorporated into the scoping and impact-analysis stages. This gap is a recurring theme in doctoral-level critiques of EIA systems and represents a natural bridge to HIA as a complementary or embedded methodology.</p>
+</div>
+<div id="5-environmental-impact-assessment-eia-public-health-relevance-6"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128200;</span>Public Health Relevance</div>
+<div class="callout callout-green"><p>EIA is directly relevant to DrPH practice for several reasons. First, the broad definition of "environment" used in EIA practice, spanning human health and safety, livelihood, and community well-being, provides a legitimate entry point for public health practitioners to contribute technical input during scoping and impact analysis, particularly regarding air and water quality impacts, vector-borne disease risk from land-use change (e.g. construction sites and stagnant water), occupational exposures during construction and operation phases, noise and psychosocial stress, food and water security, and displacement-related mental health and social determinants of health. Second, the EMP's surveillance, monitoring, and auditing programme is functionally analogous to public health surveillance systems, and DrPH-trained practitioners are well positioned to design and evaluate these monitoring frameworks using epidemiological methods. Third, because EIA decision-making explicitly involves weighing of costs, benefits, and trade-offs, public health professionals can contribute economic and health-impact evidence to inform more health-protective conditions of approval. Fourth, the public participation and transparency principles embedded in EIA good practice are structurally similar to community engagement principles in public health practice, and weaknesses in public participation (a commonly cited criticism of EIA systems, including in Malaysia) have direct implications for environmental justice and the equitable distribution of health risks and benefits from development projects.</p></div>
+</div>
+<div id="5-environmental-impact-assessment-eia-possible-doctoral-drph-research-topics-7"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128169;</span>Possible Doctoral (DrPH) Research Topics</div>
+<div class="callout callout-purple"><ol><li><strong>Cross-sectional study</strong>: Assessment of the extent to which submitted Detailed EIA reports in Malaysia for a specific prescribed activity category (e.g. hazardous waste facilities) adequately characterise and quantify predicted human health impacts, using a structured content-analysis checklist against DOE guidelines.</li><li><strong>Qualitative study</strong>: An exploration, through in-depth interviews and focus group discussions with affected community members, of perceived adequacy and meaningfulness of public participation during the scoping and public display stages of Detailed EIA processes for major infrastructure projects.</li><li><strong>Policy analysis</strong>: A comparative policy analysis of EIA approval outcomes (approved, conditionally approved, rejected) across different prescribed activity categories and states in Malaysia over a defined period, examining the influence of report quality ratings, public objections, and health-related conditions of approval on final decisions.</li><li><strong>Implementation science / mixed-methods study</strong>: An evaluation of compliance monitoring and Environmental Management Plan implementation fidelity for approved projects, using a framework such as the Consolidated Framework for Implementation Research (CFIR) to identify barriers and facilitators to effective post-approval environmental and health surveillance.</li><li><strong>Quasi-experimental / time-series study</strong>: A before-after (or interrupted time series) evaluation of ambient air quality or waterborne disease notification rates in communities surrounding a major prescribed development, comparing predicted impacts stated in the EIA report against observed post-implementation monitoring data.</li><li><strong>Economic evaluation</strong>: A cost-effectiveness or cost-benefit analysis comparing the health-related costs averted through EIA-mandated mitigation measures against the costs of implementing an integrated Health Impact Assessment (HIA) component within the existing Malaysian EIA procedure, to inform policy recommendations on formal HIA-EIA integration.</li></ol></div>
+</div>
+</div><div class="section" id="sec6">
+<div class="page-title">6. 6. International Frameworks on Environmental Health</div>
+<div class="page-sub">Deep-dive learning notes &middot; compiled from lecture material (anonymised) &middot; DrPH specialist level</div>
+<div id="6-international-frameworks-on-environmental-health-overview-0"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128218;</span>Overview</div>
+<p>This concluding topic of GVT514 addresses two interrelated but analytically distinct bodies of international framework relevant to environmental and occupational health practice. The first comprises the successive global disaster risk reduction (DRR) instruments, namely the Yokohama Strategy (1994), the Hyogo Framework for Action (2005-2015), and the Sendai Framework for Disaster Risk Reduction (2015-2030), which trace an evolving international consensus on how health should be positioned within disaster governance. The second comprises causal, systems-oriented conceptual frameworks used to model the pathway from macro-level drivers to individual and population health effects, namely DPSEEA (Driving Forces-Pressure-State-Exposure-Effect-Action), DPSIR (Driving Forces-Pressure-State-Impact-Response), and the Integrated DPSIR model proposed by Yee et al. (2012). The learning outcomes for this topic (CLO1 and CLO2) require doctoral candidates to critically appraise the purposes, strategies, and gaps of the DRR frameworks, and to demonstrate the ability to apply causal frameworks to explain environment-disease relationships, with explicit reference to the Malaysian policy and institutional context.</p>
+</div>
+<div id="6-international-frameworks-on-environmental-health-key-definitions-concepts-1"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128203;</span>Key Definitions & Concepts</div>
+<p>The WHO defines environmental health as addressing "all the physical, chemical, and biological factors external to a person, and all the related factors impacting behaviours," encompassing "the assessment, correction, control, and prevention of those environmental factors that can adversely affect health." This definition is deliberately broad, spanning physical (noise, radiation, climate, natural disasters), chemical (air, water and soil pollutants, pesticides, heavy metals), biological (pathogens, vectors, zoonotic agents), and social (poverty, urbanisation, occupational exposure) determinants.</p>
+<p>Several terms recur across the DRR frameworks and merit precise definition for doctoral-level analysis:</p>
+<ul><li><strong>Disaster Risk Reduction (DRR)</strong>: actions that prevent new and reduce existing disaster risk in pursuit of sustainable development.</li><li><strong>Resilience</strong>: the capacity of a system, community, or society to anticipate, absorb, accommodate, and recover from hazardous events in a timely and efficient manner.</li><li><strong>Exposure</strong>: the situation of people, infrastructure, or assets being located in hazardous places, thereby subject to potential loss.</li><li><strong>Vulnerability</strong>: the physical, social, economic, and environmental conditions that increase susceptibility to the impacts of hazards.</li><li><strong>All-hazards approach</strong>: integrated planning across natural, technological, and biological hazard categories rather than siloed, hazard-specific planning.</li><li><strong>Build Back Better</strong>: the principle of using post-disaster recovery, rehabilitation, and reconstruction to reduce future disaster risk, rather than simply restoring pre-disaster conditions.</li></ul>
+</div>
+<div id="6-international-frameworks-on-environmental-health-historical-evolution-of-international-environmental-health-a-2"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Historical Evolution of International Environmental Health and Disaster Governance</div>
+<p>The frameworks covered in this topic did not emerge in isolation; they form part of a longer trajectory of international environmental and sustainability diplomacy.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Year</th><th>Milestone</th><th>Significance</th></tr></thead><tbody><tr><td>1972</td><td>UN Conference on the Human Environment (Stockholm)</td><td>First global environmental summit</td></tr><tr><td>1987</td><td>Brundtland Report, "Our Common Future"</td><td>Defined sustainable development</td></tr><tr><td>1992</td><td>UN Earth Summit (Rio), Agenda 21</td><td>Linked environment and development agendas</td></tr><tr><td>1994</td><td>Yokohama Strategy</td><td>First framework for natural disaster prevention and preparedness</td></tr><tr><td>2005</td><td>Hyogo Framework for Action (2005-2015)</td><td>Building resilience of nations and communities</td></tr><tr><td>2015</td><td>Sendai Framework (2015-2030), SDGs, Paris Agreement</td><td>"Triple landmark year" for global governance</td></tr><tr><td>2021</td><td>Malaysia 12th Plan</td><td>Integrates DRR and environmental sustainability nationally</td></tr><tr><td>2024</td><td>NADMA Directive updated; UN commits to a legally binding DRR instrument by 2027</td><td>Continued institutional and normative evolution</td></tr></tbody></table></div>
+</div>
+<div id="6-international-frameworks-on-environmental-health-the-disaster-risk-reduction-framework-continuum-yokohama-hyo-3"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>The Disaster Risk Reduction Framework Continuum: Yokohama, Hyogo, Sendai</div>
+<p><strong>Yokohama Strategy and Plan of Action for a Safer World (1994).</strong> Adopted at the First World Conference on Natural Disaster Reduction in Yokohama, Japan (May 1994), under the UN International Decade for Natural Disaster Reduction (IDNDR, 1990-1999). It emerged in a context where 1980s-1990s disasters had killed over three million people and affected 800 million more, against a backdrop of a predominantly reactive, response-oriented disaster management paradigm. It articulated ten core principles (notably that risk assessment is a prerequisite for disaster reduction policy, and that prevention/mitigation/preparedness are more cost-effective than response) and organised action around four domains: risk assessment, prevention and mitigation, preparedness, and public awareness and education. As a voluntary, non-binding set of guidelines, it had no formal targets, no accountability mechanism, and only limited implicit health content; a UN review conducted in 2004, ahead of the Kobe conference, found continued rises in disaster losses despite growing risk awareness, concluding that a more action-oriented, accountable successor was required.</p>
+<p><strong>Hyogo Framework for Action 2005-2015 (HFA).</strong> Adopted by 168 countries at the 2nd World Conference on DRR in Kobe (Hyogo Prefecture), Japan, in January 2005, under the title "Building the Resilience of Nations and Communities to Disasters." It was negotiated alongside two parallel global policy tracks that year, the UNFCCC climate change process and the Millennium Development Goals, but did not integrate meaningfully with either. HFA organised action around five priorities: institutional basis for DRR, risk identification, knowledge and culture of safety, reduction of underlying risk factors, and preparedness for effective response. Health received only one explicit textual reference, situated under Priority 4, concerning the resilience of hospitals and safety of health facilities; broader determinants such as mental health, non-communicable disease continuity of care, epidemic/pandemic preparedness, and health equity were absent from the formal text. Nonetheless, the 2005-2015 period saw substantial informal development of the health agenda through parallel processes (Global Platform sessions in 2009, 2011, and 2013; the One Million Safe Schools and Hospitals Campaign; IPCC reporting linking climate, disaster, and health), which collectively built momentum for health to be centred in the successor framework.</p>
+<p><strong>Sendai Framework for Disaster Risk Reduction 2015-2030 (SFDRR).</strong> Adopted by 187 UN member states at the 3rd World Conference on DRR in Sendai, Japan (14-18 March 2015), as a voluntary, non-binding instrument with a fifteen-year implementation horizon. It is treated in greater depth below as the Framework Deep-Dive.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Dimension</th><th>Yokohama (1994)</th><th>Hyogo (2005-2015)</th><th>Sendai (2015-2030)</th></tr></thead><tbody><tr><td>Adoption</td><td>Guidelines only</td><td>168 countries</td><td>187 countries</td></tr><tr><td>Targets</td><td>None</td><td>5 priorities, no numeric targets</td><td>7 measurable global targets</td></tr><tr><td>Health references</td><td>Minimal</td><td>Hospitals only (single explicit mention)</td><td>30+ explicit references, health central</td></tr><tr><td>Scope</td><td>Natural disasters</td><td>Natural disasters mainly</td><td>All-hazards (natural, biological, technological, climate)</td></tr><tr><td>Monitoring</td><td>None</td><td>Self-reported, qualitative</td><td>Sendai Framework Monitor, 38 indicators</td></tr></tbody></table></div>
+</div>
+<div id="6-international-frameworks-on-environmental-health-sustainable-development-goals-and-the-2015-triple-landmark-y-4"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Sustainable Development Goals and the 2015 Triple Landmark Year</div>
+<p>The slides frame 2015 as a pivotal year in which three major global instruments were adopted in close succession and are intended to operate coherently: the Sendai Framework (March 2015, coordinated by UNDRR), the 2030 Agenda for Sustainable Development comprising 17 Goals and 169 targets (September 2015, coordinated by UNDP and UN agencies collectively), and the Paris Agreement (December 2015, coordinated by UNFCCC, aiming to limit warming to 1.5 degrees Celsius). Malaysia's national SDG Roadmap Phase II (2021-2025) contextualises SDG 3 (health), SDG 11 (sustainable cities), and SDG 13 (climate action) targets in explicit alignment with Sendai commitments, illustrating the intended coherence-and-integration principle articulated in the Sendai guiding principles.</p>
+</div>
+<div id="6-international-frameworks-on-environmental-health-causal-frameworks-for-environmental-health-dpseea-dpsir-and--5"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Causal Frameworks for Environmental Health: DPSEEA, DPSIR, and Integrated DPSIR</div>
+<p>Alongside the DRR governance frameworks, the module presents a lineage of systems-based causal frameworks used to trace pathways from societal drivers to health or ecological outcomes, tracing an evolution from OECD's Pressure-State-Response (PSR, 1993), through PSIR (adding human impact), to WHO's DPSEEA (1996, formalised through Von Schirnding's 2002 guidance "Framework for Linkages between Health, Environment and Development"), the European Environment Agency/OECD's DPSIR (1994-1999), and finally the Integrated DPSIR model (Yee et al., 2012, published in EcoHealth).</p>
+<p><strong>DPSEEA</strong> models a linear causal chain: Driving Forces (demographic, economic, technological, social/political macro-factors) generate Pressure (emissions, waste, resource extraction), which alters State (ambient air, water, soil, biodiversity quality), leading to human Exposure (inhalation, ingestion, dermal contact), producing a graded Health Effect (subclinical change through to death), with Actions available for intervention at any level. Its principal strength, per the slides, is its explicit human-health orientation and its identification of early-warning indicators at the driving-force level; its principal limitations are its linearity (poor representation of feedback loops), weak treatment of ecosystem services and social determinants, and difficulty modelling synergistic multi-pollutant effects.</p>
+<p><strong>DPSIR</strong> shares structural similarity but substitutes Exposure/Effect with Impact (loss of ecosystem services affecting human well-being) and Response (policy and management action), maintaining a more circular systems view. Health is treated only implicitly, embedded within the Impact category, which Yee et al. (2012) identified as a substantive limitation for health-focused research: standard DPSIR struggles to represent human behavioural factors, the physiological state of the human body, and social determinants such as equity and governance, and in practice generates unproductive "category debate paralysis" among research teams.</p>
+<p><strong>Integrated DPSIR (Yee et al., 2012)</strong> resolves this by running two parallel tracks, an Environmental track and a Human Health track, at every DPSIR level. Drivers include both economic sectors and social drivers (equity, governance, cultural identity); Pressures include both environmental pressures and human behaviour (self-care, mobility, lifestyle); State includes both environmental state and human state (individual characteristics, body systems, community disease burden); Impact includes both ecosystem services and human well-being; and Response includes both environmental and human-health-specific interventions (including DRR health planning, Health-EDRM, and the Safe Hospitals Campaign). This dual-track design allows simultaneous, non-subordinated analysis of ecological and human health outcomes and is illustrated in the source material through an asthma disparities case example.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Dimension</th><th>DPSEEA</th><th>DPSIR</th><th>Integrated DPSIR</th></tr></thead><tbody><tr><td>Origin</td><td>WHO / Von Schirnding (2002)</td><td>OECD/EEA (1994)</td><td>US EPA, Yee et al. (2012)</td></tr><tr><td>Health treatment</td><td>Explicit (Exposure, Health Effect)</td><td>Implicit (within Impact)</td><td>Explicit, parallel track</td></tr><tr><td>Ecosystem services</td><td>Not emphasised</td><td>Central to Impact</td><td>Explicit, alongside human well-being</td></tr><tr><td>Systems view</td><td>Linear chain</td><td>Partial feedback loops</td><td>Dual parallel tracks with interaction</td></tr><tr><td>Best application</td><td>Disease causation mapping</td><td>Environmental policy planning</td><td>Integrated health and ecological research planning</td></tr></tbody></table></div>
+</div>
+<div id="6-international-frameworks-on-environmental-health-malaysia-s-institutional-architecture-and-policy-alignment-6"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128209;</span>Malaysia's Institutional Architecture and Policy Alignment</div>
+<p>Malaysia's environmental health and DRR governance is distributed across several agencies: NADMA (National Disaster Management Agency, under the Prime Minister's Department, serving as the Sendai Framework national focal point), the Ministry of Health (environmental health services, disease surveillance, hospital preparedness), the Department of Environment under KASA (Ministry of Environment and Water; air, water and soil monitoring, Environmental Quality Act enforcement), APM (civil protection and search and rescue), the Malaysian Meteorological Department (flood early warning), and the Department of Statistics Malaysia (Sendai Framework Monitor reporting).</p>
+<p>Key national policy instruments cited include the Environmental Quality Act 1974 (currently under DOE-proposed amendment as of 2025), the National Policy on the Environment (DASN), the 12th Malaysia Plan 2021-2025 (Theme 3, Advancing Sustainability), NADMA Directive No. 1 (2024, replacing NSC Directive No. 20), a National DRR Policy 2030 under development to align with Sendai targets, the SDG Roadmap Phase II, a Circular Economy Blueprint (2025-2035), and a draft Climate Change Bill (2024-2025) under public consultation. The December 2021 floods, which affected over 125,000 people and caused an estimated RM6.1 billion in losses, are presented in the source material as a catalytic event prompting NADMA's acknowledged shift from reactive response toward proactive DRR investment, consistent with Sendai priorities.</p>
+<p>Two applied DPSEEA case studies are presented: dengue fever (driving forces of urbanisation and climate change, pressures from construction-related stagnant water, state characterised by Aedes aegypti breeding sites, exposure among outdoor workers and residents near construction, and health effects reported at over 120,000 cases per year per MOH 2023 data) and transboundary haze (driving forces rooted in palm oil and timber economics and land tenure, pressure from deliberate peat and forest burning in Sumatra and Kalimantan, state reflected in API readings exceeding 300, and actions spanning the ASEAN Agreement on Transboundary Haze Pollution at the driving-force level through to hospital surge capacity at the effect level).</p>
+</div>
+<div id="6-international-frameworks-on-environmental-health-key-guidelines-standards-frameworks-for-good-practice-7"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#127973;</span>Key Guidelines, Standards & Frameworks for Good Practice</div>
+<div class="callout callout-blue"><div style="overflow-x:auto"><table><thead><tr><th>Instrument/Standard</th><th>Issuing Body</th><th>Relevance</th></tr></thead><tbody><tr><td>International Health Regulations (IHR, 2005)</td><td>WHO</td><td>Legal framework for epidemic/pandemic preparedness, referenced as complementary to Sendai's all-hazards scope</td></tr><tr><td>Health Emergency and Disaster Risk Management (Health-EDRM) guidance</td><td>WHO</td><td>Country-level guidance operationalising health within DRR</td></tr><tr><td>One Million Safe Schools and Hospitals Campaign</td><td>WHO/UNISDR</td><td>Advocacy and pledge mechanism supporting HFA and Sendai Priority 4</td></tr><tr><td>Sendai Framework Monitor</td><td>UNDRR</td><td>Global reporting mechanism with 38 indicators against the 7 Sendai targets</td></tr><tr><td>National Ambient Air Quality Standards (NMAAQS)</td><td>Malaysia DOE</td><td>Annual mean PM2.5 target of 15 microgram/m3 (versus WHO guideline of 5 microgram/m3)</td></tr><tr><td>National Water Quality Standards (NWQS)</td><td>Malaysia DOE</td><td>Water quality benchmarking</td></tr><tr><td>ASEAN Agreement on Transboundary Haze Pollution</td><td>ASEAN</td><td>Regional instrument addressing cross-border air pollution driving forces</td></tr></tbody></table></div></div>
+</div>
+<div id="6-international-frameworks-on-environmental-health-framework-deep-dive-the-sendai-framework-for-disaster-risk-r-8"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128737;&#65039;</span>Framework Deep-Dive: The Sendai Framework for Disaster Risk Reduction 2015-2030</div>
+<p>The Sendai Framework represents the most substantively developed international framework in this topic and is treated here as the primary deep-dive. Its expected outcome is "the substantial reduction of disaster risk and losses in lives, livelihoods and health and in the economic, physical, social, cultural and environmental assets of persons, businesses, communities and countries," and its goal is to "prevent new and reduce existing disaster risk through the implementation of integrated and inclusive economic, structural, legal, social, health, cultural, educational, environmental, technological, political and institutional measures." Health is explicitly named in both the outcome and the goal statements, a marked departure from Hyogo's single hospital-focused mention.</p>
+<p>The framework sets seven measurable global targets, of which four are explicitly flagged as health-relevant in the source material: (A) substantially reduce global disaster mortality by 2030; (B) substantially reduce the number of disaster-affected people; (D) substantially reduce disaster damage to critical infrastructure, including health facilities; and (G) substantially increase the availability of multi-hazard early warning systems. The remaining targets address economic loss relative to GDP (C), national/local DRR strategy coverage (E), and international cooperation for developing countries (F). According to the 2025 UNDRR Secretary-General's report cited in the slides, progress is markedly uneven: mortality per 100,000 declined by 65 percent (2005-2014 versus 2015-2024, Target A progressing), yet the number of affected people per 100,000 population increased by 104 percent over the same comparison period (Target B worsening), and critical infrastructure damage (Target D) also worsened, with an estimated 91,847 units damaged or destroyed annually. This divergence between falling mortality and rising numbers affected merits careful epidemiological and policy interpretation and constitutes a plausible doctoral research question in its own right.</p>
+<p>Four priorities for action structure implementation: (1) Understanding Disaster Risk; (2) Strengthening DRR Governance; (3) Investing in DRR for Resilience, which contains the most detailed health provisions, including integrating disaster risk management into primary, secondary, and tertiary health care, building health workforce disaster-risk capacity, promoting disaster medicine training, and protecting maternal, newborn, child and reproductive health services and chronic disease continuity of care; and (4) Enhancing Disaster Preparedness and Build Back Better, under which specific articles address hospital resilience and operational continuity (Article 33c), establishment of disaster mortality case registries (Article 33n), and psychosocial support and mental health services in recovery (Article 33o). WHO's contributions to the framework, per the cited UN News Centre (2015) representative statement, positioned health as "at the very centre of DRR" rather than merely a protected sector, and WHO advocated successfully for explicit inclusion of epidemics, pandemics, and IHR (2005) alignment within the Sendai text, later reflected in the framework's applicability to biological hazards including the COVID-19 pandemic. Guiding principles underpinning implementation include state and shared responsibility, protection of people, non-discrimination, inclusion of vulnerable groups, all-of-society engagement, coherence with SDGs and climate agendas, and grounding in science and evidence. Subsequent developments (2023-2025) include a High-Level Midterm Review (UN Resolution 77/289) finding mixed progress, a 2024 UN General Assembly commitment to develop a legally binding instrument on protection of persons in disasters by 2027, and a Sendai Gender Action Plan recognising differential gendered exposure to disaster risk.</p>
+</div>
+<div id="6-international-frameworks-on-environmental-health-public-health-relevance-9"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128200;</span>Public Health Relevance</div>
+<div class="callout callout-green"><p>These frameworks collectively provide public health practitioners and doctoral researchers with a shared governance and analytic vocabulary spanning macro-level policy (DRR conventions, SDGs) and micro-level causal reasoning (DPSEEA/DPSIR family). The progression from Yokohama through Hyogo to Sendai illustrates how health advocacy incrementally shifted disaster governance from an infrastructure-only conception of health (hospital resilience) toward a determinants-based conception encompassing mental health, non-communicable disease continuity, reproductive health, and health workforce capacity, directly informing health system emergency preparedness planning, including in Malaysia's Hospital Safe from Disaster programme and NADMA's community-based DRR initiatives. The causal frameworks, meanwhile, provide the conceptual scaffolding for environmental health impact assessment, exposure science, and the design of multi-level interventions (noting the slides' explicit observation that interventions closer to the driving-force end of the causal chain are generally considered more preventive and cost-effective than downstream medical treatment). For Malaysia specifically, the frameworks are directly applicable to priority environmental health problems including dengue, transboundary haze, flooding, and occupational exposures in plantation, construction, and manufacturing sectors, and align with active national policy processes (Climate Change Bill, National DRR Policy 2030, Circular Economy Blueprint) that a DrPH graduate may plausibly be positioned to evaluate or inform.</p></div>
+</div>
+<div id="6-international-frameworks-on-environmental-health-possible-doctoral-drph-research-topics-10"></div>
+<div class="card">
+<div class="card-title"><span class="icon">&#128169;</span>Possible Doctoral (DrPH) Research Topics</div>
+<div class="callout callout-purple"><ol><li><strong>Cohort study</strong>: prospective evaluation of the relationship between post-flood psychosocial support service uptake (Sendai Article 33o provisions) and longitudinal mental health outcomes among displaced Malaysian flood-affected communities (for example, the 2021/2022 Klang Valley floods cohort).</li><li><strong>Case-control study</strong>: association between residential proximity to construction-related stagnant water sites and dengue haemorrhagic fever severity, applying the DPSEEA exposure-effect pathway as the guiding causal model.</li><li><strong>Cross-sectional study</strong>: institutional readiness assessment of Malaysian public hospitals against the Sendai Framework "Safe Hospitals" and Health-EDRM criteria, examining correlates of preparedness across state health departments.</li><li><strong>Qualitative study</strong>: exploration, using key informant interviews with NADMA, MOH, and DOE officials, of the "category debate paralysis" phenomenon described by Yee et al. (2012) as it manifests in Malaysian inter-agency coordination on haze and flood governance.</li><li><strong>Quasi-experimental/interrupted time-series study</strong>: evaluation of the effect of the Circular Economy Blueprint (2025-2035) and associated solid waste management reforms on ambient environmental pressure indicators (for example, hazardous waste volumes) and downstream dengue incidence trends.</li><li><strong>Policy analysis / implementation science study</strong>: a comparative document and stakeholder analysis of the transition from the National DRR framework predecessor instruments to the National DRR Policy 2030, assessing the extent to which Sendai's health-integration provisions (Priority 3, Targets A/B/D/G) have been substantively translated into Malaysian legislation and institutional mandate, using an implementation science determinants framework (for example, CFIR).</li></ol></div>
+</div>
+</div>
+  </div>
+</div>
+<script>
+// --- Navigation ---
+function showSection(id) {
+  // Close mobile sidebar when navigating
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // update breadcrumb
+  const map = {
+    "sec-home": "Overview",
+    "sec1": "1. Environmental Health Impact Assessment",
+    "sec2": "2. Environmental Health Risk Assessment",
+    "sec3": "3. The Environmental Quality Act 1974",
+    "sec4": "4. Environmental Health Risk Management and Risk Communicati",
+    "sec5": "5. Environmental Impact Assessment (EIA)",
+    "sec6": "6. International Frameworks on Environmental Health"
+  };
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  // highlight nav
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  // close all
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+
+// --- PYQ answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) {
+      sb.classList.remove('mobile-open');
+      bd.classList.remove('visible');
+    } else {
+      sb.classList.add('mobile-open');
+      bd.classList.add('visible');
+    }
+  } else {
+    sb.classList.toggle('collapsed');
+  }
+}
+
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ["sec1", "sec2", "sec3", "sec4", "sec5", "sec6"];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      // open relevant accordions
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) {
+          b.classList.add('open');
+          b.previousElementSibling.classList.add('open');
+        }
+      });
+      break;
+    }
+  }
+}
+
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gvt514_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+
+updateProgress();
+
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gvt514_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+
+(function() {
+  try {
+    if (localStorage.getItem('gvt514_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>
