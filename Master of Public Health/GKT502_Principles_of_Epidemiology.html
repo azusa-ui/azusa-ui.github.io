@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 502 Principles of Epidemiology</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 502</h2>
+      <div style="font-size:11px;color:var(--text3)">Principles of Epidemiology</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Measures of Disease Occurrence</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('occ-intro')">Introduction</a><a onclick="scrollTo('occ-freq')">Frequency Measures</a><a onclick="scrollTo('occ-rrp')">Ratio/Proportion/Rate</a><a onclick="scrollTo('occ-pt')">Person-Time</a><a onclick="scrollTo('occ-std')">Standardization</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Measurement of Risk & Association</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('ra-rr')">RR & Cumulative Incidence</a><a onclick="scrollTo('ra-or')">OR</a><a onclick="scrollTo('ra-rd')">Risk Difference / AR</a><a onclick="scrollTo('ra-af')">Attributable Fraction & PAR</a><a onclick="scrollTo('ra-odds')">Odds vs Probability</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Epidemiological Study Design</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('sd-tax')">Design Taxonomy</a><a onclick="scrollTo('sd-cohort')">Cohort</a><a onclick="scrollTo('sd-cc')">Case-Control</a><a onclick="scrollTo('sd-cs')">Cross-Sectional</a><a onclick="scrollTo('sd-eco')">Ecological & Experimental</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Causal Inference</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('ci-hill')">Bradford Hill</a><a onclick="scrollTo('ci-bias')">Bias</a><a onclick="scrollTo('ci-conf')">Confounding</a><a onclick="scrollTo('ci-em')">Effect Modification</a><a onclick="scrollTo('ci-err')">Random & Systematic Error</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Screening & Vital Statistics</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('sv-prin')">Screening Principles</a><a onclick="scrollTo('sv-val')">Validity of Tests</a><a onclick="scrollTo('sv-lt')">Lead Time & Bias</a><a onclick="scrollTo('sv-dem')">Demography</a><a onclick="scrollTo('sv-src')">Sources of Data</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec6')">
+  <div class="nav-topic-header">
+    <div class="topic-num">6</div>
+    <span>Applied & Evidence-Based PH</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('ap-model')">Disease Causation Models</a><a onclick="scrollTo('ap-ph')">Epidemiology in PH</a><a onclick="scrollTo('ap-eb')">Evidence-Based PH</a><a onclick="scrollTo('ap-surv')">Surveillance</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1 Measures</a><a onclick="scrollTo('pyq-2')">Q2 Design</a><a onclick="scrollTo('pyq-3')">Q3 Causation/Screening</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 502 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Principles of Epidemiology</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first!
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Measures of Disease Occurrence</div><div class="hc-sub">Incidence, prevalence, rates, ratios</div><div class="hc-badge"><span class="tag tag-blue">CIDR</span><span class="tag tag-orange">Person-time</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Measurement of Risk & Association</div><div class="hc-sub">RR, OR, AR, PAR, attributable fraction</div><div class="hc-badge"><span class="tag tag-blue">RR</span><span class="tag tag-purple">OR</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Epidemiological Study Design</div><div class="hc-sub">Cohort, case-control, cross-sectional, ecological</div><div class="hc-badge"><span class="tag tag-blue">Cohort</span><span class="tag tag-purple">Case-Control</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Causal Inference</div><div class="hc-sub">Bradford Hill, bias, confounding, interaction</div><div class="hc-badge"><span class="tag tag-green">Hill</span><span class="tag tag-red">Confounding</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Screening & Vital Statistics</div><div class="hc-sub">Sensitivity, specificity, demography, sources</div><div class="hc-badge"><span class="tag tag-orange">Screening</span><span class="tag tag-blue">Vital</span></div></div>
+<div class="home-card" onclick="showSection('sec6')"><div class="hc-num">06</div><div class="hc-title">Applied & Evidence-Based PH</div><div class="hc-sub">Causation, EBPH, surveillance</div><div class="hc-badge"><span class="tag tag-green">EBPH</span><span class="tag tag-purple">Causation</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Measures of Disease Occurrence</div>
+  <div class="page-sub">Source: Gordis L. Epidemiology (6th ed.); Porta M. Dictionary of Epidemiology; GKT 502 Course Notes</div>
+<div id="occ-intro"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📊</span> Introduction</div>
+<p>Descriptive epidemiology quantifies <strong>when, where and who</strong> disease occurs. To compare occurrence across groups we need measures of frequency independent of population size. Two families: measures of <strong>frequency</strong> and measures of <strong>association / effect</strong>.</p><div class="callout callout-blue"><strong>Key distinction:</strong> <em>Prevalence</em> = existing cases (a proportion, a 'snapshot'); <em>Incidence</em> = new cases (a rate, requires time). Confusing the two is a classic source of error.</div>
+</div><div id="occ-freq"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔢</span> Frequency Measures</div>
+<ul><li><strong>Count</strong> — total number of cases (raw numerator); not comparable across populations of different size.</li><li><strong>Proportion</strong> — numerator is a subset of denominator (ranges 0–1). e.g., case-fatality proportion = deaths from disease / all cases.</li><li><strong>Ratio</strong> — numerator / denominator where the two are NOT necessarily related (e.g., sex ratio).</li><li><strong>Rate</strong> — speed at which events occur over time (events / person-time).</li></ul>
+</div><div id="occ-rrp"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧮</span> Ratio · Proportion · Rate Compared</div>
+<table><tr><th>Type</th><th>Numerator:Denominator</th><th>Range</th><th>Example</th></tr><tr><td>Ratio</td><td>Unrelated quantities</td><td>0 → ∞</td><td>Maternal mortality ratio = maternal deaths / live births</td></tr><tr><td>Proportion</td><td>Num ⊂ Denominator</td><td>0 → 1</td><td>Case-fatality proportion = deaths / all cases</td></tr><tr><td>Rate</td><td>Events / person-time</td><td>≥ 0 (no upper bound)</td><td>Birth rate = live births / person-years</td></tr></table><div class="callout callout-orange"><strong>Common pitfall:</strong> 'prevalence rate' is a misnomer — prevalence is a proportion, not a rate, because there is no time dimension.</div>
+</div><div id="occ-pt"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⏱️</span> Person-Time & Incidence Rate</div>
+<h4>Incidence rate (density)</h4><p>IR = number of <strong>new</strong> cases / total person-time at risk. Person-time sums each individual's time from entry until event, loss-to-follow-up, or study end. Allows unequal follow-up and late entry.</p><ul><li><strong>Cumulative incidence (risk)</strong> = new cases / population at risk at start; assumes complete follow-up; a proportion (0–1).</li><li><strong>Incidence rate (density)</strong> = new cases / person-time; permits varying observation times.</li><li>When rare (&lt;10%), cumulative incidence ≈ incidence rate × average follow-up time.</li></ul><div class="callout callout-blue"><strong>Attack rate</strong> is cumulative incidence used in outbreak investigations (e.g., food-borne): cases / exposed persons.</div>
+</div><div id="occ-std"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚖️</span> Standardization & Crude vs Specific Rates</div>
+<p>A <strong>crude rate</strong> ignores population structure. Differences may reflect age/sex composition rather than true risk. <strong>Standardization</strong> removes this confounding.</p><ul><li><strong>Direct standardization</strong> — apply study population's age-specific rates to a standard population to get an expected (adjusted) rate.</li><li><strong>Indirect standardization</strong> — apply standard population's rates to study population's structure → Standardized Mortality Ratio (SMR = observed/expected).</li></ul><div class="callout callout-green"><strong>SMR &gt; 1</strong> means more deaths than expected in the standard; &lt; 1 fewer. Widely used in occupational cohorts.</div>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Measurement of Risk & Association</div>
+  <div class="page-sub">Source: GKT 502 Course Notes — Measurement of Risk & Association; Szklo & Nieto</div>
+<div id="ra-rr"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📈</span> Relative Risk (Risk Ratio)</div>
+<p>RR = cumulative incidence in exposed / cumulative incidence in unexposed. Derived from cohort studies where both denominators are known.</p><table><tr><th>RR</th><th>Interpretation</th></tr><tr><td>RR = 1</td><td>No association</td></tr><tr><td>RR &gt; 1</td><td>Exposure increases risk (risk factor)</td></tr><tr><td>RR &lt; 1</td><td>Exposure decreases risk (protective)</td></tr></table><div class="callout callout-blue"><strong>Confidence interval:</strong> if the 95% CI for RR includes 1, the association is not statistically significant.</div>
+</div><div id="ra-or"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔁</span> Odds Ratio (OR)</div>
+<p>OR = (a/c) / (b/d) = ad/bc in a 2×2 table. In <strong>case-control</strong> studies incidence is unknown, so OR is the effect measure. For <strong>rare</strong> diseases OR ≈ RR.</p><ul><li><strong>Cohort / cross-sectional:</strong> can compute both RR and OR; report RR when the rare-disease assumption fails.</li><li><strong>Case-control:</strong> only OR estimable (sampling on outcome).</li></ul><div class="callout callout-orange"><strong>Rare-disease assumption:</strong> when the outcome is common (&gt;10%), OR <em>overestimates</em> RR. Prefer RR (or prevalence ratio) from cohort/cross-sectional designs.</div>
+</div><div id="ra-rd"></div>
+<div class="card">
+<div class="card-title"><span class="icon">➖</span> Risk Difference & Attributable Risk</div>
+<h4>Risk Difference (RD) / Attributable Risk (AR)</h4><p>RD = I<sub>E</sub> − I<sub>0</sub> (exposed incidence − unexposed incidence). Absolute measure — the <em>extra</em> risk due to exposure; essential for public-health impact.</p><div class="callout callout-green"><strong>Number Needed to Harm (NNH)</strong> = 1/RD — how many exposed persons for one additional adverse outcome vs unexposed.</div>
+</div><div id="ra-af"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🎯</span> Attributable Fraction & Population PAR</div>
+<table><tr><th>Measure</th><th>Formula</th><th>Meaning</th></tr><tr><td>Attributable Fraction in exposed (AF<sub>e</sub>)</td><td>(RR−1)/RR</td><td>Proportion of exposed cases due to exposure</td></tr><tr><td>Population Attributable Risk (PAR)</td><td>I<sub>pop</sub> − I<sub>0</sub></td><td>Excess risk in whole population</td></tr><tr><td>Population Attributable Fraction (PAF)</td><td>PAR / I<sub>pop</sub></td><td>Proportion of all cases in pop due to exposure</td></tr></table><div class="callout callout-purple">PAF depends on <strong>both</strong> the RR and the exposure prevalence — a strong but rare exposure contributes little at population level; a modest risk factor that is ubiquitous (smoking, hypertension) dominates population burden.</div>
+</div><div id="ra-odds"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚠️</span> Odds vs Probability — do not confuse</div>
+<p><strong>Probability (risk)</strong> = a/(a+b), bounded 0–1. <strong>Odds</strong> = a/b, bounded 0–∞. They diverge as the outcome becomes common.</p><ul><li>Probability 0.5 → odds 1.0</li><li>Probability 0.1 → odds 0.11 (≈ similar)</li><li>Probability 0.8 → odds 4.0 (very different)</li></ul><div class="callout callout-red"><strong>Misreading OR as RR</strong> overstates effect when the outcome is common. Always report which measure you computed.</div>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Epidemiological Study Design</div>
+  <div class="page-sub">Source: GKT 502 Course Notes — Epidemiological Study Design; Gordis</div>
+<div id="sd-tax"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🌳</span> Design Taxonomy</div>
+<p>Studies are broadly <strong>observational</strong> (no intervention) or <strong>experimental</strong> (investigator assigns exposure). Observational designs split by whether <em>exposure</em> or <em>outcome</em> is identified first.</p><ul><li><strong>Cohort</strong> — exposure → follow → outcome (temporality explicit).</li><li><strong>Case-control</strong> — outcome → look back → exposure.</li><li><strong>Cross-sectional</strong> — exposure & outcome measured once, simultaneously.</li><li><strong>Ecological</strong> — groups/populations as units.</li><li><strong>Experimental / RCT</strong> — exposure assigned by investigator.</li></ul>
+</div><div id="sd-cohort"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔬</span> Cohort Study</div>
+<p>Follow a defined exposed and unexposed population over time to compare incidence of outcome. Can be <strong>prospective</strong> (forward) or <strong>retrospective/historical</strong> (using records).</p><ul><li><strong>Strengths:</strong> establishes temporality; studies multiple outcomes; computes incidence, RR, AR directly; less recall bias.</li><li><strong>Limitations:</strong> expensive/slow for rare diseases or long latency; loss to follow-up; not ethical for harmful exposures.</li><li><strong>Measures:</strong> Incidence, RR, AR, SMR (historical).</li></ul><div class="callout callout-green"><strong>Best for:</strong> rare <em>exposures</em> (occupational), common outcomes, aetiology with long follow-up.</div>
+</div><div id="sd-cc"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔍</span> Case-Control Study</div>
+<p>Start with cases (diseased) and controls (non-diseased), compare past exposure. Efficient for rare diseases.</p><ul><li><strong>Strengths:</strong> fast, cheap, few subjects; multiple exposures for one outcome; only design for very rare diseases.</li><li><strong>Limitations:</strong> recall & selection bias; cannot compute incidence/RR directly (OR only); temporality inferred.</li><li><strong>Control selection</strong> is critical — must represent the exposure distribution of the source population.</li></ul><div class="callout callout-orange"><strong>Nested case-control</strong>: embedded in a cohort — cases + at-risk controls; gains efficiency while preserving cohort temporality.</div>
+</div><div id="sd-cs"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📸</span> Cross-Sectional Study</div>
+<p>Exposure and outcome measured at a single point. Estimates <strong>prevalence</strong> and associations (prevalence OR / prevalence ratio).</p><ul><li><strong>Strengths:</strong> cheap, fast; good for burden/planning; many variables at once.</li><li><strong>Limitations:</strong> cannot establish temporality ('chicken-and-egg'); prevalence odds ≠ incidence odds when chronic; survival bias.</li></ul><div class="callout callout-blue"><strong>Use for:</strong> prevalence surveys, health needs assessment, generating hypotheses.</div>
+</div><div id="sd-eco"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🌐</span> Ecological & Experimental Designs</div>
+<h4>Ecological</h4><p>Units are groups (countries, states). Cheap, hypothesis-generating, but vulnerable to the <strong>ecological fallacy</strong> (group-level association ≠ individual-level).</p><h4>Experimental / RCT</h4><p>Investigator randomizes exposure. Gold standard for <em>causal</em> inference because randomization balances known & unknown confounders.</p><table><tr><th>Feature</th><th>Observational</th><th>Experimental (RCT)</th></tr><tr><td>Exposure assignment</td><td>Natural</td><td>Investigator (random)</td></tr><tr><td>Confounding</td><td>Present, must adjust</td><td>Balanced by randomization</td></tr><tr><td>Causality</td><td>Inference</td><td>Strongest evidence</td></tr></table>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Causal Inference</div>
+  <div class="page-sub">Source: GKT 502 Course Notes — Causal Inference & Causation; Rothman</div>
+<div id="ci-hill"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧩</span> Bradford Hill Criteria</div>
+<p>Nine <em>considerations</em> (not a checklist) for judging whether an observed association is likely causal:</p><div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">1–5: Strength, Consistency, Specificity, Temporality, Biological gradient <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><ul><li><strong>Strength</strong> — strong associations less likely due to confounding (but weak ones can be causal).</li><li><strong>Consistency</strong> — reproduced across studies/populations.</li><li><strong>Specificity</strong> — one exposure → one outcome (weak criterion; many-to-many common).</li><li><strong>Temporality</strong> — cause MUST precede effect (essential, non-negotiable).</li><li><strong>Biological gradient</strong> — dose-response.</li></ul></div>
+</div><div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">6–9: Plausibility, Coherence, Experiment, Analogy <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><ul><li><strong>Plausibility</strong> — biologically credible (knowledge-dependent).</li><li><strong>Coherence</strong> — fits natural history & lab findings.</li><li><strong>Experiment</strong> — evidence from removal/intervention.</li><li><strong>Analogy</strong> — similar established exposures suggest causality.</li></ul></div>
+</div><div class="callout callout-red"><strong>Sufficient-component cause</strong> (Rothman): disease results when all components of a sufficient causal 'pie' are present; multiple sufficient causes may exist. No single 'the cause'.</div>
+</div><div id="ci-bias"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚠️</span> Bias (Systematic Error)</div>
+<table><tr><th>Type</th><th>Definition</th><th>Example / Fix</th></tr><tr><td>Selection bias</td><td>Wrong study base / differential inclusion</td><td>Berkson, healthy-worker → proper sampling</td></tr><tr><td>Information bias</td><td>Misclassification of exposure/outcome</td><td>Recall bias → biomarkers, blinding</td></tr><tr><td>Confounding</td><td>Third variable distorts association</td><td>Adjust in analysis / design</td></tr></table><div class="callout callout-orange"><strong>Non-differential misclassification</strong> biases toward the null; <strong>differential</strong> can bias any direction.</div>
+</div><div id="ci-conf"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔗</span> Confounding</div>
+<p>A confounder is associated with <strong>both</strong> exposure and outcome, is not on the causal pathway, and distorts the exposure–outcome relation.</p><ul><li><strong>Control in design:</strong> randomization, restriction, matching.</li><li><strong>Control in analysis:</strong> stratification, multivariable regression, propensity scores.</li></ul><div class="callout callout-purple">A variable is <strong>NOT</strong> a confounder if it lies on the causal pathway (then it is a <em>mediator</em> — adjusting for it blocks part of the effect).</div>
+</div><div id="ci-em"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔀</span> Effect Modification (Interaction)</div>
+<p>Effect modification = the <strong>effect of exposure differs</strong> across levels of a third variable (e.g., smoking modifies asbestos→lung cancer). It is <em>not</em> bias — it is real and reported by stratum.</p><div class="callout callout-blue"><strong>Confounding ≠ effect modification:</strong> confounding is nuisance to remove; effect modification is a finding to describe (report stratified estimates).</div>
+</div><div id="ci-err"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🎲</span> Random & Systematic Error</div>
+<ul><li><strong>Random error</strong> — sampling variability; reduced by larger sample; quantified by confidence intervals / p-values.</li><li><strong>Systematic error (bias)</strong> — pushes all estimates one direction; NOT fixed by sample size.</li><li><strong>Validity</strong> = absence of bias (internal) + generalizability (external).</li></ul>
+</div>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Screening, Demography & Sources of Data</div>
+  <div class="page-sub">Source: GKT 502 Course Notes — Screening; Demography; Source of Epidemiological Data & Vital Statistics</div>
+<div id="sv-prin"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🩺</span> Principles of Screening</div>
+<p>Screening is the <strong>premptive</strong> identification of unrecognised disease in an asymptomatic population. It is NOT diagnosis.</p><ul><li>Condition should be an important health problem with a recognisable latent/early stage.</li><li>Acceptable, valid & reliable test; facilities for diagnosis & treatment available.</li><li>Natural history understood; treatment more effective early; agreed policy on who to treat.</li></ul><div class="callout callout-green"><strong>WHO Wilson & Jungner criteria</strong> (1968) are the classic 10 principles; updated for modern genomics/implementations.</div>
+</div><div id="sv-val"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🎯</span> Validity of Screening Tests</div>
+<table><tr><th></th><th>Disease +</th><th>Disease −</th></tr><tr><td>Test +</td><td>TP (a)</td><td>FP (b)</td></tr><tr><td>Test −</td><td>FN (c)</td><td>TN (d)</td></tr></table><ul><li><strong>Sensitivity</strong> = a/(a+c) — proportion of true cases detected (minimises FN).</li><li><strong>Specificity</strong> = d/(b+d) — proportion of healthy correctly negative (minimises FP).</li><li><strong>PPV</strong> = a/(a+b) — probability diseased if positive (rises with prevalence).</li><li><strong>NPV</strong> = d/(c+d) — probability healthy if negative.</li></ul><div class="callout callout-orange"><strong>Prevalence matters:</strong> at low prevalence, even a highly specific test yields many FP → low PPV. This is why universal screening of rare conditions is inefficient.</div>
+</div><div id="sv-lt"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⏳</span> Lead-Time & Length & Overdiagnosis Biases</div>
+<ul><li><strong>Lead-time bias</strong> — early detection makes survival <em>appear</em> longer even if death unchanged (clock starts earlier).</li><li><strong>Length-time bias</strong> — screening favours slow-progressing (indolent) cases, which survive longer anyway.</li><li><strong>Overdiagnosis</strong> — detecting lesions that would never harm in a lifetime.</li></ul><div class="callout callout-red">Use <strong>randomised trials with mortality endpoints</strong> (not 5-year survival) to prove screening saves lives.</div>
+</div><div id="sv-dem"></div>
+<div class="card">
+<div class="card-title"><span class="icon">👥</span> Demography</div>
+<p>Demography = study of population size, structure & change. Core measures feed epidemiology.</p><ul><li><strong>Fertility:</strong> Crude birth rate, TFR (total fertility rate), GFR.</li><li><strong>Mortality:</strong> Crude death rate, age-specific, infant mortality rate (IMR), maternal mortality ratio.</li><li><strong>Migration:</strong> in/out/net migration; shapes age structure.</li><li><strong>Ageing index</strong> & dependency ratios drive burden projections.</li></ul><div class="callout callout-blue"><strong>IMR</strong> is a key indicator of population health & development.</div>
+</div><div id="sv-src"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🗂️</span> Sources of Epidemiological Data & Vital Statistics</div>
+<ul><li><strong>Vital statistics:</strong> births, deaths, marriages (civil registration).</li><li><strong>Disease registries:</strong> cancer, congenital anomalies.</li><li><strong>Health surveys:</strong> NHMS, DOSM, WHO Global Health Observatory.</li><li><strong>Routine HMIS / notification:</strong> communicable disease surveillance.</li><li><strong>Censuses & administrative:</strong> population denominators.</li></ul><div class="callout callout-purple">Malaysia: <strong>Ministry of Health (MOH)</strong> / <strong>ICR (Institute for Public Health)</strong> NHMS; <strong>DOSM</strong> census; civil registration via NRD.</div>
+</div>
+</div>
+<div class="section" id="sec6">
+  <div class="page-title">6. Applied Epidemiology, Causation & Evidence-Based PH</div>
+  <div class="page-sub">Source: GKT 502 Course Notes — Epidemiology in PH; Evidence-Based PH; Model of Disease Causation</div>
+<div id="ap-model"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧬</span> Models of Disease Causation</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Web of Causation & Multicausal Model <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Disease arises from interplay of multiple factors (agent, host, environment) — not single linear cause. The 'web of causation' shows interlocking antecedents.</p></div>
+</div><div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Rose's Prevention Paradox <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>A preventive measure that benefits the population may offer little to the individual at high risk. Small shifts in a risk factor across the <em>whole</em> population can yield more cases averted than targeting high-risk groups alone.</p></div>
+</div><div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Socio-ecological / Social Model <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Causal factors operate at intrapersonal, interpersonal, organisational, community & policy levels — central to public-health intervention design.</p></div>
+</div><div class="callout callout-green"><strong>Agent–Host–Environment</strong> (triad) remains the foundational framework for communicable & many non-communicable conditions.</div>
+</div><div id="ap-ph"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🏛️</span> Epidemiology in Public Health</div>
+<ul><li>Describes <strong>distribution</strong> of health states.</li><li>Identifies <strong>determinants</strong> (causes, risk factors).</li><li>Informs <strong>policy & programmes</strong> (needs assessment, targeting).</li><li>Evaluates <strong>interventions</strong> (impact, effectiveness).</li></ul><div class="callout callout-blue">Bridges the 'what' (surveillance) to the 'so what' (action).</div>
+</div><div id="ap-eb"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📚</span> Evidence-Based Public Health (EBPH)</div>
+<p>EBPH = conscientious use of the best available <strong>scientific evidence</strong>, combined with <strong>population data</strong>, and <strong>community preference</strong>, in decision-making.</p><ol><li>Ask an answerable question (PICO).</li><li>Acquire the evidence (systematic search).</li><li>Appraise for validity & applicability.</li><li>Apply to the local context.</li><li>Assess the outcome / evaluate.</li></ol><div class="callout callout-orange">Levels of evidence: <strong>RCT &gt; cohort &gt; case-control &gt; cross-sectional &gt; ecologic &gt; expert opinion</strong>. But study design alone is insufficient — appraisal of bias & applicability matters.</div>
+</div><div id="ap-surv"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📡</span> Public Health Surveillance</div>
+<p>Systematic, continuous collection, analysis & interpretation of health data for action. Distinct from research (purpose is control, not hypothesis-testing).</p><ul><li><strong>Types:</strong> passive, active, sentinel, syndromic, event-based.</li><li><strong>Functions:</strong> outbreak detection, trend monitoring, programme planning/evaluation.</li><li>Malaysia: eNOTIFIKASI / communicable disease notification under MOH.</li></ul>
+</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 502 past-year papers</div>
+<div id="pyq-1"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">Measures of Occurrence</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">A cohort of 4,000 workers is followed for 5 years. 80 new cases of disease X occur among 1,000 exposed workers, and 120 among 3,000 unexposed. (a) Calculate the cumulative incidence in exposed and unexposed. (b) Calculate the risk ratio and interpret it. (c) Name one limitation of cumulative incidence here.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: (a) 4 marks · (b) 6 marks · (c) 5 marks for discussion</div>
+<div class="ans-section"><div class="ans-section-title">Answer (a) — Cumulative incidence</div><p>CI<sub>exposed</sub> = 80/1,000 = <strong>0.08 (8%)</strong>. CI<sub>unexposed</sub> = 120/3,000 = <strong>0.04 (4%)</strong>.</p></div><div class="ans-section"><div class="ans-section-title">Answer (b) — Risk ratio</div><p>RR = 0.08 / 0.04 = <strong>2.0</strong>. Exposed workers have <strong>twice the risk</strong> of disease X versus unexposed. A 95% CI excluding 1 would indicate significance.</p></div><div class="ans-section"><div class="ans-section-title">Answer (c) — Limitation</div><p>Cumulative incidence assumes <strong>complete follow-up</strong> — with 5 years of observation, loss-to-follow-up is likely and would bias estimates. An <strong>incidence rate (person-time)</strong> would better handle unequal follow-up. It is also a proportion bounded 0–1, so it cannot exceed 1 even with very high risk.</p></div>
+</div>
+</div><div id="pyq-2"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Study Design</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">You want to study whether a rare occupational solvent exposure causes leukaemia. (a) Name the most efficient study design and justify. (b) Describe how you would select controls. (c) State two key biases and how to minimise them.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: design 5 · controls 5 · 2 biases + mitigation 10</div>
+<div class="ans-section"><div class="ans-section-title">Answer (a)</div><p><strong>Case-control study</strong> — leukaemia is rare, so a cohort would need an enormous population and long follow-up. Case-control is efficient: sample cases (leukaemia patients) and compare solvent exposure history to controls.</p></div><div class="ans-section"><div class="ans-section-title">Answer (b) — Control selection</div><p>Controls must represent the <strong>exposure experience of the source population</strong> that produced the cases (same hospitals/region, similar age/sex). Avoid controls whose exposure is itself disease-related. Consider a <strong>nested case-control</strong> within an existing cohort for efficiency.</p></div><div class="ans-section"><div class="ans-section-title">Answer (c) — Biases</div><ul><li><strong>Recall bias</strong> — cases may over-report past solvent exposure; mitigate with records/biomarkers and blind interviewers.</li><li><strong>Selection bias</strong> — controls not from same study base; mitigate with rigorous sampling frame & response maximisation.</li></ul></div>
+</div>
+</div><div id="pyq-3"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q3</span>
+<span class="q-topic">Causation & Screening</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">(a) Explain why <em>temporality</em> is the non-negotiable Bradford Hill criterion. (b) A new screening test has sensitivity 90% and specificity 95% in a disease with 1% prevalence. Calculate the PPV and explain its public-health implication.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: temporality 8 · PPV calc 6 · implication 6</div>
+<div class="ans-section"><div class="ans-section-title">Answer (a)</div><p>For X to <em>cause</em> Y, X must occur <strong>before</strong> Y. Without temporality the direction of causation is indeterminate (the observed association could be reverse). All other Hill criteria can be satisfied by a non-causal or reverse-causal relation, so temporality is the only essential precondition for a causal claim.</p></div><div class="ans-section"><div class="ans-section-title">Answer (b) — PPV</div><p>Per 10,000 people: 100 diseased, 9,900 healthy. TP = 90, FP = 5% × 9,900 = 495. <strong>PPV = 90/(90+495) = 15.4%</strong>. Only ~1 in 6 positive results is a true case.</p></div><div class="ans-section"><div class="ans-section-title">Answer (b) — Implication</div><p>At <strong>low prevalence</strong>, even a highly specific test yields mostly false positives → low PPV. Universal screening here would overwhelm confirmatory services and cause harm from unnecessary invasive follow-up. Target high-risk groups to raise prevalence and PPV.</p></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Measures of Disease Occurrence", "sec2": "Measurement of Risk & Association", "sec3": "Epidemiological Study Design", "sec4": "Causal Inference", "sec5": "Screening & Vital Statistics", "sec6": "Applied & Evidence-Based PH", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt502_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 7;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 7;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt502_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt502_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>

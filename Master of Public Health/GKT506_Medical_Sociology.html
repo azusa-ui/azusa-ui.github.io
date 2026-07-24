@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 506 Medical Sociology</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 506</h2>
+      <div style="font-size:11px;color:var(--text3)">Medical Sociology</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Sociological Imagination</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('mi-mills')">Mills & Concept</a><a onclick="scrollTo('mi-ti')">Trouble vs Issue</a><a onclick="scrollTo('mi-lev')">Levels of Analysis</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Social Determinants of Health</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('sd-def')">Definition & Model</a><a onclick="scrollTo('sd-grad')">Social Gradient</a><a onclick="scrollTo('sd-ineq')">Inequalities</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Culture & Health</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('cu-ill')">Culture & Illness</a><a onclick="scrollTo('cu-em')">Explanatory Models</a><a onclick="scrollTo('cu-ib')">Illness Behaviour</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Social Capital & Support</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('sc-def')">Definitions</a><a onclick="scrollTo('sc-bb')">Bonding vs Bridging</a><a onclick="scrollTo('sc-eff')">Health Effects</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Globalisation & Health</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('gl-con')">Concept</a><a onclick="scrollTo('gl-ncd')">NCD Transition</a><a onclick="scrollTo('gl-trade')">Trade & Health</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec6')">
+  <div class="nav-topic-header">
+    <div class="topic-num">6</div>
+    <span>Welfare State & Health Policy</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('ws-reg')">Welfare Regimes</a><a onclick="scrollTo('ws-nhs')">UK NHS</a><a onclick="scrollTo('ws-reform')">Reform & Malaysia</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1 SDH</a><a onclick="scrollTo('pyq-2')">Q2 Culture</a><a onclick="scrollTo('pyq-3')">Q3 Globalisation</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 506 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Medical Sociology</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first! Worked calculations and deep-dive boxes are collapsed as accordions so you can study the core material first and expand for extra depth.
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Sociological Imagination</div><div class="hc-sub">C. Wright Mills, personal trouble vs public issue</div><div class="hc-badge"><span class="tag tag-purple">Mills</span><span class="tag tag-blue">Structure</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Social Determinants of Health</div><div class="hc-sub">SDH, inequalities, gradients</div><div class="hc-badge"><span class="tag tag-orange">SDH</span><span class="tag tag-red">Gradient</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Culture & Health</div><div class="hc-sub">Beliefs, explanatory models, illness behaviour</div><div class="hc-badge"><span class="tag tag-green">Culture</span><span class="tag tag-blue">Lay</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Social Capital & Support</div><div class="hc-sub">Bonding/bridging, social support</div><div class="hc-badge"><span class="tag tag-purple">Capital</span><span class="tag tag-blue">Support</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Globalisation & Health</div><div class="hc-sub">Neoliberalism, NCD transition, trade</div><div class="hc-badge"><span class="tag tag-orange">Global</span><span class="tag tag-blue">Trade</span></div></div>
+<div class="home-card" onclick="showSection('sec6')"><div class="hc-num">06</div><div class="hc-title">Welfare State & Health Policy</div><div class="hc-sub">Decommodification, NHS, reform</div><div class="hc-badge"><span class="tag tag-green">Welfare</span><span class="tag tag-purple">Policy</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Sociological Imagination</div>
+  <div class="page-sub">Source: C. Wright Mills (1959) <em>The Sociological Imagination</em>; Durkheim (1897) <em>Suicide</em>; Berger (1963) <em>Invitation to Sociology</em>; Germov (ed.) <em>Second Opinion</em></div>
+<div id="mi-mills"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🌀</span> C. Wright Mills & the Concept</div>
+<p>The <strong>sociological imagination</strong> is the capacity to shift from one perspective to another — from the personal to the historical, the private to the public — and to see the relation between individual biography and the wider society. Mills was writing partly as a critique of two dominant strands in 1950s American sociology: <strong>grand theory</strong> (abstract, disconnected from empirical reality) and <strong>abstracted empiricism</strong> (data-collection with no theoretical imagination). He wanted a sociology that connected lived experience to social structure.</p>
+<p>Mills argued the sociological imagination enables a person to ask three linked questions of any society: (1) What is the structure of this particular society — its essential components and how they relate? (2) Where does this society stand in human history, and what are the mechanics by which it is changing? (3) What varieties of men and women prevail in this society and this period, and what is happening to them?</p>
+<div class="callout callout-blue"><strong>Core idea:</strong> "Neither the life of an individual nor the history of a society can be understood without understanding both." Health and illness are not purely biological — they are shaped by social context, and the imagination is the tool that reveals that shaping.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🔎 Deep dive: why this matters for public health practice <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Clinical medicine is trained to look for proximate, individual-level causes (a pathogen, a genetic variant, a personal behaviour). The sociological imagination is the discipline of also asking about distal, structural causes — housing, income, labour markets, racism, colonial history, food systems. Geoffrey Rose's distinction between the <strong>"causes of cases"</strong> (why did this person get sick) and the <strong>"causes of incidence"</strong> (why does this population have this rate of sickness) is the epidemiological cousin of Mills's trouble/issue distinction — both push the analyst upstream from the individual to the population determinants.</p>
+<p>Practically: a clinician who only ever prescribes for hypertension is treating a "trouble." A public health practitioner who also asks why salt intake, stress, and access to fresh food are so patterned by neighbourhood and income is exercising the sociological imagination and can design population-level, "issue"-level interventions (salt-reduction policy, urban planning, income support).</p>
+</div>
+</div>
+</div><div id="mi-ti"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚖️</span> Personal Troubles vs Public Issues</div>
+<table><tr><th>Personal trouble</th><th>Public issue</th></tr><tr><td>Private problem of individual, located within the character of the individual and their immediate relations</td><td>Public matters of social structure, located in the organisation of institutions and the historical period</td></tr><tr><td>Blamed on personal failings ("victim blaming")</td><td>Requires structural explanation and structural remedy</td></tr><tr><td>e.g., one person's obesity, one worker's unemployment</td><td>e.g., population obesity epidemic & obesogenic environment; a national unemployment rate of 12%</td></tr><tr><td>Resolved case-by-case, clinically</td><td>Resolved through policy, regulation, redistribution</td></tr></table>
+<div class="callout callout-orange">Medical sociology reframes "troubles" (individual, medical) as "issues" (population, social) — the foundation of social medicine and public health. This is not an either/or: both levels of explanation are usually true simultaneously, and good practice holds both at once.</div>
+<div class="subpart">
+<div class="subpart-label">Worked example</div>
+<p>Mills's classic illustration: if only one person in a city of 100,000 is unemployed, that is his personal trouble — we look to his character, skills and motivation. But if 12,000 of the city's 100,000 workers are unemployed (an unemployment rate of 12%), that is a public issue — the remedy lies not in retraining one man but in the structure of opportunities, the economy and the labour market.</p>
+<p><strong>Public-health translation:</strong> if adult obesity prevalence in a country rises from 15% to 30% of the adult population over 20 years, calculated simply as <code>prevalence = obese adults ÷ total adults × 100</code>, that doubling cannot plausibly be explained by 15 percentage points' worth of individuals independently losing willpower. The explanation must be sought upstream — in food environments, portion sizes, urban design that discourages walking, marketing of ultra-processed food, and working hours — i.e. it is a public issue requiring population-level (fiscal, regulatory, environmental) intervention, not only individual clinical counselling.</p>
+</div>
+</div><div id="mi-lev"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔭</span> Levels of Sociological Analysis</div>
+<ul><li><strong>Micro:</strong> illness experience, doctor–patient interaction, health beliefs, everyday meaning-making (symbolic interactionism, phenomenology).</li><li><strong>Meso:</strong> organisations, professions, hospitals, clinics, social networks, local communities.</li><li><strong>Macro:</strong> social class, gender, ethnicity, globalisation, the state, capitalism, colonial/post-colonial history (structural functionalism, conflict/Marxist theory, feminist theory).</li></ul>
+<div class="callout callout-green">A complete account of any health problem needs all three levels — a purely micro account risks psychologising structural problems; a purely macro account risks ignoring lived agency and meaning.</div>
+<div class="subpart">
+<div class="subpart-label">Worked example: Type 2 diabetes across three levels</div>
+<p><strong>Micro:</strong> a patient's daily choices about diet and medication adherence, their explanatory model of "sugar sickness," their relationship with their treating clinician.</p>
+<p><strong>Meso:</strong> whether their workplace allows meal breaks and rest, whether their neighbourhood has a primary-care clinic with continuity of care, whether their extended family and religious community provide support or pressure around food.</p>
+<p><strong>Macro:</strong> national food policy (sugar taxation, subsidies on staple oils/rice), trade liberalisation that increased availability of cheap processed food, urbanisation reducing incidental physical activity, and the historical political economy that shaped income distribution in the first place.</p>
+</div>
+</div>
+<div id="mi-durkheim"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📊</span> Durkheim's <em>Suicide</em> (1897): the first "sociological imagination" study</div>
+<p>Before Mills coined the term, Émile Durkheim demonstrated the method. Suicide looks like the most private, individual act imaginable — yet Durkheim showed that suicide <em>rates</em> are stable, patterned <strong>social facts</strong> that vary systematically with the degree of social <strong>integration</strong> (how attached individuals are to social groups) and social <strong>regulation</strong> (how much norms constrain individual desires) — not with individual psychology alone.</p>
+<table><tr><th>Type</th><th>Mechanism</th><th>Example context</th></tr><tr><td><strong>Egoistic</strong></td><td>Too little integration — the individual is insufficiently bound to society</td><td>Durkheim found unmarried and Protestant populations (weaker communal ties than Catholic) had higher rates</td></tr><tr><td><strong>Altruistic</strong></td><td>Too much integration — the self is submerged in the group</td><td>Military self-sacrifice; some collective/cult suicides</td></tr><tr><td><strong>Anomic</strong></td><td>Too little regulation — norms breakdown, often during rapid social/economic change</td><td>Rates rise in both economic booms and sudden depressions</td></tr><tr><td><strong>Fatalistic</strong></td><td>Too much regulation — excessive oppressive control (a minor category Durkheim mentioned in a footnote)</td><td>Highly oppressive institutional settings</td></tr></table>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🧮 Worked calculation: computing a suicide (mortality) rate <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>The standard formula, still used in vital statistics and epidemiology today:</p>
+<p><code>Rate per 100,000 = (number of suicide deaths in a period ÷ mid-year population at risk) × 100,000</code></p>
+<p><strong>Worked example (illustrative figures):</strong> Suppose a country records 1,200 suicide deaths in a calendar year, with a mid-year population of 32,000,000.</p>
+<p><code>Rate = (1,200 ÷ 32,000,000) × 100,000 = 3.75 per 100,000 population</code></p>
+<p>Durkheim used exactly this kind of rate, disaggregated by religion, marital status, and country, to argue that the variation between groups (e.g., a rate several times higher among Protestants than Catholics in the countries he studied) could not be explained by individual psychiatric predisposition alone, since psychiatric morbidity did not vary in step with the rate — it had to be explained sociologically, by differing levels of social integration in Protestant vs. Catholic communal life.</p>
+<p><strong>Public-health relevance:</strong> the same logic underlies contemporary suicide-prevention epidemiology, which tracks rates by sex, age, occupation and region to identify structurally at-risk groups (e.g., farmers, indigenous communities, LGBTQ+ youth) rather than treating each death purely as an individual clinical failure.</p>
+</div>
+</div>
+</div>
+<div id="mi-berger"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🕵️</span> Berger: The Sociologist's Perspective</div>
+<p>Peter Berger (<em>Invitation to Sociology</em>, 1963) described the sociological consciousness through several linked motifs that complement Mills:</p>
+<ul><li><strong>Debunking motif:</strong> official, taken-for-granted explanations of social arrangements are not necessarily the real ones — sociology looks behind the facade (e.g., "compliance" framing in medicine masks unequal power in the consultation).</li><li><strong>Unrespectability:</strong> sociology is curious about all levels of society, not just the respectable and official, including stigmatised illness experience.</li><li><strong>Relativising perspective:</strong> what looks natural or inevitable (a diagnostic category, a health behaviour norm) is often historically and culturally specific.</li><li><strong>Seeing the general in the particular:</strong> an individual clinical encounter can reveal a general pattern (e.g., a single case of delayed cancer presentation reveals a pattern of health-seeking delay across a whole social group).</li></ul>
+<div class="callout callout-purple">Together, Mills, Durkheim and Berger provide the conceptual toolkit that justifies why medical sociology exists as a discipline distinct from clinical medicine and psychology: illness is simultaneously biological, experiential and structural.</div>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Social Determinants of Health</div>
+  <div class="page-sub">Source: WHO Commission on Social Determinants of Health (2008); Marmot Review (2010, "Fair Society, Healthy Lives"); Whitehall Studies; Link & Phelan (1995); Dahlgren & Whitehead (1991)</div>
+<div id="sd-def"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🌍</span> Definition & Dahlgren–Whitehead Model</div>
+<p><strong>Social determinants of health (SDH)</strong> are "the conditions in which people are born, grow, live, work and age" — shaped by the distribution of money, power and resources at global, national and local levels (WHO CSDH, 2008).</p>
+<ul><li><strong>Structural drivers:</strong> governance, macroeconomic policy, social policies (labour market, welfare state, education), culture and societal values — these determine the <em>socioeconomic position</em> a person occupies.</li><li><strong>Intermediary determinants:</strong> material circumstances (housing, income, neighbourhood), psychosocial factors (stress, social support, control over one's life), behavioural/biological factors (diet, smoking, physical activity — themselves socially patterned), and the health system itself.</li><li><strong>Dahlgren–Whitehead "rainbow" (1991):</strong> concentric layers around the individual — (i) age, sex, constitutional factors (fixed) → (ii) individual lifestyle factors → (iii) social & community networks → (iv) living & working conditions (agriculture/food production, education, work environment, unemployment, water & sanitation, health care services, housing) → (v) general socioeconomic, cultural & environmental conditions.</li></ul>
+<div class="callout callout-purple">WHO CSDH (Marmot, 2008): <strong>"Social injustice is killing on a grand scale."</strong> Action on SDH is framed as an ethical imperative and a matter of social justice, not just technical health-system efficiency.</div>
+<div class="subpart">
+<div class="subpart-label">Worked example: mapping one exposure through the rainbow</div>
+<p>Childhood asthma exacerbation: (i) genetic atopic predisposition (fixed layer); (ii) individual factors — a caregiver who smokes indoors; (iii) social network — extended family norms around smoking; (iv) living conditions — damp, mould-prone rental housing near a major road (traffic air pollution), lack of paid sick leave preventing follow-up clinic visits; (v) macro layer — housing policy, urban planning and air-quality regulation. A purely biomedical inhaler prescription addresses none of layers (iii)–(v).</p>
+</div>
+</div><div id="sd-grad"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📉</span> The Social Gradient</div>
+<p>Health inequalities follow a <strong>gradient</strong>: each step down the socioeconomic ladder is associated with worse health. Critically, it is not only the poor who suffer — even among comfortably-off groups, lower relative rank is associated with worse outcomes than higher rank.</p>
+<ul><li><strong>Absolute income/material</strong> — direct effect of material living standards (nutrition, housing quality, exposure to hazards).</li><li><strong>Relative income/status</strong> — the psychosocial effect of income inequality and social rank itself (Wilkinson & Pickett's "status anxiety" / relative deprivation hypothesis), operating partly through chronic stress and the HPA axis.</li><li>Life expectancy gaps of 7–10+ years are commonly documented between the richest and poorest areas within the same country; healthy life expectancy gaps are typically larger still.</li></ul>
+<div class="callout callout-red">The gradient is <strong>not</strong> explained by health-care access alone — it reflects the cumulative effect of living and working conditions across the whole life course, including before birth (the "life-course" and "developmental origins" perspectives).</div>
+<h4>The Whitehall Studies (Marmot et al.)</h4>
+<p>The Whitehall I (1967) and Whitehall II (1985 onward) studies followed British civil servants — none of whom were poor by absolute standards, and all of whom had equal access to the NHS — and still found a strong inverse gradient between employment grade and mortality/morbidity. Men in the lowest employment grade had roughly a <strong>3–4 times higher risk of coronary heart disease mortality</strong> than men in the highest administrative grade, even after adjusting for classic risk factors (smoking, cholesterol, blood pressure), which explained only part of the gap. This was pivotal evidence that <em>relative</em> position, job control ("demand–control" model, Karasek) and psychosocial stress matter independently of material deprivation and health-care access.</p>
+<h4>Life-course models of how the gradient accumulates</h4>
+<table><tr><th>Model</th><th>Logic</th><th>Example</th></tr><tr><td><strong>Critical/sensitive period</strong></td><td>Exposure during a specific developmental window has a lasting, largely irreversible effect</td><td>Maternal undernutrition in pregnancy → low birth weight → adult cardiometabolic risk (Barker hypothesis / DOHaD)</td></tr><tr><td><strong>Accumulation</strong></td><td>Disadvantages add up incrementally across the life course, each one independently damaging</td><td>Repeated episodes of unemployment across working life each contributing separately to later cardiovascular risk</td></tr><tr><td><strong>Pathway / chain of risk</strong></td><td>An early exposure sets a person onto a trajectory that increases the likelihood of later exposures</td><td>Childhood poverty → poor educational attainment → precarious low-paid work → adult material deprivation</td></tr></table>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🧮 Worked calculation: measuring the gradient (Relative Index of Inequality & a Risk Ratio) <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>1. Simple risk ratio across socioeconomic quintiles.</strong> Suppose annual mortality rates by household-income quintile (illustrative) are:</p>
+<table><tr><th>Quintile</th><th>Mortality rate (per 1,000/yr)</th></tr><tr><td>Q1 (poorest)</td><td>12.0</td></tr><tr><td>Q5 (richest)</td><td>4.0</td></tr></table>
+<p><code>Risk ratio (RR) = rate in Q1 ÷ rate in Q5 = 12.0 ÷ 4.0 = 3.0</code></p>
+<p>Interpretation: mortality risk in the poorest quintile is <strong>3 times</strong> that of the richest quintile — a relative measure of inequality.</p>
+<p><strong>2. Slope Index of Inequality (SII) and Relative Index of Inequality (RII).</strong> The RR above only compares the two extreme groups and ignores the gradient in between. Epidemiologists instead rank the whole population by socioeconomic position (0 = most disadvantaged, 1 = most advantaged) and fit a regression of the health outcome against that rank. The <strong>SII</strong> is the absolute difference in the outcome predicted between the very bottom and very top of that ranking (the slope of the regression line); the <strong>RII</strong> expresses this as a ratio rather than a difference, and — unlike a simple top-vs-bottom ratio — both SII and RII use information from every group along the gradient, which is why they are preferred in the SDH literature (Mackenbach & Kunst).</p>
+<p><strong>Why this matters for a written answer:</strong> being able to say "the gradient was measured using the RII, not simply the richest-vs-poorest ratio, because the RII captures the full continuous social gradient rather than just the extremes" is a marker of a strong answer.</p>
+</div>
+</div>
+</div><div id="sd-ineq"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🚧</span> Health Inequalities vs Inequities</div>
+<p><strong>Inequalities</strong> = measurable differences in health across groups (a descriptive, empirical fact). <strong>Inequities</strong> = differences that are unfair, avoidable and socially produced — the proper normative target of policy (Whitehead, 1992: a difference is inequitable if it is "avoidable, unnecessary and unfair").</p>
+<ul><li>Patterned by class, gender, ethnicity, geography, disability, migration status, indigeneity.</li><li>Malaysia: documented urban–rural gaps in maternal and child health indicators; B40 (bottom 40% income) vs T20 (top 20%) disparities in NCD risk-factor prevalence and catastrophic health spending; long-standing disparities affecting Orang Asli and indigenous communities in Sabah/Sarawak in access to clean water, skilled birth attendance and under-five mortality.</li><li>Addressed via <strong>proportionate universalism</strong> (Marmot Review, 2010) — universal action across the whole gradient, but with effort and resourcing scaled proportionately to the level of disadvantage, avoiding both the stigma of narrowly targeted programmes and the under-reach of purely universal ones.</li></ul>
+<h4>Marmot Review (2010) — six policy objectives</h4>
+<ol><li>Give every child the best start in life.</li><li>Enable all children, young people and adults to maximise their capabilities and have control over their lives.</li><li>Create fair employment and good work for all.</li><li>Ensure a healthy standard of living for all.</li><li>Create and develop healthy and sustainable places and communities.</li><li>Strengthen the role and impact of ill-health prevention.</li></ol>
+</div>
+<div id="sd-fct"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧩</span> Fundamental Cause Theory (Link & Phelan, 1995)</div>
+<p>Link and Phelan argue that socioeconomic status (SES) is a <strong>"fundamental cause"</strong> of disease because it shapes access to flexible resources — money, knowledge, prestige, power and beneficial social connections — that can be redeployed to avoid risks or minimise the consequences of disease <em>whatever the currently dominant mechanism of risk happens to be</em>.</p>
+<div class="callout callout-orange">Prediction of the theory: even when a specific risk factor is eliminated or a specific disease becomes fully treatable, the SES gradient re-emerges around whatever new mechanism of risk or new treatment becomes available — because the advantaged are best placed to exploit new knowledge and new resources first. This explains why the social gradient in health has persisted across radically different disease profiles and medical eras (from infectious disease before antibiotics, to cardiovascular disease, to COVID-19 vaccine uptake), even though the proximate cause of death has changed completely.</div>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Culture & Health</div>
+  <div class="page-sub">Source: Kleinman (1980) <em>Patients and Healers in the Context of Culture</em>; Helman <em>Culture, Health and Illness</em>; Parsons (1951) <em>The Social System</em>; Goffman (1963) <em>Stigma</em>; Rosenstock (Health Belief Model); Zola/Conrad (medicalisation)</div>
+<div id="cu-ill"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🪄</span> Culture & the Meaning of Illness</div>
+<p>Culture shapes how symptoms are interpreted, whether care is sought, and from whom. <strong>Clinical reality</strong> is co-constructed between lay and professional systems, not simply "discovered" by biomedical testing alone.</p>
+<p>Medical sociologists distinguish a three-part vocabulary:</p>
+<ul><li><strong>Disease</strong> = the biological/pathological reality as defined by biomedicine (etic — an outsider's, professional perspective); measurable via pathology, imaging, biomarkers.</li><li><strong>Illness</strong> = the personally and socially experienced phenomenon — how the person feels, interprets and communicates the problem (emic — an insider's, lay perspective).</li><li><strong>Sickness</strong> (Twaddle; Young) = the social role and social process around being unwell — how a community and its institutions (workplace, insurer, state) recognise and respond to the person's condition (e.g., certified sick leave).</li></ul>
+<div class="callout callout-blue">Kleinman's distinction (1980): treat the <em>illness</em>, not just the <em>disease</em> — a patient can have illness without demonstrable disease (e.g., medically unexplained symptoms) and can have disease without illness (e.g., asymptomatic hypertension, silent early-stage cancer detected on screening).</div>
+<h4>Stigma (Goffman, 1963)</h4>
+<p>Stigma is a deeply discrediting attribute that reduces a person "from a whole and usual person to a tainted, discounted one." Goffman distinguished:</p>
+<ul><li><strong>Discredited stigma:</strong> the condition is already visible or known (e.g., a visible skin condition, a physical disability).</li><li><strong>Discreditable stigma:</strong> the condition is concealable, and the central challenge is information management — whether, when and to whom to disclose (e.g., HIV status, a mental health diagnosis, past addiction).</li><li><strong>Courtesy stigma:</strong> stigma that spreads to people associated with the stigmatised person (e.g., family members of someone with mental illness or leprosy).</li></ul>
+<div class="callout callout-red">Historically stigmatised conditions in many settings include leprosy, tuberculosis, HIV/AIDS and severe mental illness; stigma is a major structural barrier to care-seeking and is itself a legitimate target of public health intervention (anti-stigma campaigns, contact-based education, legal protection).</div>
+</div><div id="cu-em"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧠</span> Explanatory Models (Kleinman)</div>
+<p>Every actor in a clinical encounter (patient, family, practitioner) holds an <strong>explanatory model</strong> of an episode of sickness, covering five domains: aetiology (cause), timing/onset, pathophysiology (how it works in the body), course of illness (severity, expected trajectory), and appropriate treatment.</p>
+<h4>Kleinman's eight questions to elicit a patient's explanatory model</h4>
+<ol><li>What do you call this problem?</li><li>What do you think has caused it?</li><li>Why do you think it started when it did?</li><li>What do you think the sickness does — how does it work?</li><li>How severe is it? Will it have a short or long course?</li><li>What kind of treatment do you think you should receive?</li><li>What are the chief problems the sickness has caused for you?</li><li>What do you fear most about the sickness?</li></ol>
+<div class="subpart">
+<div class="subpart-label">Illustrative example</div>
+<p>In several South-East Asian and South Asian lay traditions, illness may be partly explained through a humoral "hot–cold" balance framework, or through concepts such as excess "wind" (angin) causing bloating, weakness or stroke-like symptoms — frameworks that coexist with, rather than simply being replaced by, biomedical explanations. A patient may accept a biomedical diagnosis of hypertension while simultaneously attributing an acute exacerbation to having eaten too many "heaty" foods or having been exposed to wind/draught after bathing. A clinician who dismisses this as mere ignorance risks losing the patient's trust and adherence; one who elicits it using Kleinman's questions can negotiate a shared plan (e.g., accepting dietary modification framed in the patient's own hot–cold vocabulary alongside antihypertensive medication).</p>
+</div>
+<div class="callout callout-purple">Aligning explanatory models — not necessarily agreeing with them, but understanding and respectfully negotiating with them — improves communication, trust and adherence far more reliably than simply repeating biomedical information more forcefully ("knowledge-deficit" model of non-adherence is usually wrong).</div>
+</div><div id="cu-ib"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🚶</span> Illness Behaviour & Lay Referral</div>
+<ul><li><strong>Illness behaviour</strong> (Mechanic, 1962): the way symptoms are differentially perceived, evaluated and acted (or not acted) upon by different people — shaped by prior experience, cultural background, and the meaning attached to symptoms, not by symptom severity alone.</li><li><strong>Lay referral system</strong> (Freidson): before consulting a professional, people typically consult a lay network — family, friends, traditional healers, online communities — who filter, validate or delay the decision to seek formal care.</li><li><strong>Stages of delay</strong> (Safer, Andersen model of total patient delay): appraisal delay (recognising a symptom as significant), illness delay (deciding one is ill and needs care), behavioural/utilisation delay (deciding to seek professional help), scheduling delay (time to get an appointment), and treatment delay (time from first professional contact to actual treatment) — cumulatively relevant to late presentation in cancer and TB.</li></ul>
+<h4>Parsons's Sick Role (1951)</h4>
+<p>Talcott Parsons, from a structural-functionalist perspective, described illness as a form of deviance that must be socially regulated through the "sick role," which grants two rights conditional on two obligations:</p>
+<table><tr><th>Rights</th><th>Obligations</th></tr><tr><td>Exemption from normal social role responsibilities</td><td>The sick person must want to get well</td></tr><tr><td>Not held personally responsible for their condition</td><td>Must seek competent (professional) help and cooperate with treatment</td></tr></table>
+<div class="callout callout-orange"><strong>Critique:</strong> the sick role model fits acute, short-term illness reasonably well but breaks down for chronic illness (where "getting well" is not achievable, and the exemption from social roles is not sustainable or even desired long-term), for stigmatised conditions (where the "not responsible" clause is contested, e.g., substance use or obesity), and cross-culturally (the model assumes a Western biomedical authority structure).</div>
+<h4>Health Belief Model (Rosenstock)</h4>
+<p>A widely used framework for predicting preventive health behaviour (e.g., screening or vaccination uptake), built from six constructs: perceived susceptibility, perceived severity, perceived benefits, perceived barriers, cues to action, and self-efficacy.</p>
+<div class="subpart">
+<div class="subpart-label">Worked example: cervical screening uptake</div>
+<p>A woman is more likely to attend cervical (Pap/HPV) screening if she believes she is personally at risk of cervical cancer (susceptibility), believes cervical cancer is serious (severity), believes screening genuinely reduces her risk (benefit), does not face major cost, embarrassment, language, or time barriers (barriers), receives a reminder from her clinic or sees a public campaign (cue to action), and feels confident she can navigate the appointment process (self-efficacy). Public health screening programmes are frequently redesigned around this model — for example, replacing a single mass-media message with SMS reminders (cue to action) plus free or mobile screening (removing barriers) — because barrier-reduction and cueing tend to move uptake more than raising perceived susceptibility alone.</p>
+</div>
+</div>
+<div id="cu-med"></div>
+<div class="card">
+<div class="card-title"><span class="icon">💊</span> Medicalisation</div>
+<p><strong>Medicalisation</strong> (Zola, 1972; Conrad, 1992) is the process by which non-medical problems become defined and treated as medical problems, typically in terms of illnesses or disorders. Drivers include professional expansion, pharmaceutical industry marketing, patient advocacy seeking legitimacy/resources, and broader cultural faith in scientific authority.</p>
+<ul><li><strong>Examples commonly cited in the literature:</strong> childbirth (from a family/community event to a hospital procedure), menopause (reframed as an "oestrogen deficiency disease"), shyness (reframed as social anxiety disorder), and attention/behaviour variation in children (ADHD).</li><li><strong>Consequences:</strong> can bring genuine benefit (access to treatment, insurance coverage, reduced individual blame) but also risk of overdiagnosis, overtreatment, iatrogenesis, and narrowing of what counts as "normal" human variation.</li></ul>
+<div class="callout callout-green">Medicalisation is the conceptual mirror of "public issue" framing: while Mills asks us to move problems <em>out</em> of the individual/medical frame and into the structural frame, medicalisation theory studies the opposite historical movement — problems moving <em>into</em> the medical frame — and asks who benefits and who is harmed by that shift.</div>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Social Capital & Social Support</div>
+  <div class="page-sub">Source: Putnam (2000) <em>Bowling Alone</em>; Bourdieu (1986); Coleman (1988); Portes (1998); Berkman & Syme (1979) Alameda County Study; Holt-Lunstad et al. (2010) meta-analysis</div>
+<div id="sc-def"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🤝</span> Social Capital — Definition</div>
+<p>Social capital = "features of social organisation — networks, norms, trust — that enable coordination and cooperation for mutual benefit" (Putnam). It sits alongside physical, human and financial capital as a resource, but is held collectively rather than individually.</p>
+<table><tr><th>Theorist</th><th>Emphasis</th></tr><tr><td><strong>Bourdieu</strong></td><td>Social capital is one of several convertible forms of capital (alongside economic and cultural capital) that reproduces class advantage — access to networks is itself unequally distributed</td></tr><tr><td><strong>Coleman</strong></td><td>Social capital inheres in the structure of relations between actors — closure of a network (everyone knows everyone) enables trust and enforceable norms, e.g., in raising children</td></tr><tr><td><strong>Putnam</strong></td><td>A societal-level, communitarian resource: civic engagement (club membership, voting, volunteering) generates generalized trust and reciprocity that benefit a whole community, not just direct participants</td></tr><tr><td><strong>Portes</strong></td><td>A more critical, individual-level view — social capital is the ability of actors to secure benefits by virtue of membership in networks; warns against romanticising it, since it can also exclude outsiders</td></tr></table>
+<div class="callout callout-green">Putnam's <em>Bowling Alone</em> (2000) documented declining US civic participation (e.g., falling membership of bowling leagues, PTAs, unions) as evidence of eroding social capital, with implications for democratic engagement and, by extension, collective capacity to advocate for public goods including health services.</div>
+</div><div id="sc-bb"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔗</span> Bonding vs Bridging vs Linking</div>
+<table><tr><th>Type</th><th>Definition</th><th>Health example</th></tr><tr><td>Bonding</td><td>Ties within a homogeneous group (strong, dense ties)</td><td>Family and close ethnic/religious community support during acute illness or bereavement</td></tr><tr><td>Bridging</td><td>Ties between different groups (horizontal, weaker ties)</td><td>Cross-community information exchange about which clinics/services are trustworthy or affordable</td></tr><tr><td>Linking</td><td>Ties to institutions and people with formal power/authority (vertical)</td><td>Access to state health programmes, ability to navigate bureaucracy, having someone who can advocate within the system</td></tr></table>
+<div class="callout callout-purple">Bridging and linking capital often matter most for marginalised groups' health access, since bonding capital alone (however emotionally supportive) may lack the resources or institutional leverage to solve structural problems like housing or benefits access.</div>
+<h4>The "dark side" of social capital</h4>
+<p>Social capital is not unconditionally beneficial. Tight bonding capital can be <strong>exclusionary</strong> (out-group discrimination), can enforce restrictive norms that limit individual autonomy (e.g., pressure against women's healthcare-seeking outside the family, resistance to vaccination within a tightly bonded community susceptible to shared misinformation), or can facilitate collective harm (organised crime networks are, structurally, very high in bonding social capital). Portes and others caution against treating "more social capital" as automatically good — its health effect depends on the norms the network enforces and what resources it can access.</p>
+</div><div id="sc-eff"></div>
+<div class="card">
+<div class="card-title"><span class="icon">💗</span> Social Support & Mortality</div>
+<p>Strong social relationships are associated with a substantially <strong>increased likelihood of survival</strong>, in effect sizes comparable to established clinical risk factors.</p>
+<ul><li><strong>Types of support:</strong> emotional (empathy, caring), instrumental (tangible aid, e.g., transport to a clinic), informational (advice, guidance), appraisal (feedback useful for self-evaluation).</li><li><strong>Buffering model:</strong> social support protects against the harmful health effects of stress specifically under conditions of high stress.</li><li><strong>Main-effect model:</strong> social support benefits health directly, regardless of current stress level (e.g., through encouraging healthy behaviour, providing a sense of purpose and belonging).</li><li>Loneliness and social isolation are independent risk factors for all-cause mortality, cardiovascular disease and dementia — independent of depression and baseline health status.</li></ul>
+<h4>Berkman & Syme, Alameda County Study (1979)</h4>
+<p>A landmark 9-year prospective cohort study of ~7,000 adults in Alameda County, California. People who were socially isolated (few close relationships, little community/organisational participation) at baseline had roughly <strong>2 to 3 times the age-adjusted mortality risk</strong> over the follow-up period compared with those who were socially well-connected, an association that persisted after adjusting for baseline physical health, socioeconomic status and health behaviours (smoking, alcohol use, physical activity).</p>
+<h4>Holt-Lunstad et al. (2010) meta-analysis</h4>
+<p>A meta-analysis pooling 148 studies (over 300,000 participants) found that stronger social relationships were associated with a <strong>50% increased likelihood of survival</strong> — expressed as an average odds ratio of ~1.50 — an effect comparable in magnitude to quitting smoking, and larger than well-established risk factors such as physical inactivity (OR ~1.30) or obesity (OR ~1.20 in that analysis).</p>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🧮 Worked calculation: relative risk from a hypothetical isolation cohort <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Suppose a simplified hypothetical cohort of 2,000 adults followed for 9 years is split into "socially isolated" and "socially connected" groups, with the following outcomes:</p>
+<table><tr><th>Group</th><th>N</th><th>Deaths over 9 yrs</th><th>Cumulative incidence (risk)</th></tr><tr><td>Isolated</td><td>500</td><td>90</td><td>90 ÷ 500 = 0.18 (18%)</td></tr><tr><td>Connected</td><td>1,500</td><td>135</td><td>135 ÷ 1,500 = 0.09 (9%)</td></tr></table>
+<p><code>Relative Risk (RR) = risk in isolated ÷ risk in connected = 0.18 ÷ 0.09 = 2.0</code></p>
+<p>Interpretation: in this hypothetical cohort, socially isolated individuals had <strong>twice the risk</strong> of death over 9 years compared with socially connected individuals — consistent in direction and rough magnitude with the real Alameda County findings. Note the distinction from an <em>odds ratio</em> (used in the Holt-Lunstad meta-analysis, which pooled studies with varying designs including case-control-type comparisons): RR compares cumulative risk directly and is more intuitive to interpret in a cohort design, while OR approximates RR well when the outcome is relatively rare.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Globalisation & Health</div>
+  <div class="page-sub">Source: Labonté & Schrecker; WHO; Omran (1971) epidemiological transition theory; Beck (1992) <em>Risk Society</em>; WHO Framework Convention on Tobacco Control</div>
+<div id="gl-con"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🌐</span> Globalisation & Health</div>
+<p>Globalisation = the widening, deepening and speeding up of worldwide interconnectedness — of trade, finance, people, information, and disease. Health effects run in <strong>both</strong> directions: beneficial (knowledge diffusion, medical technology transfer, development aid, global disease surveillance) and harmful (unhealthy commodity flows, financial-crisis contagion, weakened policy space for health regulation).</p>
+<ul><li>Epidemics and pandemics spread faster and further via global travel and trade networks (SARS 2003, H1N1 2009, COVID-19 2020).</li><li>Global marketing and distribution of unhealthy commodities — tobacco, alcohol, ultra-processed food and sugar-sweetened beverages — track globalisation's trade routes and marketing infrastructure ("commercial determinants of health").</li><li>Health-worker migration ("brain drain") flows disproportionately from low- and middle-income to high-income countries, driven by wage differentials and working conditions.</li></ul>
+<div class="callout callout-blue">Beck's <strong>"risk society"</strong> concept: in late-modern, globalised societies, major risks (pandemics, climate change, financial crises) are manufactured and global in scope, no longer confined by national borders — health governance must therefore also become global (WHO International Health Regulations).</div>
+<h4>Glocalisation</h4>
+<p>Global forces do not simply overwrite local culture; they are adapted and reinterpreted locally ("glocalisation" — Robertson). For example, global fast-food chains adapt menus to local tastes, and traditional medicine systems selectively incorporate biomedical elements — globalisation is a two-way, hybridising process, not one-directional Westernisation.</p>
+</div><div id="gl-ncd"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔄</span> Epidemiological / NCD Transition</div>
+<p>Omran's <strong>epidemiological transition theory (1971)</strong> describes three classic stages as societies develop:</p>
+<table><tr><th>Stage</th><th>Pattern</th></tr><tr><td>1. Age of pestilence & famine</td><td>High mortality dominated by infectious disease, malnutrition and maternal mortality; low, fluctuating life expectancy</td></tr><tr><td>2. Age of receding pandemics</td><td>Infectious-disease mortality declines with sanitation, nutrition, and public health measures; life expectancy rises</td></tr><tr><td>3. Age of degenerative & man-made disease</td><td>Chronic non-communicable diseases (cardiovascular disease, cancer, diabetes) become dominant causes of death as populations age and lifestyles shift</td></tr></table>
+<p>A commonly proposed <strong>fourth stage</strong> — the "age of delayed degenerative diseases" — describes further-postponed NCD mortality through medical treatment (e.g., statins, revascularisation) even without eliminating the underlying risk factors.</p>
+<div class="callout callout-orange">Malaysia — like many middle-income countries — exhibits the <strong>double burden of disease</strong>: an unfinished agenda of communicable disease and maternal/child health issues, alongside a rapidly rising burden of diabetes, hypertension, obesity and cancers, compressed into a much shorter timeframe than the transition took in early-industrialising Europe.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🧮 Worked calculation: DALYs and a simple prevalence estimate <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Disability-Adjusted Life Year (DALY)</strong> is the standard summary measure of population disease burden used to compare the impact of communicable and non-communicable disease side by side (essential for describing a "double burden"):</p>
+<p><code>DALY = YLL + YLD</code></p>
+<p>where <strong>YLL</strong> (Years of Life Lost) = number of deaths × standard life expectancy at age of death, and <strong>YLD</strong> (Years Lived with Disability) = number of prevalent cases × disability weight (0–1 scale) × average duration of the condition.</p>
+<p><strong>Illustrative worked example:</strong> Suppose in a hypothetical district, diabetes causes 50 deaths in a year, each occurring on average 15 years earlier than the standard life expectancy at that age (YLL = 50 × 15 = 750), and there are 2,000 people currently living with diabetes-related complications, with an average disability weight of 0.15 sustained for that year (YLD = 2,000 × 0.15 × 1 = 300). Total DALYs from diabetes that year = 750 + 300 = <strong>1,050 DALYs</strong>.</p>
+<p><strong>Simple prevalence calculation</strong> for describing the "double burden": <code>Crude prevalence = number of existing cases ÷ total population at risk</code>. If a national health survey finds 3.6 million adults with diabetes among 24 million adults, crude prevalence = 3,600,000 ÷ 24,000,000 = 0.15, i.e. <strong>15% of adults</strong> — a figure regularly cited to describe the scale of Malaysia's NCD burden, sitting alongside continuing efforts on dengue, TB and maternal/child health (the "unfinished agenda").</p>
+</div>
+</div>
+</div><div id="gl-trade"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📜</span> Trade, Neoliberalism & Health</div>
+<ul><li><strong>Neoliberal policies</strong> (privatisation, deregulation, trade liberalisation, fiscal austerity) can erode the welfare state and widen health inequalities by reducing redistribution and social protection.</li><li><strong>Structural adjustment programmes (SAPs)</strong> imposed by international financial institutions on indebted countries from the 1980s onward often required cuts to public health and education spending, user fees for health services, and currency devaluation — associated in the literature with worsened health outcomes and reduced health-service utilisation in affected countries, particularly for the poorest.</li><li>Trade agreements (e.g., regional trade/investment pacts) can affect tobacco control regulation, intellectual-property protection on medicines, and investor-state dispute mechanisms that allow companies to challenge public-health regulation.</li><li><strong>WHO Framework Convention on Tobacco Control (FCTC, 2003):</strong> the first WHO treaty, explicitly designed to give tobacco-control measures priority over conflicting trade obligations, and to prevent tobacco-industry interference in policy-making.</li><li><strong>TRIPS and medicines access:</strong> the WTO's Trade-Related Aspects of Intellectual Property Rights agreement extended patent protection globally, raising concerns about access to affordable generic medicines in low- and middle-income countries; the Doha Declaration (2001) affirmed countries' right to use compulsory licensing flexibilities to protect public health.</li></ul>
+</div>
+<div id="gl-migration"></div>
+<div class="card">
+<div class="card-title"><span class="icon">✈️</span> Health Worker Migration</div>
+<table><tr><th>Push factors (source countries)</th><th>Pull factors (destination countries)</th></tr><tr><td>Low wages, poor working conditions</td><td>Higher salaries, better career progression</td></tr><tr><td>Limited career development, understaffing/overwork</td><td>Active international recruitment</td></tr><tr><td>Political/economic instability</td><td>Perceived safety, stability, quality of life</td></tr><tr><td>Under-resourced health systems</td><td>Well-resourced training and equipment</td></tr></table>
+<div class="callout callout-green">The <strong>WHO Global Code of Practice on the International Recruitment of Health Personnel (2010)</strong> is a voluntary framework urging destination countries to avoid active recruitment from countries facing critical health-workforce shortages, and to invest in strengthening health workforce sustainability in source countries — an attempt to govern globalisation's effects on health systems rather than simply accept them as inevitable.</div>
+</div>
+</div>
+<div class="section" id="sec6">
+  <div class="page-title">6. Welfare State, Health Policy & Reform</div>
+  <div class="page-sub">Source: Esping-Andersen (1990) <em>The Three Worlds of Welfare Capitalism</em>; WHO Health Systems Financing; Beveridge Report (1942); Virchow (1848)</div>
+<div id="ws-reg"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🏛️</span> Welfare Regimes (Esping-Andersen)</div>
+<p>Three "worlds of welfare capitalism," classified by <strong>decommodification</strong> (the extent to which social services are available as a right of citizenship rather than purchased on the market) and social <strong>stratification</strong> (how welfare arrangements reinforce or reduce class divisions):</p>
+<table><tr><th>Regime</th><th>Logic</th><th>Example</th></tr><tr><td>Social-democratic</td><td>Universal, egalitarian, high decommodification, funded through progressive general taxation</td><td>Nordic countries (Sweden, Denmark, Norway)</td></tr><tr><td>Conservative-corporatist</td><td>Status-preserving, occupation/employment-based social insurance; moderate decommodification</td><td>Germany, France, Austria</td></tr><tr><td>Liberal</td><td>Means-tested, market-led, low decommodification; safety-net rather than universal provision</td><td>United States; historically the UK pre-NHS</td></tr></table>
+<div class="callout callout-blue">Decommodification frees citizens from pure market dependency for essential goods like health care — the higher the decommodification, the less a person's access to care depends on their labour-market position or ability to pay.</div>
+<h4>Health-system financing models</h4>
+<table><tr><th>Model</th><th>Mechanism</th><th>Example</th></tr><tr><td>Beveridge</td><td>Tax-funded, government-owned/run provision, free at point of use</td><td>UK NHS</td></tr><tr><td>Bismarck</td><td>Compulsory social health insurance via employer/employee payroll contributions, often multiple non-profit insurers</td><td>Germany, Japan</td></tr><tr><td>National Health Insurance (NHI)</td><td>Single tax/contribution-funded public insurer, but care delivered by private providers</td><td>Canada, South Korea</td></tr><tr><td>Out-of-pocket / private-insurance dominant</td><td>Household or private-insurer payment, with fragmented public safety-net for the poor/elderly</td><td>Historically the pre-reform United States</td></tr></table>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🧮 Worked calculation: catastrophic health expenditure <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Out-of-pocket (OOP) payment is a key indicator of financial protection. WHO commonly defines <strong>catastrophic health expenditure</strong> as household OOP health spending exceeding 40% of the household's <em>capacity to pay</em> (non-subsistence income, i.e. total expenditure minus spending on basic food needs).</p>
+<p><strong>Worked example:</strong> a household has monthly total expenditure of RM 3,000, of which RM 1,200 goes to basic food/subsistence needs, leaving a capacity to pay of RM 1,800. If the household spends RM 800 out-of-pocket that month on a family member's hospitalisation:</p>
+<p><code>OOP share of capacity to pay = 800 ÷ 1,800 = 0.44 (44%)</code></p>
+<p>Since 44% exceeds the 40% threshold, this household has incurred <strong>catastrophic health expenditure</strong> — a key motivation for moving health systems away from OOP-dominant financing toward pooled, prepaid mechanisms (tax or insurance funded) as part of Universal Health Coverage (UHC).</p>
+</div>
+</div>
+</div><div id="ws-nhs"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🇬🇧</span> The UK NHS & Its Significance</div>
+<p>The 1948 NHS embodied the <strong>Beveridge Report (1942)</strong> principles: health care free at the point of use, funded from general taxation, and available to all citizens regardless of ability to pay — conceived as part of a broader post-war welfare settlement attacking Beveridge's "five giants" (want, disease, ignorance, squalor, idleness). It became an internationally influential template, widely debated and partially emulated.</p>
+<ul><li><strong>Reforms:</strong> the 1990s internal market reforms introduced a purchaser–provider split; subsequent New Public Management approaches introduced competition, performance targets and greater managerial control.</li><li><strong>Ongoing tension</strong> between equity (universal, needs-based access) and efficiency/responsiveness (market-style incentives, patient choice).</li><li><strong>Contemporary pressures:</strong> an ageing population increasing demand, rising costs of new technology and medicines, workforce shortages, and growing waiting lists — recurring themes in comparative health-policy debate about the sustainability of tax-funded universal systems.</li></ul>
+</div><div id="ws-reform"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🇲🇾</span> Health Systems Reform & Malaysia</div>
+<ul><li>Malaysia operates a mixed system: a predominantly tax-funded public sector delivering highly subsidised care (historically nominal fees at government facilities) alongside a growing, more expensive private sector — raising concerns about a widening <strong>dual-tier</strong> system and workforce drift from public to private practice.</li><li><strong>1Care</strong> reform proposals explored moving toward a single-payer, social health insurance-style unification of financing — a contested proposal that was ultimately not implemented, illustrating the political difficulty of large-scale health-financing reform even where the technical case is debated on its merits.</li><li>More recent policy discussion (health white-paper style reform proposals) has focused on strengthening primary care, purchaser–provider separation, and sustainable financing mechanisms as the population ages and NCD burden grows.</li><li><strong>Universal Health Coverage (UHC)</strong> is typically visualised as a "coverage cube" with three dimensions that must each expand: (1) population covered, (2) services covered, and (3) proportion of costs covered (reducing OOP) — reform debates in Malaysia and elsewhere are essentially arguments about how to expand along these three axes without triggering catastrophic expenditure or unsustainable fiscal cost.</li><li><strong>Social medicine tradition</strong> (Rudolf Virchow, 1848, reporting on a typhus epidemic in Upper Silesia): medicine is fundamentally a social science, and physicians are "natural attorneys of the poor" — an early and influential articulation of the idea that clinical and structural/political action on health are inseparable.</li></ul>
+<div class="callout callout-green">Virchow: <strong>"Medicine is a social science, and politics is nothing else but medicine on a large scale."</strong> This single sentence is frequently used to open or close essay answers linking medical sociology back to public health practice and policy.</div>
+</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 506 past-year papers</div>
+<div id="pyq-1"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">Social Determinants</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Define social determinants of health and explain the 'social gradient' in health with one example of a policy response.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: definition 4 · gradient 6 · policy 5</div>
+<div class="ans-section"><div class="ans-section-title">Definition</div><p>SDH are the conditions in which people are born, grow, live, work and age, shaped by the distribution of money, power and resources (WHO CSDH 2008). They operate through structural determinants (governance, macroeconomic and social policy, culture) that shape socioeconomic position, and intermediary determinants (material circumstances, psychosocial factors, behavioural/biological factors, and the health system) that translate that position into health outcomes.</p></div>
+<div class="ans-section"><div class="ans-section-title">Social gradient</div><p>The gradient means health improves steadily with each step up the socioeconomic ladder — not only the poor suffer; even among the affluent, lower relative rank is associated with worse health than higher rank. Example: a 7–10+ year life-expectancy gap is commonly documented between the richest and poorest local areas within the same country. The Whitehall studies showed this gradient even among British civil servants with equal NHS access, where the lowest employment grade had roughly 3–4 times the coronary heart disease mortality of the highest grade, only partly explained by classic risk factors — evidence that relative status and job control (psychosocial pathways), not material deprivation or health-care access alone, drive part of the gradient.</p></div>
+<div class="ans-section"><div class="ans-section-title">Policy response</div><p>Marmot's <strong>proportionate universalism</strong> — universal policies delivered with intensity proportionate to the level of disadvantage (e.g., universal early-childhood services with additional home-visiting for the most deprived families; a living wage; targeted investment in education quality in deprived areas), consistent with the Marmot Review's six policy objectives (e.g., "give every child the best start in life," "create fair employment and good work for all").</p></div>
+<div class="ans-section"><div class="ans-section-title">Extension: measuring the gradient</div><p>A strong answer can note that the gradient is properly measured using the whole distribution (e.g., the Relative or Slope Index of Inequality), not just a top-vs-bottom ratio, since a two-group comparison discards information about the intermediate groups and can understate how continuous and pervasive the gradient is.</p></div>
+</div>
+</div><div id="pyq-2"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Culture & Illness</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Distinguish disease from illness. Using Kleinman's explanatory model, describe how a clinician might improve adherence in a patient from a different cultural background.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: distinction 5 · explanatory model 5 · adherence 5</div>
+<div class="ans-section"><div class="ans-section-title">Disease vs illness</div><p><strong>Disease</strong> = the biological/pathological reality (etic, professional perspective), measurable through pathology, imaging or biomarkers. <strong>Illness</strong> = the lived, personally and socially experienced problem (emic, lay perspective) — how the person interprets, feels and communicates being unwell. A third term, <strong>sickness</strong>, describes the social role assigned to the unwell person (e.g., certified leave). Disjunction between disease and illness — e.g., a patient who does not "feel" their asymptomatic hypertension as an illness — drives poor adherence.</p></div>
+<div class="ans-section"><div class="ans-section-title">Explanatory model</div><p>Kleinman: patients, family members and clinicians each hold an explanatory model of an episode of sickness covering aetiology, onset, pathophysiology, course and treatment. The clinician should actively elicit the patient's model, for example by asking what they think caused it, why it started when it did, how severe they believe it to be, and what they fear most — rather than assuming the biomedical model is self-evidently shared.</p></div>
+<div class="ans-section"><div class="ans-section-title">Adherence</div><p>By negotiating between models — validating the patient's explanatory framework (e.g., a humoral "hot–cold" or "wind" belief) while sharing the biomedical one in comprehensible terms — mutual understanding and trust increase, improving adherence without a coercive "compliance" framing that positions the patient as merely obedient or disobedient.</p></div>
+<div class="ans-section"><div class="ans-section-title">Extension: linking to stigma and the sick role</div><p>Where the condition is stigmatised (Goffman), disclosure and treatment-seeking may be further complicated by fear of discreditation, so the clinician should also consider confidentiality and information-management concerns. Where the illness is chronic, the classic Parsonian sick role (temporary exemption from duties, in exchange for wanting to get well and cooperating with treatment) fits poorly, and the clinician should instead support a sustainable long-term self-management identity rather than a short-term "patient" role.</p></div>
+</div>
+</div><div id="pyq-3"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q3</span>
+<span class="q-topic">Globalisation</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">Discuss how globalisation produces both opportunities and risks for population health, with reference to the double burden of disease in Malaysia.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: opportunities 6 · risks 8 · Malaysia 6</div>
+<div class="ans-section"><div class="ans-section-title">Opportunities</div><p>Rapid knowledge transfer and research collaboration across borders, cheaper diagnostics and medical technology through global supply chains, global disease surveillance and coordinated response under the WHO International Health Regulations, and pooled international procurement (e.g., for vaccines) lowering per-unit medicine and vaccine costs for participating countries.</p></div>
+<div class="ans-section"><div class="ans-section-title">Risks</div><p>Faster and wider pandemic spread via global travel and trade networks (SARS, H1N1, COVID-19); global marketing of tobacco, alcohol and ultra-processed food/sugar-sweetened beverages driving the rise of NCDs (the "commercial determinants of health"); health-worker migration/brain drain from lower- to higher-income health systems, driven by wage and working-condition differentials; and trade and investment rules that can constrain domestic tobacco-control regulation or raise medicine prices through extended patent protection (TRIPS), though instruments like the FCTC and the Doha Declaration attempt to protect policy space for health.</p></div>
+<div class="ans-section"><div class="ans-section-title">Malaysia double burden</div><p>Malaysia carries an unfinished agenda of infectious disease and maternal/child/nutritional health issues alongside a rapid rise in diabetes, hypertension, obesity and cancers — the <strong>double burden of disease</strong> — intensified by globalised commodity flows (processed food, tobacco, alcohol marketing) and rapid urbanisation reducing incidental physical activity. Illustratively, if national survey data show diabetes prevalence around 15% of adults, this sits alongside continuing public-health effort on dengue control, TB and maternal/newborn health, meaning health systems must resource both agendas simultaneously rather than sequentially, unlike the more gradual historical transition experienced by early-industrialising countries (Omran's epidemiological transition).</p></div>
+<div class="ans-section"><div class="ans-section-title">Extension: policy implications</div><p>A strong answer connects this back to welfare-state and financing themes: managing a double burden under a still-developing universal-coverage system raises the risk of catastrophic household health expenditure unless financing is pooled and prepaid (tax or insurance funded) rather than out-of-pocket, and argues for governance of trade and commercial determinants (e.g., sugar-sweetened beverage taxation, tobacco/alcohol marketing restriction) as a necessary complement to clinical NCD management.</p></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Sociological Imagination", "sec2": "Social Determinants of Health", "sec3": "Culture & Health", "sec4": "Social Capital & Support", "sec5": "Globalisation & Health", "sec6": "Welfare State & Health Policy", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt506_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 7;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 7;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt506_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt506_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>

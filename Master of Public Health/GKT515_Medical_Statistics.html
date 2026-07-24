@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 515 Medical Statistics</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 515</h2>
+      <div style="font-size:11px;color:var(--text3)">Medical Statistics</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Descriptive Statistics</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('de-ct')">Central Tendency</a><a onclick="scrollTo('de-disp')">Dispersion</a><a onclick="scrollTo('de-dist')">Distributions</a><a onclick="scrollTo('de-freq')">Disease Frequency</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Hypothesis Testing</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('hy-con')">Concepts</a><a onclick="scrollTo('hy-err')">Errors & Power</a><a onclick="scrollTo('hy-ss')">Sample Size</a><a onclick="scrollTo('hy-pci')">p-value & CI</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Categorical & Non-Parametric</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('ca-chi')">Chi-square & Fisher</a><a onclick="scrollTo('ca-assoc')">RR, OR & Screening</a><a onclick="scrollTo('ca-np')">Non-Parametric Tests</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Regression</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('re-lin')">Linear Regression</a><a onclick="scrollTo('re-log')">Logistic Regression</a><a onclick="scrollTo('re-ass')">Assumptions</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Survival & Advanced</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('su-km')">Kaplan-Meier</a><a onclick="scrollTo('su-cox')">Cox Regression</a><a onclick="scrollTo('su-av')">ANOVA/ANCOVA</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1 CI & p</a><a onclick="scrollTo('pyq-2')">Q2 Test choice</a><a onclick="scrollTo('pyq-3')">Q3 Cox/HR</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 515 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Medical Statistics</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections (marked 🧮 Worked example) expand on click and walk through the calculation step by step — try to work through the numbers yourself before expanding. Sample-question model answers are hidden until you click "Show Model Answer".
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Descriptive Statistics</div><div class="hc-sub">Central tendency, dispersion, distributions, disease frequency</div><div class="hc-badge"><span class="tag tag-blue">Mean</span><span class="tag tag-orange">SD</span><span class="tag tag-purple">Incidence</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Hypothesis Testing</div><div class="hc-sub">p-values, CI, type I/II error, power, sample size</div><div class="hc-badge"><span class="tag tag-red">p-value</span><span class="tag tag-green">Power</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Categorical & Non-Parametric</div><div class="hc-sub">Chi-square, Fisher, RR/OR, sensitivity/specificity, Mann-Whitney</div><div class="hc-badge"><span class="tag tag-purple">Chi-sq</span><span class="tag tag-blue">Non-param</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Regression (Linear/Logistic)</div><div class="hc-sub">OLS, OR, interpretation, worked coefficients</div><div class="hc-badge"><span class="tag tag-blue">OLS</span><span class="tag tag-orange">Logistic</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Survival & Advanced</div><div class="hc-sub">Kaplan-Meier, Cox, ANOVA, ANCOVA</div><div class="hc-badge"><span class="tag tag-red">Cox</span><span class="tag tag-green">ANOVA</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions with worked extensions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Descriptive Statistics</div>
+  <div class="page-sub">Source: GKT 515 Course Notes — Measures of Central Tendency and Dispersion; Normal Distribution; Measures of Disease Frequency</div>
+<div id="de-ct"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📊</span> Measures of Central Tendency</div>
+<p>Central tendency summarises an entire distribution with one 'typical' value. The right choice depends on the variable's <strong>level of measurement</strong> (nominal / ordinal / interval / ratio) and its <strong>shape</strong> (symmetric vs skewed):</p>
+<ul>
+<li><strong>Mean (x̄ = Σx / n)</strong> — the arithmetic balance point of the data; uses every observation, so a single extreme value pulls it toward the tail.</li>
+<li><strong>Median</strong> — the middle value once data are ranked low→high (average of the two central values when n is even); splits the sample exactly 50/50 and is unaffected by extreme values, making it the preferred summary for skewed data (e.g., income, length of stay, viral load).</li>
+<li><strong>Mode</strong> — the most frequently occurring value; the only valid measure for pure nominal data (e.g., blood group) and useful for describing multimodal distributions (e.g., bimodal age-at-onset when a disease has both congenital and acquired causes).</li>
+<li><strong>Geometric mean</strong> = ⁿ√(x₁·x₂·…·xₙ), equivalently exp(mean of ln x) — used for log-normally distributed biomarkers (antibody titres, viral load, serum IgE) where multiplicative/ratio changes are more meaningful than additive ones.</li>
+</ul>
+<table><tr><th>Measure</th><th>Best use</th><th>Sensitive to outliers?</th></tr><tr><td>Mean</td><td>Symmetric / interval-ratio data</td><td>Yes</td></tr><tr><td>Median</td><td>Skewed data / ordinal data</td><td>No</td></tr><tr><td>Mode</td><td>Categorical / nominal data, describing peaks</td><td>No</td></tr><tr><td>Geometric mean</td><td>Log-normal biomarker data</td><td>Less than arithmetic mean</td></tr></table>
+<div class="callout callout-blue">For skewed data, report <strong>median (IQR)</strong> rather than mean (SD) — and state this explicitly in a results table, since readers otherwise default to assuming mean ± SD.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — mean vs median in a skewed sample</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Length of stay (days) for 9 ward patients: 2, 3, 3, 4, 4, 5, 5, 6, 40 (one patient had a prolonged, complicated admission).</p>
+<ul>
+<li><strong>Mean</strong> = (2+3+3+4+4+5+5+6+40) / 9 = 72 / 9 = <strong>8.0 days</strong> — inflated by the single outlier.</li>
+<li><strong>Median</strong> = the 5th ranked value = <strong>4 days</strong> — much closer to the typical patient's experience.</li>
+<li><strong>Mode</strong> = 3 and 4 days (bimodal, each occurring twice).</li>
+</ul>
+<p>Because mean ≫ median, the distribution is <strong>right- (positively) skewed</strong>: a long tail of a few long-stay patients drags the mean upward. Comparing mean and median before choosing which to report is a classic exam trap to watch for (Gordis, <em>Epidemiology</em>).</p>
+</div>
+</div>
+</div><div id="de-disp"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📏</span> Measures of Dispersion</div>
+<p>A measure of central tendency alone can hide important differences — two groups can share the same mean but very different spread, which often has direct clinical meaning (e.g., glycaemic variability, blood pressure variability). Key measures:</p>
+<ul><li><strong>Range</strong> = maximum − minimum; simple but unstable, driven entirely by the two most extreme values.</li>
+<li><strong>Variance (s²)</strong> = Σ(x − x̄)² / (n − 1) for a sample — the average squared deviation from the mean; the (n−1) divisor ("Bessel's correction") corrects the downward bias that arises because x̄ is itself estimated from the same data.</li>
+<li><strong>Standard deviation (SD, s)</strong> = √variance — expressed in the original units, so more directly interpretable than variance.</li>
+<li><strong>Interquartile range (IQR)</strong> = Q3 − Q1, the middle 50% of ranked data; robust to outliers/skew, pairs naturally with the median.</li>
+<li><strong>Coefficient of variation (CV)</strong> = SD / mean (×100%) — unit-free, allowing comparison of variability across variables measured on different scales (e.g., birth weight in grams vs gestational age in weeks).</li>
+<li><strong>Standard error (SE)</strong> = SD / √n — not a measure of spread of the raw data, but of the <em>precision</em> of the sample mean as an estimate of the population mean; SE shrinks as n grows, SD does not.</li></ul>
+<div class="callout callout-orange">SD describes the spread of individual observations; SE describes the precision of an estimate (e.g., the sample mean). Confusing "mean ± SD" (describing the sample) with "mean ± SE" or a 95% CI (describing precision of the estimate) is one of the most common reporting errors in student write-ups.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — computing SD by hand</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Systolic BP (mmHg) in 5 clinic attendees: 118, 122, 130, 126, 124. Mean x̄ = 620 / 5 = 124 mmHg.</p>
+<table><tr><th>x</th><th>x − x̄</th><th>(x − x̄)²</th></tr><tr><td>118</td><td>−6</td><td>36</td></tr><tr><td>122</td><td>−2</td><td>4</td></tr><tr><td>130</td><td>+6</td><td>36</td></tr><tr><td>126</td><td>+2</td><td>4</td></tr><tr><td>124</td><td>0</td><td>0</td></tr></table>
+<p>Σ(x − x̄)² = 80. Sample variance s² = 80 / (5 − 1) = 20 mmHg². <strong>SD = √20 ≈ 4.47 mmHg.</strong></p>
+<p>If this were the entire population rather than a sample, you would divide by n instead of n−1: s² = 16, SD = 4.0 mmHg — slightly smaller, illustrating why the sample formula deliberately inflates the estimate to remain unbiased.</p>
+</div>
+</div>
+</div><div id="de-dist"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔔</span> Distributions</div>
+<p>A distribution describes how values of a variable are spread across its possible range. Three distributions recur constantly in health data:</p>
+<ul>
+<li><strong>Normal (Gaussian) distribution</strong> — symmetric bell curve fully described by mean μ and SD σ. Many continuous biological variables (height, BP within a homogeneous group) approximate normal, and the <strong>Central Limit Theorem</strong> means sample <em>means</em> tend toward a normal distribution even when the underlying variable is not, provided n is reasonably large (rule of thumb: n ≥ 30).</li>
+<li><strong>Binomial distribution</strong> — the number of "successes" in n independent yes/no trials with constant probability p (e.g., number of smokers in a sample of 50); underlies proportions and their confidence intervals.</li>
+<li><strong>Poisson distribution</strong> — models rare, independent events over time or space (e.g., number of new TB cases per district per month); underlies incidence-rate analysis and rate ratios.</li>
+</ul>
+<p><strong>Empirical rule for a normal distribution:</strong> ~68% of values lie within ±1 SD of the mean, ~95% within ±2 SD (more precisely ±1.96 SD), and ~99.7% within ±3 SD.</p>
+<p>A value's position can be standardised as a <strong>z-score</strong>: z = (x − μ) / σ — how many SDs a value sits from the mean. z-scores allow comparison of values on different scales, and are exactly how paediatric growth charts express weight-for-age or height-for-age.</p>
+<p><strong>Skewness</strong> describes asymmetry (positive/right skew: mean &gt; median, long right tail; negative/left skew: mean &lt; median, long left tail). <strong>Kurtosis</strong> describes "tailedness" — how much probability mass sits in the tails relative to a normal curve.</p>
+<div class="callout callout-green">If data are not normal, either <strong>transform</strong> them (e.g., log-transform right-skewed variables such as viral load or CRP before applying parametric tests) or switch to the equivalent <strong>non-parametric test</strong> (see Section 3).</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — using z-scores and the empirical rule</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>In a population of adult men, systolic BP is approximately normal with mean μ = 120 mmHg and SD σ = 10 mmHg.</p>
+<ul>
+<li>A man with SBP = 140 mmHg has z = (140 − 120)/10 = <strong>+2.0</strong> — he is 2 SDs above the mean; by the empirical rule roughly the top 2.5% of men have SBP this high or higher (half of the ~5% falling outside ±2 SD).</li>
+<li>The reference range covering the central 95% of the population is μ ± 1.96σ ≈ 120 ± 19.6 = <strong>100.4 to 139.6 mmHg</strong> — this is precisely the logic used to define normal laboratory reference ranges.</li>
+</ul>
+</div>
+</div>
+</div><div id="de-freq"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧭</span> Measures of Disease Frequency</div>
+<p>Before groups can be compared, epidemiology needs a way to quantify how often disease occurs. Two families of measures matter:</p>
+<ul>
+<li><strong>Prevalence</strong> = (existing cases at a point in time) / (population at that time) — a snapshot; influenced by both how many people get the disease <em>and</em> how long they have it. In steady state, prevalence ≈ incidence rate × average duration of disease.</li>
+<li><strong>Cumulative incidence (incidence proportion / attack rate)</strong> = (new cases during a period) / (population at risk at the start of the period) — a proportion, unitless, requires a fixed follow-up period and a population free of the outcome at baseline.</li>
+<li><strong>Incidence rate (incidence density)</strong> = (new cases during a period) / (total person-time at risk) — accounts for varying follow-up time between individuals (loss to follow-up, staggered entry); expressed as events per person-year (or per 1,000 / 100,000 person-years).</li>
+</ul>
+<div class="callout callout-purple">Prevalence is affected by anything that changes disease duration — better treatment that prolongs survival <em>increases</em> prevalence without any change in incidence (Porta, <em>A Dictionary of Epidemiology</em>). Always ask whether a "rising rate" reflects more new cases or people living longer with existing disease.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — incidence rate using person-time</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A cohort of 500 factory workers is followed for up to 5 years. 20 develop occupational asthma. Follow-up times vary — most complete all 5 years, but some leave employment early (censored).</p>
+<p>Total person-time accrued across the cohort = 2,150 person-years.</p>
+<p>Incidence rate = 20 cases / 2,150 person-years = 0.0093 per person-year = <strong>9.3 cases per 1,000 person-years</strong>.</p>
+<p>Contrast with the cumulative incidence if everyone had completed the full 5 years: 20/500 = <strong>4.0% over 5 years</strong>. The incidence rate uses person-time (denominator shrinks as people leave), while cumulative incidence treats the denominator as fixed — this is why loss to follow-up and staggered recruitment make incidence rates the more appropriate measure in most open cohort studies.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Hypothesis Testing & Estimation</div>
+  <div class="page-sub">Source: GKT 515 Course Notes — Hypothesis Testing and Estimation; Sample Size & Power</div>
+<div id="hy-con"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🎯</span> Core Concepts</div>
+<p>Hypothesis testing is a formal procedure for deciding whether observed data are compatible with a stated assumption about the population. The general logic follows five steps:</p>
+<ol>
+<li><strong>State H0 and H1.</strong> H0 (null): no effect / no difference / no association in the population. H1 (alternative): an effect exists — can be two-sided (≠, the default, no assumed direction) or one-sided (&gt; or &lt;, used only when a directional effect is the sole clinically plausible outcome and is specified <em>a priori</em>).</li>
+<li><strong>Choose a significance level α</strong> (conventionally 0.05) — the pre-specified threshold probability of wrongly rejecting a true H0.</li>
+<li><strong>Select and compute an appropriate test statistic</strong> (t, χ², F, z, etc.) based on data type, number of groups, and distributional assumptions.</li>
+<li><strong>Compare the test statistic to its reference distribution</strong> to obtain a p-value.</li>
+<li><strong>Decide:</strong> if p &lt; α, reject H0 in favour of H1 ("statistically significant"); otherwise, fail to reject H0 — which is never the same as "proving H0 true".</li>
+</ol>
+<div class="callout callout-blue">Choosing a one-sided test only after seeing the data (to make a borderline result look "significant") is a form of p-hacking and is considered poor practice — the direction must be justified and stated before analysis begins.</div>
+</div><div id="hy-err"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚖️</span> Type I / II Errors & Power</div>
+<table><tr><th></th><th>H0 true</th><th>H0 false</th></tr><tr><td>Reject H0</td><td>Type I error (α)</td><td>Correct decision (1−β, power)</td></tr><tr><td>Fail to reject</td><td>Correct decision (1−α)</td><td>Type II error (β)</td></tr></table><ul><li><strong>Type I error (α)</strong> — a "false positive": concluding an effect exists when it does not. Controlled directly by the significance threshold you set.</li><li><strong>Type II error (β)</strong> — a "false negative": failing to detect a real effect. Commonly accepted at β = 0.20 (i.e., 80% power).</li><li><strong>Power = 1−β</strong> — probability of correctly detecting a true effect of a given size; aim for ≥0.80 (some fields require ≥0.90).</li><li>Power increases with larger sample size, a larger true effect size, a higher α (looser threshold, but at the cost of more Type I risk), and lower outcome variability.</li></ul><div class="callout callout-red">A 'non-significant' result is <em>not</em> proof of no effect — it may simply reflect an under-powered study (absence of evidence ≠ evidence of absence). Always check whether a 'null' study's CI is wide enough to still include a clinically important effect.</div>
+</div><div id="hy-ss"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧮</span> Sample Size & Power Calculations</div>
+<p>Sample-size calculations are performed <em>before</em> data collection so that a study has an adequate chance of detecting a pre-specified, clinically meaningful effect. Standard formulae share the same ingredients:</p>
+<ul>
+<li><strong>α</strong> — Type I error tolerance, usually 0.05 two-sided → Z<sub>α/2</sub> ≈ 1.96.</li>
+<li><strong>Power</strong> — usually 1−β = 0.80 → Z<sub>β</sub> ≈ 0.84 (or 0.90 → Z<sub>β</sub> ≈ 1.28).</li>
+<li><strong>Effect size</strong> the study is designed to detect — the smallest difference considered clinically important, not the difference you hope to find.</li>
+<li><strong>Variability</strong> of the outcome — SD for continuous outcomes, baseline proportion for binary outcomes.</li>
+</ul>
+<p>For comparing two independent means, a simplified formula is: <code>n per group ≈ 2 × ((Z_α/2 + Z_β) × σ / δ)²</code>, where δ is the minimum clinically important difference and σ the assumed common SD.</p>
+<div class="callout callout-green">Larger n narrows CIs and increases power, but also raises cost, time, and — in trials — the number of participants exposed to an unproven intervention; sample-size calculation is as much an ethical safeguard as a statistical one (Rothman, <em>Modern Epidemiology</em>).</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — sample size for comparing two means</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A trial compares fasting glucose (mmol/L) between a lifestyle-intervention arm and a control arm. Pilot data suggest SD σ ≈ 1.2 mmol/L. The study should have 80% power (Z<sub>β</sub> = 0.84) to detect a clinically important difference of δ = 0.5 mmol/L at two-sided α = 0.05 (Z<sub>α/2</sub> = 1.96).</p>
+<p>n per group ≈ 2 × ((1.96 + 0.84) × 1.2 / 0.5)² = 2 × (2.80 × 1.2 / 0.5)² = 2 × (6.72)² = 2 × 45.2 ≈ <strong>91 per group</strong> (≈182 total) before inflating for dropout — dividing by (1 − 0.10 expected dropout) gives ≈101 per group.</p>
+<p>Notice how sensitive n is to δ: halving the detectable difference to 0.25 mmol/L would roughly <strong>quadruple</strong> the required sample size, since n scales with 1/δ².</p>
+</div>
+</div>
+</div><div id="hy-pci"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔬</span> p-values & Confidence Intervals</div>
+<p><strong>p-value</strong> = the probability of observing data as extreme as (or more extreme than) what was found, <em>if H0 were true</em>. A small p-value indicates the observed data are unlikely under H0.</p>
+<ul><li><strong>Confidence interval (CI)</strong> gives a plausible range for the true population parameter; a 95% CI means that if the study were repeated many times, 95% of such intervals would contain the true value.</li><li>For a difference/ratio measure, a 95% CI that excludes the null value (0 for a difference, 1 for a ratio) corresponds to p&lt;0.05 — the two are mathematically linked.</li><li>CI is more informative than a bare p-value because it conveys both the <strong>direction</strong> and <strong>precision</strong> (width) of the estimate, letting the reader judge clinical, not just statistical, significance.</li></ul>
+<p><strong>General CI formula</strong> (large-sample, normal approximation): estimate ± Z × SE, where Z = 1.96 for a 95% CI.</p>
+<div class="callout callout-orange">p &lt; 0.05 does not mean 'clinically important' — a tiny, trivial effect can be 'significant' with a large enough sample. Conversely, a clinically important effect in a small study can be 'non-significant'. Always interpret the <em>point estimate and CI width</em> alongside the p-value.</div>
+<div class="callout callout-red"><strong>Common misinterpretations to avoid:</strong> (1) p is <em>not</em> the probability that H0 is true; (2) p = 0.05 does not mean "a 5% chance this specific result is due to chance"; (3) a 95% CI does not mean "a 95% probability the true value lies in this specific interval" — the true value is fixed, not random, so the probability statement applies to the long-run procedure, not to any single interval.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — 95% CI for a mean difference</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A study compares mean BMI reduction between a diet programme (n=40, mean = 2.4 kg, SD = 1.8 kg) and a control group (n=40, mean = 0.6 kg, SD = 1.6 kg).</p>
+<p>Mean difference = 2.4 − 0.6 = 1.8 kg. Pooled SE ≈ √(1.8²/40 + 1.6²/40) = √(0.081 + 0.064) = √0.145 ≈ 0.381 kg.</p>
+<p>95% CI = 1.8 ± 1.96 × 0.381 = 1.8 ± 0.747 → <strong>1.05 to 2.55 kg</strong>. Since this excludes 0, the difference is statistically significant at α = 0.05 (equivalent to t ≈ 1.8/0.381 ≈ 4.73, p &lt; 0.001).</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Categorical & Non-Parametric Tests</div>
+  <div class="page-sub">Source: GKT 515 Course Notes — Non Parametric Test; Categorical Data; Measures of Association & Screening Tests</div>
+<div id="ca-chi"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧮</span> Chi-square & Fisher's Exact</div>
+<p>These tests assess whether two categorical variables are associated (independent or not) using a contingency table.</p>
+<ul><li><strong>Chi-square (χ²) test</strong> — compares observed counts to counts <em>expected under independence</em>: expected count = (row total × column total) / grand total. Requires expected counts ≥5 in at least 80% of cells (and no cell = 0), otherwise the approximation is unreliable.</li><li><strong>Degrees of freedom</strong> = (rows − 1) × (columns − 1); for a standard 2×2 table, df = 1.</li><li><strong>Fisher's exact test</strong> — computes the exact probability directly from the hypergeometric distribution; used for small samples / sparse 2×2 tables where χ² assumptions fail.</li><li>χ² and Fisher's exact test whether an association exists — they do <em>not</em> quantify its strength or direction. Pair them with a risk ratio, odds ratio, or difference in proportions (see below).</li></ul>
+<div class="callout callout-blue">χ² tests independence; it does not by itself imply causation, direction, or magnitude of effect — always report an effect measure (RR/OR) alongside the test.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — χ² test on a 2×2 table</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Smoking status vs incident stroke in a sample of 200:</p>
+<table><tr><th></th><th>Stroke</th><th>No stroke</th><th>Total</th></tr><tr><td>Smoker</td><td>30</td><td>70</td><td>100</td></tr><tr><td>Non-smoker</td><td>10</td><td>90</td><td>100</td></tr><tr><td>Total</td><td>40</td><td>160</td><td>200</td></tr></table>
+<p>Expected count (smoker, stroke) = (100 × 40)/200 = 20. Similarly: (smoker, no stroke) = 80; (non-smoker, stroke) = 20; (non-smoker, no stroke) = 80.</p>
+<p>χ² = Σ (O−E)²/E = (30−20)²/20 + (70−80)²/80 + (10−20)²/20 + (90−80)²/80 = 5 + 1.25 + 5 + 1.25 = <strong>12.5</strong>, df = 1 → p ≈ 0.0004. Reject H0: smoking and stroke are significantly associated in this sample.</p>
+</div>
+</div>
+</div><div id="ca-assoc"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📐</span> Measures of Association & Screening Test Performance</div>
+<p>A 2×2 table is also the starting point for quantifying strength of association and for evaluating diagnostic/screening tests.</p>
+<h4>Risk ratio, odds ratio, and number needed to treat</h4>
+<ul><li><strong>Risk ratio (RR)</strong> = risk in exposed / risk in unexposed — appropriate for cohort studies and RCTs, where incidence can be directly calculated.</li><li><strong>Odds ratio (OR)</strong> = odds of outcome in exposed / odds of outcome in unexposed (equivalently, odds of exposure in cases / odds of exposure in controls) — the only valid measure in case-control studies, since true incidence cannot be calculated there; approximates RR when the outcome is rare ("rare disease assumption", generally outcome prevalence &lt;10%).</li><li><strong>Absolute risk reduction (ARR)</strong> = risk in control − risk in treatment. <strong>Number needed to treat (NNT)</strong> = 1 / ARR — the number of patients who must receive the intervention to prevent one additional adverse outcome.</li></ul>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — RR, OR, and NNT from a cohort</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A cohort of 400 statin users and 400 non-users is followed for 5 years for incident MI: 20 events among statin users, 40 among non-users.</p>
+<p>Risk (statin) = 20/400 = 0.05 (5%). Risk (non-statin) = 40/400 = 0.10 (10%).</p>
+<p><strong>RR</strong> = 0.05/0.10 = <strong>0.50</strong> — statin users have half the risk of MI compared with non-users.</p>
+<p><strong>OR</strong> = odds(statin)/odds(non-statin) = (20/380)/(40/360) = 0.0526/0.1111 = <strong>0.47</strong> — close to the RR because the outcome is relatively uncommon (~7.5% overall), illustrating the rare-disease approximation. Note the OR always sits further from 1 than the RR for a common outcome.</p>
+<p><strong>ARR</strong> = 0.10 − 0.05 = 0.05. <strong>NNT</strong> = 1/0.05 = <strong>20</strong> — 20 patients need to be treated with statins for 5 years to prevent one additional MI.</p>
+</div>
+</div>
+<h4>Sensitivity, specificity, PPV, and NPV</h4>
+<table><tr><th></th><th>Disease +</th><th>Disease −</th></tr><tr><td>Test +</td><td>a (true positive)</td><td>b (false positive)</td></tr><tr><td>Test −</td><td>c (false negative)</td><td>d (true negative)</td></tr></table>
+<ul><li><strong>Sensitivity</strong> = a/(a+c) — probability the test is positive given disease is present; a highly sensitive test, when negative, helps <strong>rule out</strong> disease (mnemonic: <strong>SnNOUT</strong>).</li><li><strong>Specificity</strong> = d/(b+d) — probability the test is negative given disease is absent; a highly specific test, when positive, helps <strong>rule in</strong> disease (mnemonic: <strong>SpPIN</strong>).</li><li><strong>Positive predictive value (PPV)</strong> = a/(a+b) — probability of disease given a positive test; <strong>depends heavily on prevalence</strong>, unlike sensitivity/specificity, which are intrinsic properties of the test.</li><li><strong>Negative predictive value (NPV)</strong> = d/(c+d) — probability of no disease given a negative test.</li></ul>
+<div class="callout callout-purple">Sensitivity and specificity are properties of the <em>test</em> and stay roughly constant across populations; PPV and NPV are properties of the test <em>in a specific population</em> and swing dramatically with prevalence — the same test performs very differently as a screening tool in a low-prevalence general population versus a high-prevalence referral clinic.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — sensitivity, specificity, PPV/NPV, and the effect of prevalence</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A screening test is evaluated against a gold standard in 1,000 people, of whom 100 truly have the disease (10% prevalence): 90 true positives, 10 false negatives, 100 false positives, 800 true negatives.</p>
+<p>Sensitivity = 90/100 = <strong>90%</strong>. Specificity = 800/900 = <strong>88.9%</strong>.</p>
+<p>PPV = 90/(90+100) = 90/190 = <strong>47.4%</strong> — fewer than half of test-positives truly have the disease, even with a fairly accurate test, because false positives (100) outnumber true positives (90) at this prevalence.</p>
+<p>NPV = 800/(800+10) = 800/810 = <strong>98.8%</strong> — a negative result is highly reassuring here.</p>
+<p>Now apply the identical test in a high-risk clinic with 50% prevalence (500 diseased, 500 not): true positives = 0.90×500 = 450, false negatives = 50, false positives ≈ 0.111×500 ≈ 56, true negatives ≈ 444. PPV = 450/(450+56) ≈ <strong>89%</strong> — the test looks far more "accurate" purely because prevalence rose, not because the test changed. This is a core reason population-wide screening in low-prevalence groups generates many false positives (WHO Wilson–Jungner screening criteria).</p>
+</div>
+</div>
+</div><div id="ca-np"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📊</span> Non-Parametric Tests</div>
+<p>Non-parametric ("distribution-free") tests make no assumption about the underlying distribution's shape. Most work by converting raw values to <strong>ranks</strong> and comparing rank sums between groups, which makes them robust to outliers and valid for ordinal data.</p>
+<table><tr><th>Parametric</th><th>Use</th><th>Non-parametric alternative</th></tr><tr><td>Independent t</td><td>2 groups, continuous</td><td>Mann–Whitney U</td></tr><tr><td>Paired t</td><td>2 paired</td><td>Wilcoxon signed-rank</td></tr><tr><td>One-way ANOVA</td><td>≥3 groups</td><td>Kruskal–Wallis</td></tr><tr><td>Pearson r</td><td>Linear correlation</td><td>Spearman ρ</td></tr></table><div class="callout callout-green">Use non-parametric tests when assumptions (normality, homogeneity of variance, interval-level data) are violated, when the sample is small, or when data are inherently ordinal/ranked (e.g., pain score, Likert scale).</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — ranking data for Mann–Whitney U</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Pain scores (0–10) after two analgesic regimens: Drug A = 2, 3, 5; Drug B = 6, 7, 8.</p>
+<p>Rank all 6 values together (lowest = rank 1): 2→1, 3→2, 5→3, 6→4, 7→5, 8→6.</p>
+<p>Rank sum for A = 1+2+3 = 6; rank sum for B = 4+5+6 = 15. The clean separation of rank sums — with no overlap in the raw values — indicates Drug B is associated with systematically higher pain scores; the Mann–Whitney U statistic formalises this comparison into a p-value without assuming normality.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Regression: Linear & Logistic</div>
+  <div class="page-sub">Source: GKT 515 Course Notes — Multiple Linear Regression; Simple & Multiple Logistic Regression</div>
+<div id="re-lin"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📈</span> Linear Regression (OLS)</div>
+<p>Models a continuous outcome as a linear function of one or more predictors: Y = β0 + β1X1 + β2X2 + … + ε, fitted by <strong>ordinary least squares</strong> (minimising the sum of squared residuals).</p>
+<ul><li>Each <strong>β</strong> = the change in Y for a 1-unit increase in that X, <em>holding all other predictors constant</em> — the "adjusted" effect.</li><li><strong>β0 (intercept)</strong> = predicted Y when all X = 0 (not always meaningful if X = 0 lies outside the observed data range — consider centring predictors).</li><li><strong>R²</strong> = proportion of variance in Y explained by the model (0–1); adjusted R² penalises adding uninformative predictors.</li><li>Assumptions: linearity, independence of observations, homoscedasticity (constant residual variance), and approximate normality of residuals (not of the raw variables themselves).</li><li><strong>Multiple regression</strong> is the primary tool for adjusting for confounders in observational data; <strong>ANCOVA</strong> is simply ANOVA re-expressed as a regression with a categorical predictor plus a continuous covariate.</li></ul>
+<div class="callout callout-blue">Regression coefficients are <em>adjusted</em> associations — the workhorse for confounding control when randomisation isn't possible. Adjustment only handles <em>measured</em> confounders; unmeasured confounding can still bias β (Rothman, <em>Modern Epidemiology</em>).</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — interpreting a fitted regression equation</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A model predicting systolic BP (mmHg) from age (years) and BMI (kg/m²) in 200 adults yields: SBP = 90.2 + 0.55×Age + 1.10×BMI (R² = 0.34).</p>
+<ul><li>For every additional year of age, SBP is predicted to rise by <strong>0.55 mmHg</strong>, holding BMI constant.</li><li>For every additional unit of BMI, SBP is predicted to rise by <strong>1.10 mmHg</strong>, holding age constant.</li><li>A 50-year-old with BMI 28 has predicted SBP = 90.2 + 0.55(50) + 1.10(28) = 90.2 + 27.5 + 30.8 = <strong>148.5 mmHg</strong>.</li><li>R² = 0.34 → age and BMI jointly explain 34% of the variance in SBP in this sample; the remaining 66% reflects other factors (genetics, sodium intake, medication use, measurement error, etc.).</li></ul>
+</div>
+</div>
+</div><div id="re-log"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔢</span> Logistic Regression</div>
+<p>Models a binary outcome via the <strong>log-odds (logit)</strong>: ln(odds) = β0 + β1X1 + …, so that odds = exp(β0 + β1X1 + …).</p>
+<ul><li><strong>exp(β)</strong> = the odds ratio (OR) for a 1-unit increase in that predictor, adjusted for the other covariates in the model.</li><li>OR &gt; 1 → predictor raises the odds of the outcome; OR &lt; 1 → protective; OR = 1 → no association.</li><li><strong>Adjusted OR</strong> (from multivariable logistic regression) controls for covariates, unlike a crude OR from a simple 2×2 table.</li><li>Model diagnostics: <strong>Hosmer–Lemeshow test</strong> for goodness-of-fit, check multicollinearity (VIF), and examine influential points (Cook's distance / leverage).</li></ul>
+<div class="callout callout-orange">At low outcome probability, adjusted OR ≈ adjusted RR — but as baseline risk rises, OR increasingly exaggerates the RR's distance from 1. When the outcome is common and RR is the desired measure, consider Poisson regression with robust SE, or binomial regression with a log link.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — converting a logistic coefficient to an OR</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A logistic model for diabetes (yes/no) gives β(smoking) = 0.53 (SE = 0.21), adjusted for age and BMI.</p>
+<p>OR = exp(0.53) ≈ <strong>1.70</strong> — smokers have 70% higher adjusted odds of diabetes than non-smokers, holding age and BMI constant.</p>
+<p>95% CI for β: 0.53 ± 1.96(0.21) = 0.53 ± 0.41 → (0.12, 0.94). Exponentiate the CI limits (not the SE): exp(0.12) = 1.13, exp(0.94) = 2.56 → <strong>95% CI for OR = 1.13 to 2.56</strong>, which excludes 1, so the association is statistically significant.</p>
+</div>
+</div>
+</div><div id="re-ass"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚠️</span> Key Assumptions & Pitfalls</div>
+<ul><li>Inspect residual-vs-fitted and Q-Q plots; transform variables or use robust/generalised methods if linearity or normality of residuals is violated.</li><li>Avoid overfitting: a common rule of thumb for logistic regression is ≥10 events per variable (EPV); with few events, coefficients become unstable and CIs unrealistically wide.</li><li><strong>Multicollinearity</strong> (highly correlated predictors) inflates standard errors and destabilises coefficient estimates — check Variance Inflation Factor (VIF); VIF &gt; 5–10 flags a problem.</li><li>Distinguish <strong>confounding</strong> (a third variable distorts the exposure–outcome association and should be adjusted for) from <strong>effect modification/interaction</strong> (the exposure's effect genuinely differs across strata and should be reported separately, not averaged away) — these require different statistical handling (an interaction term vs simple adjustment).</li><li>Extrapolating predictions beyond the range of observed X values is unreliable — the fitted line's behaviour outside the data is unverified.</li></ul>
+</div>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Survival Analysis & Other Methods</div>
+  <div class="page-sub">Source: GKT 515 Course Notes — Survival Analysis (Kaplan Meier), Cox PH, ANOVA, ANCOVA</div>
+<div id="su-km"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⏳</span> Kaplan–Meier & Log-rank</div>
+<p>Estimates the <strong>survival function</strong> S(t) = probability of remaining event-free beyond time t, while correctly handling <strong>censoring</strong> — participants who leave the study, are lost to follow-up, or reach the end of the study period without experiencing the event (their status after that point is simply unknown, not "no event").</p>
+<ul><li>The KM curve is a step function: it drops only at observed event times; censored observations are marked with ticks and do not cause a drop, but they do leave the risk set at that point.</li><li><strong>Log-rank test</strong> compares survival distributions between ≥2 groups by summing observed vs expected events at each event time — it is unadjusted (cannot control for covariates) and gives the most weight to differences later in follow-up.</li><li><strong>Median survival</strong> = the time at which S(t) first drops to 0.5; unlike a mean, it can be estimated even when many subjects are still event-free (censored) at the end of the study.</li></ul>
+<div class="callout callout-green">Censoring is exactly why you cannot simply average "time to event" — subjects who haven't yet had the event still contribute information (they are known to have survived at least that long), and KM/survival methods are built specifically to use that partial information correctly.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — constructing a simple KM table</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>10 patients followed after diagnosis; event = death, "+" = censored (alive/lost at that time), in months: 4, 6+, 8, 8, 12, 14+, 15, 18, 20+, 24.</p>
+<table><tr><th>Time (mo)</th><th>At risk</th><th>Events</th><th>S(t) = S(prev) × (1 − d/n)</th></tr><tr><td>4</td><td>10</td><td>1</td><td>1 × (9/10) = 0.900</td></tr><tr><td>8</td><td>8*</td><td>2</td><td>0.900 × (6/8) = 0.675</td></tr><tr><td>15</td><td>5*</td><td>1</td><td>0.675 × (4/5) = 0.540</td></tr><tr><td>18</td><td>4</td><td>1</td><td>0.540 × (3/4) = 0.405</td></tr><tr><td>24</td><td>2*</td><td>1</td><td>0.405 × (1/2) = 0.203</td></tr></table>
+<p>(* the at-risk number falls both from prior events and from censoring — e.g., the patient censored at 6 months leaves the risk set before the 8-month events are counted.) Survival probability never rises and steps down only at event times — by 18 months about 40.5% of the original cohort remains alive, showing how KM turns a mix of exact and censored times into one coherent curve.</p>
+</div>
+</div>
+</div><div id="su-cox"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚡</span> Cox Proportional Hazards</div>
+<p>A semi-parametric regression model for time-to-event data: h(t|X) = h0(t) × exp(β1X1 + β2X2 + …), where h0(t) is an unspecified baseline hazard and covariates act multiplicatively on it. Output: <strong>Hazard Ratio (HR) = exp(β)</strong>.</p>
+<ul><li>HR &gt; 1 = higher instantaneous hazard (faster time to event) associated with the predictor; HR &lt; 1 = protective / slower time to event.</li><li><strong>Proportional-hazards assumption:</strong> the HR is assumed constant across the whole follow-up period. Check with Schoenfeld residuals or by inspecting log(−log S(t)) plots for parallel curves; if violated, consider stratification or time-varying covariates.</li><li>Handles censoring natively and allows simultaneous adjustment for multiple predictors, unlike the (unadjusted) log-rank test.</li><li>Because Cox uses only the <em>rank order</em> of event times ("semi-parametric"), it does not require specifying the shape of the baseline hazard — a major advantage over fully parametric survival models (e.g., Weibull) when that shape is unknown.</li></ul>
+<div class="callout callout-red"><strong>HR ≠ RR</strong> — HR compares instantaneous event rates conditional on having survived to time t, not cumulative risk over the whole study. In occupational and toxicological cohort studies (e.g., benzene exposure and leukaemia risk), Cox HR is the standard reported effect measure.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — reading a Cox model output</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A Cox model for time to cardiovascular event, adjusted for age and sex, reports: HR(hypertension) = 1.8 (95% CI 1.2–2.7, p = 0.004); HR(statin use) = 0.6 (95% CI 0.4–0.9, p = 0.01).</p>
+<p>Interpretation: at any given moment during follow-up, hypertensive participants have <strong>1.8 times the hazard</strong> of a cardiovascular event compared with normotensive participants of the same age and sex — a statistically significant and clinically important increase (CI excludes 1). Statin users have a <strong>40% lower hazard</strong> (1 − 0.6 = 0.4) than non-users, also significant.</p>
+<p>Both effects are reported as <em>adjusted</em> — age and sex are held constant in each comparison, isolating the independent contribution of hypertension and of statin use.</p>
+</div>
+</div>
+</div><div id="su-av"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧪</span> ANOVA & ANCOVA</div>
+<table><tr><th>Test</th><th>Compares</th></tr><tr><td>One-way ANOVA</td><td>Mean of ≥3 independent groups</td></tr><tr><td>Repeated-measures ANOVA</td><td>≥3 measurements, same subjects</td></tr><tr><td>ANCOVA</td><td>Group means adjusted for a covariate</td></tr><tr><td>Post-hoc (Tukey)</td><td>Which pairs differ after ANOVA significance</td></tr></table>
+<p><strong>Logic of ANOVA:</strong> partitions total variance into between-group variance and within-group (residual) variance, then compares them via the <strong>F-statistic</strong> = (between-group variance) / (within-group variance). A large F (relative to its reference F-distribution) indicates group means differ more than would be expected by chance alone.</p>
+<div class="callout callout-purple">ANOVA's omnibus F-test only tells you <em>that</em> group means differ somewhere, not <em>which</em> pairs differ — a significant ANOVA must be followed by a post-hoc test (e.g., Tukey's HSD, which controls the family-wise error rate across all pairwise comparisons) to locate the difference. ANCOVA increases statistical power by removing variance attributable to a known covariate (e.g., baseline value) before testing group differences.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)"><span>🧮 Worked example — one-way ANOVA logic</span><span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Mean weight loss (kg) after 12 weeks on three diets: Diet A = 4.2 (n=20), Diet B = 5.8 (n=20), Diet C = 4.0 (n=20); grand mean = 4.67 kg.</p>
+<p>A large F-statistic here (e.g., F = 6.4, df = 2, 57, p = 0.003) tells us at least one diet differs from the others — but not which. A Tukey post-hoc test might then show Diet B differs significantly from both A and C (p &lt; 0.05), while A and C do not differ from each other — a pattern the omnibus test alone would not have revealed.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 515 past-year papers, with worked-calculation extensions</div>
+<div id="pyq-1"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">Estimation</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">A trial reports a risk difference of −0.08 (95% CI −0.12 to −0.04) for an intervention vs control. Interpret the result and state what the CI tells you.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: point estimate 4 · CI meaning 4 · significance 4 · clinical translation 3</div>
+<div class="ans-section"><div class="ans-section-title">Interpretation</div><p>The intervention reduces the outcome risk by <strong>8 percentage points</strong> compared with control (point estimate, risk difference = −0.08). For every 100 people given the intervention instead of control, approximately 8 fewer would experience the outcome.</p></div><div class="ans-section"><div class="ans-section-title">CI meaning</div><p>We are 95% confident the true risk difference in the population lies between a reduction of 4 and 12 percentage points. Correct frequentist interpretation: if the study were repeated many times, 95% of the CIs so constructed would contain the true risk difference — it is a statement about the <em>procedure</em>, not a 95% probability about this one fixed interval. The interval sits entirely below zero (entirely in favour of benefit), so both bounds are consistent with a genuinely protective effect.</p></div><div class="ans-section"><div class="ans-section-title">Significance</div><p>Because the 95% CI excludes the null value 0, this corresponds to p &lt; 0.05 — we reject H0 of no difference between arms. Best practice is to report the estimate and CI together, not the p-value alone, since the CI additionally conveys precision.</p></div>
+<div class="subpart"><div class="subpart-label">Extension — translating RD into NNT</div><p>Number needed to treat = 1 / |RD| = 1 / 0.08 = <strong>12.5, rounded up to 13</strong>: approximately 13 patients need to receive the intervention (rather than control) to prevent one additional adverse outcome. Applying the CI bounds gives NNT ranging from 1/0.12 ≈ 8 (best case) to 1/0.04 = 25 (worst case) — reporting this range communicates the uncertainty in NNT that a single point value hides.</p></div>
+</div>
+</div><div id="pyq-2"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Test Selection</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">You compare systolic BP (continuous, non-normal) between three independent diet groups, and association between smoking (yes/no) and stroke (yes/no). Name an appropriate test for each and justify.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: BP test 6 · justification 2 · smoking/stroke test 5 · justification 2</div>
+<div class="ans-section"><div class="ans-section-title">BP across 3 groups</div><p>Data are continuous but <strong>non-normal</strong>, and there are <strong>three independent groups</strong>, so the appropriate test is the <strong>Kruskal–Wallis test</strong> (the non-parametric analogue of one-way ANOVA, based on ranks rather than raw values). If BP were approximately normal (or the sample large enough for the CLT to apply to the group means), one-way ANOVA with post-hoc pairwise comparisons (e.g., Tukey) would be the parametric choice.</p></div><div class="ans-section"><div class="ans-section-title">Smoking vs stroke</div><p>Both variables are binary/categorical, so the appropriate test is the <strong>chi-square test of independence</strong> on the resulting 2×2 table (or <strong>Fisher's exact test</strong> if any expected cell count is &lt;5). The test alone only establishes whether an association exists; report an <strong>odds ratio</strong> with its 95% CI to quantify the strength and direction of the association.</p></div>
+<div class="subpart"><div class="subpart-label">Extension — why not a t-test for smoking vs stroke?</div><p>A t-test compares <em>means of a continuous variable</em> between two groups; here both smoking and stroke are binary, so there is no continuous outcome to average — the data structure (two categorical variables cross-tabulated) calls for chi-square/Fisher's, not a t-test. Matching the test to the <em>type</em> of both variables, not just the number of groups, is a frequent source of lost marks in exams.</p></div>
+</div>
+</div><div id="pyq-3"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q3</span>
+<span class="q-topic">Survival</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">In a cohort study of benzene-exposed workers, you model time to leukaemia diagnosis. (a) Why use survival analysis rather than a t-test? (b) Name the model and interpret an HR of 2.3 (95% CI 1.4–3.8).</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: (a) rationale 6 · (b) model naming 4 · interpretation 6 · assumption check 4</div>
+<div class="ans-section"><div class="ans-section-title">(a) Why survival analysis, not a t-test</div><p>The outcome is <strong>time to a specific event</strong> (leukaemia diagnosis) and follow-up inevitably produces <strong>censoring</strong> — workers still healthy at the end of the study, lost to follow-up, or who die of unrelated causes before diagnosis. A t-test would require a complete, event-experienced time value for every worker and would have to either exclude censored workers (wasting information and likely introducing bias, since those with longer follow-up are systematically different) or wrongly treat "still healthy at study end" as if it were the true event time. Survival methods correctly use the censored workers' partial information — known to be event-free up to their last observed time.</p></div><div class="ans-section"><div class="ans-section-title">(b) Model</div><p><strong>Cox proportional hazards regression</strong> — appropriate here because it (i) handles censoring, (ii) allows simultaneous adjustment for multiple predictors (e.g., cumulative benzene exposure dose, age, smoking, other occupational exposures), and (iii) does not require specifying the shape of the baseline hazard, only that hazards are proportional across exposure groups over time.</p></div><div class="ans-section"><div class="ans-section-title">Interpretation</div><p>HR = 2.3 means that at any point during follow-up, benzene-exposed workers have <strong>2.3 times the instantaneous hazard</strong> of a leukaemia diagnosis compared with unexposed workers, after adjustment for the model's covariates. The 95% CI (1.4 to 3.8) excludes 1, so the association is statistically significant at α = 0.05; the point estimate and both CI bounds are compatible with a genuinely elevated, occupationally important hazard — a classic exposure-response finding consistent with benzene as a recognised leukaemogen.</p></div>
+<div class="ans-section"><div class="ans-section-title">What else should be checked / reported</div><p>Before accepting the HR at face value, check the <strong>proportional-hazards assumption</strong> (e.g., via Schoenfeld residuals) — if the excess hazard from benzene grows or shrinks over calendar time (e.g., due to changing workplace exposure limits), a single summary HR could be misleading and a time-varying-coefficient model may be needed. Also confirm adequate follow-up length and completeness of exposure ascertainment, since misclassified exposure biases the HR toward or away from the null.</p></div>
+<div class="subpart"><div class="subpart-label">Extension — quick sanity check on the CI</div><p>A 95% CI of 1.4–3.8 around a point estimate of 2.3 is reasonably wide (ratio of upper to lower bound ≈ 2.7), suggesting only moderate precision — likely reflecting a modest number of leukaemia events despite a possibly large cohort, since event count (not cohort size) drives precision in survival analysis. A natural follow-up question is how many additional years of follow-up, or how much larger a cohort, would be needed to narrow this interval.</p></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Descriptive Statistics", "sec2": "Hypothesis Testing", "sec3": "Categorical & Non-Parametric", "sec4": "Regression", "sec5": "Survival & Advanced", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt515_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt515_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt515_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>

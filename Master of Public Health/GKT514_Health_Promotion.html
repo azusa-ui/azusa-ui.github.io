@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 514 Health Promotion</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 514</h2>
+      <div style="font-size:11px;color:var(--text3)">Health Promotion</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Concepts & Principles</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('co-def')">Definition</a><a onclick="scrollTo('co-ott')">Ottawa Charter</a><a onclick="scrollTo('co-prev')">Levels of Prevention</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Theories & Models</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('th-hbm')">Health Belief Model</a><a onclick="scrollTo('th-tpb')">Theory of Planned Behaviour</a><a onclick="scrollTo('th-sc')">Stages & Social Cognitive</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Strategies & Settings</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('st-set')">Healthy Settings</a><a onclick="scrollTo('st-mark')">Social Marketing</a><a onclick="scrollTo('st-pol')">Policy & Intersectoral</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Health Education & Literacy</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('he-ed')">Health Education</a><a onclick="scrollTo('he-lit')">Health Literacy</a><a onclick="scrollTo('he-met')">Methods</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Planning & Evaluation</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pl-pp')">PRECEDE-PROCEED</a><a onclick="scrollTo('pl-re')">RE-AIM</a><a onclick="scrollTo('pl-ev')">Evaluation Types</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1 Ottawa</a><a onclick="scrollTo('pyq-2')">Q2 Theory</a><a onclick="scrollTo('pyq-3')">Q3 Evaluation</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 514 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Health Promotion</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click — the "deep dive" and "worked example" accordions carry the extra detail, mechanisms and calculations beyond the core card text. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first, including any worked numbers, before revealing it!
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">📚</span> How this topic fits into public health practice</div>
+    <p>Health promotion sits at the "upstream" end of the public health spectrum — before disease has occurred, and often before an individual risk factor has even emerged. It complements, but is distinct from, clinical prevention and disease control. A useful way to hold the whole field in your head is Tannahill's model: health promotion = <strong>health education</strong> + <strong>prevention</strong> + <strong>health protection</strong>, with the greatest impact where all three overlap (e.g. tobacco control combines education about harm, medical prevention/cessation support, and legal protection via smoke-free law and taxation).</p>
+    <p>Throughout these notes, worked numerical examples (incidence, risk reduction, screening test performance, price elasticity, sample size, hazard ratios) are included where they clarify <em>why</em> a strategy works, not just <em>what</em> it is — this mirrors how exam questions increasingly ask you to interpret, not just recall.</p>
+    <div class="two-col">
+      <div class="callout callout-green"><strong>Core theory sources:</strong> Ottawa Charter (WHO, 1986); Green &amp; Kreuter, <em>Health Program Planning</em>; Glanz, Rimer &amp; Viswanath, <em>Health Behavior: Theory, Research, and Practice</em>; Bandura (Social Cognitive Theory); Ajzen (Theory of Planned Behaviour); Rogers (Diffusion of Innovations); Nutbeam (health literacy); Michie et al. (Behaviour Change Wheel).</div>
+      <div class="callout callout-purple"><strong>Core epidemiology/measurement sources:</strong> Gordis, <em>Epidemiology</em>; Rothman, <em>Epidemiology: An Introduction</em>; Porta (ed.), <em>A Dictionary of Epidemiology</em>; Marmot, <em>The Health Gap</em> / WHO Commission on Social Determinants of Health.</div>
+    </div>
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Concepts & Principles</div><div class="hc-sub">Ottawa Charter, empowerment, prevention levels</div><div class="hc-badge"><span class="tag tag-blue">Ottawa</span><span class="tag tag-green">Empower</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Theories & Models</div><div class="hc-sub">HBM, TPB, stages, social cognitive</div><div class="hc-badge"><span class="tag tag-purple">HBM</span><span class="tag tag-orange">TPB</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Strategies & Settings</div><div class="hc-sub">Healthy settings, social marketing, policy</div><div class="hc-badge"><span class="tag tag-blue">Settings</span><span class="tag tag-orange">Marketing</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Health Education & Literacy</div><div class="hc-sub">Education methods, health literacy</div><div class="hc-badge"><span class="tag tag-green">Literacy</span><span class="tag tag-blue">Education</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Programme Planning & Evaluation</div><div class="hc-sub">PRECEDE-PROCEED, RE-AIM, types</div><div class="hc-badge"><span class="tag tag-purple">Planning</span><span class="tag tag-red">Evaluation</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Concepts & Principles of Health Promotion</div>
+  <div class="page-sub">Sources: Ottawa Charter (WHO, 1986); Bangkok Charter (WHO, 2005); Nairobi Call to Action (2009); Shanghai Declaration (2016); Tannahill's model; Beattie's typology; Porta, <em>Dictionary of Epidemiology</em></div>
+<div id="co-def"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📣</span> Definition</div>
+<p>Health promotion = "the process of enabling people to increase control over, and to improve, their health" (Ottawa Charter, WHO 1986). It goes <strong>beyond</strong> health education to address the determinants and the environment.</p>
+<p>Two things make this definition doctrinally important. First, the verb is <strong>enabling</strong>, not <em>persuading</em> or <em>instructing</em> — health promotion is fundamentally about building capacity and agency, not just transmitting facts. Second, the object is <strong>control over health</strong>, not simply "health status" — it links directly to the concept of empowerment (individual empowerment = ability to make decisions and exert control over one's own life; community empowerment = collective action by groups to gain control over the determinants of health and quality of life in their community, WHO Health Promotion Glossary, Nutbeam).</p>
+<table><tr><th>Dimension</th><th>Health Education</th><th>Health Promotion</th><th>Disease Prevention</th></tr>
+<tr><td>Focus</td><td>Knowledge, attitudes, individual skills</td><td>Determinants, environment, policy, empowerment</td><td>Averting a specific disease/exposure</td></tr>
+<tr><td>Level of action</td><td>Individual / group</td><td>Individual → community → societal/structural</td><td>Individual or population at risk</td></tr>
+<tr><td>Typical tool</td><td>Lecture, counselling, pamphlet</td><td>Policy, settings change, social marketing, education</td><td>Vaccination, screening, chemoprophylaxis</td></tr>
+<tr><td>Relationship</td><td>One <em>component</em> of health promotion</td><td>Umbrella term (education + protection + prevention)</td><td>Overlaps with, but is narrower than, promotion</td></tr>
+</table>
+<div class="callout callout-blue">Distinct from disease prevention: promotion builds capacity &amp; empowers; prevention averts a specific disease. In practice they are complementary, not competing — most real programmes blend both (e.g. a diabetes programme educates on diet <em>and</em> screens for pre-diabetes).</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Deep dive: Beattie's typology &amp; Tannahill's model <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Beattie's typology (1991)</strong> classifies health promotion interventions along two axes — mode of intervention (authoritative vs. negotiated) and focus (individual vs. collective) — producing four paradigms:</p>
+<ul><li><strong>Health persuasion</strong> (authoritative + individual): expert-led advice to individuals, e.g. a doctor advising a patient to quit smoking.</li><li><strong>Personal counselling</strong> (negotiated + individual): client-centred, e.g. motivational interviewing.</li><li><strong>Legislative action</strong> (authoritative + collective): top-down structural change, e.g. seatbelt law, smoke-free legislation.</li><li><strong>Community development</strong> (negotiated + collective): bottom-up, participatory, e.g. a village committee designing its own dengue-control plan.</li></ul>
+<p><strong>Tannahill's model (Downie, Tannahill &amp; Tannahill, 1990)</strong> depicts health promotion as three overlapping circles — health education, prevention, and health protection — with seven overlap zones. The strongest, most sustainable interventions sit in the central zone where all three combine (e.g. tobacco control = education on harms + smoking-cessation services + legislation/tax).</p>
+<div class="callout callout-purple">Exam tip: if asked to "critically discuss" a single-strategy programme (e.g. a poster campaign alone), use Tannahill's model to argue it is incomplete — it only touches education, not protection or prevention services.</div>
+</div></div>
+</div><div id="co-ott"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📜</span> Ottawa Charter — 5 Action Areas</div>
+<ol><li><strong>Build healthy public policy</strong> — put health on the agenda of policy-makers in all sectors, at all levels, directing them to be aware of the health consequences of their decisions (fiscal policy, taxation, legislation, organisational change).</li><li><strong>Create supportive environments</strong> — generate living and working conditions that are safe, stimulating, satisfying and enjoyable; recognises the inseparable link between people and their environment (socio-ecological approach to health).</li><li><strong>Strengthen community action</strong> — concrete and effective community action in setting priorities, making decisions, planning strategies; empowerment and ownership of communities over their own efforts and destinies.</li><li><strong>Develop personal skills</strong> — health education and life-skills that support personal and social development, enhancing options available for people to exercise more control over their own health and environments.</li><li><strong>Reorient health services</strong> — the health sector must move beyond its curative/clinical mandate towards health promotion, sharing responsibility with individuals, community groups, professionals, and government.</li></ol>
+<div class="callout callout-green">Prerequisites for health (Ottawa Charter): peace, shelter, education, food, income, a stable eco-system, sustainable resources, social justice &amp; equity. These are essentially the social determinants of health (cf. Marmot, WHO Commission on Social Determinants of Health, 2008) — health promotion cannot succeed if these foundations are absent.</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Deep dive: How the Charter evolved through later global conferences <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<table><tr><th>Charter / Conference</th><th>Year</th><th>Main contribution</th></tr>
+<tr><td>Ottawa (1st)</td><td>1986</td><td>Founding charter; 5 action areas; prerequisites for health</td></tr>
+<tr><td>Adelaide (2nd)</td><td>1988</td><td>Deep dive into <strong>healthy public policy</strong>; four priority areas incl. women's health, food/nutrition, tobacco/alcohol</td></tr>
+<tr><td>Sundsvall (3rd)</td><td>1991</td><td>Focus on <strong>supportive environments</strong> — social, political, economic, physical</td></tr>
+<tr><td>Jakarta (4th)</td><td>1997</td><td>First in a developing country; brought in the <strong>private sector</strong> and settings approach explicitly</td></tr>
+<tr><td>Mexico City (5th)</td><td>2000</td><td>Bridging the equity gap; ministerial-level commitment</td></tr>
+<tr><td>Bangkok (6th)</td><td>2005</td><td>Addressed <strong>globalisation</strong> and determinants in an interconnected world; new health promotion actors</td></tr>
+<tr><td>Nairobi (7th)</td><td>2009</td><td>"Closing the implementation gap" — moving from rhetoric to delivery, especially in low-resource settings</td></tr>
+<tr><td>Helsinki (8th)</td><td>2013</td><td>Health in All Policies (HiAP)</td></tr>
+<tr><td>Shanghai (9th)</td><td>2016</td><td>Health literacy and good governance as levers to achieve the Sustainable Development Goals (SDGs)</td></tr>
+</table>
+<p>An exam question that asks you to "trace the evolution of the concept of health promotion since 1986" is really asking for this table plus the reason each new emphasis was added (e.g. Bangkok responded to trade liberalisation and transnational tobacco/food marketing).</p>
+</div></div>
+</div><div id="co-prev"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🛡️</span> Levels of Prevention</div>
+<table><tr><th>Level</th><th>Goal</th><th>Example</th></tr><tr><td>Primordial</td><td>Prevent emergence of risk factors in the population altogether</td><td>Policies limiting trans-fat in the food supply; urban planning that builds in walkability</td></tr><tr><td>Primary</td><td>Prevent disease before it starts, in people who have risk factors or are exposed</td><td>Vaccination, smoking cessation, salt-reduction programmes</td></tr><tr><td>Secondary</td><td>Early detection/treatment of disease already present but asymptomatic</td><td>Cancer screening, opportunistic blood-pressure checks</td></tr><tr><td>Tertiary</td><td>Reduce complications, disability and recurrence once disease is established</td><td>Cardiac rehabilitation, chronic-disease self-management, stroke rehab</td></tr><tr><td>Quaternary (P4)</td><td>Protect patients from unnecessary or harmful medicalisation/over-diagnosis</td><td>Avoiding low-value screening/imaging with no proven benefit; de-prescribing in the elderly</td></tr></table>
+<div class="callout callout-orange">Health promotion operates mainly at the primordial &amp; primary levels; treatment/rehabilitative services operate mainly at secondary/tertiary — but the settings approach and health-service reorientation (Ottawa action area 5) mean health promotion principles increasingly reach into secondary/tertiary care too (e.g. self-management education after a stroke).</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Worked example: quantifying the impact of a primary-prevention programme <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A factory employs 2,000 workers. Over one year of routine surveillance, 40 workers are newly diagnosed with hypertension.</p>
+<div class="subpart"><div class="subpart-label">Step 1 — Baseline incidence</div><p><code>Incidence = new cases / population at risk over the period = 40 / 2,000 = 0.02 = 2% per year</code> (equivalently 20 per 1,000 person-years, assuming full-year follow-up — Gordis, <em>Epidemiology</em>).</p></div>
+<div class="subpart"><div class="subpart-label">Step 2 — After a canteen salt-reduction policy (primary prevention)</div><p>The following year, with the same workforce size, only 30 new cases occur: <code>Incidence(after) = 30 / 2,000 = 1.5%</code>.</p></div>
+<div class="subpart"><div class="subpart-label">Step 3 — Absolute and relative effect</div><ul><li><strong>Absolute risk reduction (ARR)</strong> = 2.0% − 1.5% = <strong>0.5 percentage points</strong> (5 cases per 1,000 workers per year averted).</li><li><strong>Relative risk reduction (RRR)</strong> = ARR / baseline risk = 0.5% / 2.0% = <strong>25%</strong>.</li><li><strong>Number needed to "treat"</strong> (i.e. number of workers who need to be exposed to the policy for one year to prevent one new hypertension case) = 1 / ARR = 1 / 0.005 = <strong>200</strong>.</li></ul></div>
+<div class="callout callout-blue">Interpreting the numbers: a 25% relative reduction sounds dramatic, but the absolute reduction (0.5%) tells you how much of the population's risk was actually removed — always report both in an evaluation, and be alert to authors who quote only the more impressive-looking relative figure (a classic epidemiological framing effect, Gordis; Rothman).</div>
+</div></div>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Theories & Models of Health Behaviour</div>
+  <div class="page-sub">Sources: Glanz, Rimer &amp; Viswanath, <em>Health Behavior</em>; NCI, <em>Theory at a Glance</em>; Bandura (1986, 1997); Ajzen (1991); Prochaska &amp; DiClemente (1983); Rogers, <em>Diffusion of Innovations</em> (2003)</div>
+<div id="th-hbm"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧩</span> Health Belief Model (HBM)</div>
+<p>Behaviour depends on the balance between perceived <strong>threat</strong> and perceived <strong>benefit/cost</strong>:</p><ul><li>Perceived susceptibility — "could I get this?"</li><li>Perceived severity — "would it be serious if I did?" (susceptibility × severity together form perceived <em>threat</em>).</li><li>Perceived benefits of action minus perceived barriers to action.</li><li>Cues to action — internal (symptoms) or external (a reminder SMS, a poster, a friend's diagnosis).</li><li>Self-efficacy — confidence in one's ability to successfully perform the behaviour (added by Rosenstock, Strecher &amp; Becker, 1988, borrowing from Bandura).</li></ul>
+<table><tr><th>Modifying factor</th><th>Example</th></tr><tr><td>Demographic</td><td>Age, sex, ethnicity</td></tr><tr><td>Socio-psychological</td><td>Personality, social class, peer/reference group pressure</td></tr><tr><td>Structural</td><td>Knowledge of, and prior contact with, the disease</td></tr></table>
+<div class="callout callout-purple">Useful for screening &amp; prevention uptake (its original use was explaining why people didn't take up free TB X-ray screening in the 1950s US); weaker on social/environmental, economic and habitual/addictive determinants of behaviour — it assumes a rational, deliberative decision-maker.</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Worked example: why perceived barriers include the maths of screening itself <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Suppose a district runs a cervical pre-cancer screening test with <strong>sensitivity = 80%</strong> and <strong>specificity = 95%</strong>, in a population where the true prevalence of the pre-cancerous lesion is <strong>2%</strong>. Consider 10,000 women screened.</p>
+<table><tr><th></th><th>Disease present</th><th>Disease absent</th><th>Total</th></tr>
+<tr><td>Test positive</td><td>160 (true positive)</td><td>490 (false positive)</td><td>650</td></tr>
+<tr><td>Test negative</td><td>40 (false negative)</td><td>9,310 (true negative)</td><td>9,350</td></tr>
+<tr><td>Total</td><td>200</td><td>9,800</td><td>10,000</td></tr>
+</table>
+<div class="subpart"><div class="subpart-label">Calculation</div><ul><li>True positives = sensitivity × diseased = 0.80 × 200 = 160; false negatives = 200 − 160 = 40.</li><li>True negatives = specificity × non-diseased = 0.95 × 9,800 = 9,310; false positives = 9,800 − 9,310 = 490.</li><li><strong>Positive predictive value (PPV)</strong> = TP / (TP+FP) = 160 / 650 ≈ <strong>24.6%</strong>.</li><li><strong>Negative predictive value (NPV)</strong> = TN / (TN+FN) = 9,310 / 9,350 ≈ <strong>99.6%</strong>.</li></ul></div>
+<div class="callout callout-orange">Even with a "good" 80%/95% test, roughly <strong>3 in 4 women who test positive do not actually have the lesion</strong> (low PPV, driven by low prevalence — Bayes' theorem / Porta's <em>Dictionary of Epidemiology</em>). This is a real perceived-barrier: fear of a frightening but likely-false-positive result, and the anxiety/cost of follow-up biopsy, can suppress uptake even though the programme is technically sound. An HBM-informed fix is to pre-counsel women on what a positive result does and doesn't mean, lowering perceived severity of a false alarm and reducing the barrier.</div>
+</div></div>
+</div><div id="th-tpb"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🎯</span> Theory of Planned Behaviour (TPB)</div>
+<p>Intentions are the most proximal predictor of behaviour; intention is in turn shaped by three belief-based constructs:</p><ul><li><strong>Attitude</strong> toward the behaviour — the person's own evaluation of performing it (favourable/unfavourable).</li><li><strong>Subjective norm</strong> — perceived social pressure from people who matter (family, peers, religious leaders) to perform or not perform the behaviour.</li><li><strong>Perceived behavioural control (PBC)</strong> — perceived ease or difficulty of performing the behaviour; acts both as a direct predictor of behaviour (a proxy for actual control, when accurate) and as a mediator of intention.</li></ul>
+<table><tr><th></th><th>Theory of Reasoned Action (TRA, Fishbein &amp; Ajzen 1975)</th><th>Theory of Planned Behaviour (TPB, Ajzen 1991)</th></tr><tr><td>Predictors of intention</td><td>Attitude + subjective norm</td><td>Attitude + subjective norm + perceived behavioural control</td></tr><tr><td>Best suited to</td><td>Behaviours fully under volitional control</td><td>Behaviours partly constrained by skills, resources, or opportunity</td></tr></table>
+<div class="callout callout-orange">Worked scenario: predicting exclusive breastfeeding intention in a new mother. Attitude ("breastfeeding is best for my baby") and subjective norm ("my mother and husband expect me to breastfeed") may both be positive, yet low PBC ("I don't think I can manage it once I'm back at work with no lactation room") can still suppress intention and behaviour — this is exactly the gap HBM's "barriers" construct and TPB's PBC both try to capture, which is why workplace lactation rooms (a supportive-environment, Ottawa action area 2) directly raises PBC.</div>
+</div><div id="th-sc"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔄</span> Stages of Change & Social Cognitive Theory</div>
+<ul><li><strong>Transtheoretical Model / Stages of Change</strong> (Prochaska &amp; DiClemente, 1983): precontemplation (not intending to change within 6 months) → contemplation (intending within 6 months, ambivalent) → preparation (intending within 30 days, some steps taken) → action (changed behaviour <6 months) → maintenance (sustained >6 months); relapse is a normal, expected part of the cycle, not a failure endpoint.</li><li>Two supporting constructs: <strong>decisional balance</strong> (weighing pros vs cons of changing — pros must exceed cons before someone moves past contemplation) and <strong>processes of change</strong> — 10 cognitive/experiential processes (e.g. consciousness raising, self-re-evaluation) used more in earlier stages, and behavioural processes (e.g. stimulus control, reinforcement management, helping relationships) used more in later stages.</li><li><strong>Social Cognitive Theory</strong> (Bandura, 1986): behaviour, personal factors and environment interact bidirectionally — <em>reciprocal determinism</em>. Central construct is <strong>self-efficacy</strong> — belief in one's capability to execute the behaviours needed to produce a given outcome; built via mastery experience, vicarious experience (modelling), verbal persuasion, and interpreting one's own physiological/affective state.</li><li><strong>Social-ecological model</strong> (McLeroy et al., 1988): behaviour is shaped at nested levels — intrapersonal (knowledge, attitudes, self-efficacy) → interpersonal (family, peers) → organisational (workplace/school rules) → community (norms, networks) → public policy (laws, taxes).</li></ul>
+<table><tr><th>Ecological level</th><th>Example for smoking</th></tr><tr><td>Intrapersonal</td><td>Nicotine dependence, self-efficacy to quit</td></tr><tr><td>Interpersonal</td><td>Peer smoking, family support for quitting</td></tr><tr><td>Organisational</td><td>Workplace smoke-free policy, quitline referral</td></tr><tr><td>Community</td><td>Local social norms, availability of cheap cigarettes</td></tr><tr><td>Policy</td><td>Cigarette tax, advertising ban, plain packaging</td></tr></table>
+<div class="callout callout-green">Match the theory to the target and level — there is no single "best" theory for every problem; many real programmes explicitly blend constructs from several theories (a common exam trap is to force-fit one theory onto a multi-level problem when a socio-ecological answer scores better).</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Deep dive: Diffusion of Innovations (Rogers) <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Explains how a new idea, product or practice (e.g. a new vaccine, a mobile health app, a clinical guideline) spreads through a population/organisation over time, following an S-shaped adoption curve segmented into five adopter categories:</p>
+<table><tr><th>Adopter category</th><th>Approx. % of population</th><th>Character</th></tr><tr><td>Innovators</td><td>2.5%</td><td>Risk-tolerant, resourced, seek novelty</td></tr><tr><td>Early adopters</td><td>13.5%</td><td>Opinion leaders, respected locally</td></tr><tr><td>Early majority</td><td>34%</td><td>Deliberate, adopt just before the average</td></tr><tr><td>Late majority</td><td>34%</td><td>Skeptical, adopt after majority pressure</td></tr><tr><td>Laggards</td><td>16%</td><td>Traditional, last to adopt, resource-constrained</td></tr></table>
+<p>Five perceived attributes of the innovation itself predict adoption speed: <strong>relative advantage</strong> (is it better than what it replaces?), <strong>compatibility</strong> (fits existing values/needs), <strong>complexity</strong> (ease of understanding/use), <strong>trialability</strong> (can it be tried on a limited basis?) and <strong>observability</strong> (are the results visible to others?).</p>
+<div class="callout callout-purple">Practical use: to spread a new practice (e.g. HPV self-sampling kits), engage respected early adopters first as local champions, make the innovation trialable (a free pilot batch) and observable (share early success stories) rather than mass-launching to everyone at once.</div>
+</div></div>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Strategies, Settings & Social Marketing</div>
+  <div class="page-sub">Sources: WHO Healthy Settings guidance; Kotler &amp; Zaltman (social marketing, 1971); WHO MPOWER (2008); WHO Health in All Policies (Helsinki, 2013)</div>
+<div id="st-set"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🏘️</span> Healthy Settings Approach</div>
+<p>Settings = "the places or social contexts in which people engage in daily activities, and in which environmental, organisational and personal factors interact to affect health and wellbeing" (WHO). Rather than targeting individuals one at a time, the settings approach changes the <em>context</em> so the healthy choice becomes the easy or default choice.</p>
+<table><tr><th>Setting</th><th>Framework</th><th>Example components</th></tr><tr><td>Health-Promoting Schools</td><td>WHO's 6-component model</td><td>School health policy; physical environment; social environment; community links; personal health skills/curriculum; health services</td></tr><tr><td>Healthy Workplaces</td><td>WHO Healthy Workplace Model</td><td>Physical work environment; psychosocial work environment (stress, bullying); personal health resources (screening, gym access); enterprise community involvement</td></tr><tr><td>Health-Promoting Hospitals</td><td>WHO-Europe HPH network</td><td>Patient/staff health promotion embedded in routine clinical care, not just treatment</td></tr><tr><td>Age-Friendly Cities</td><td>WHO Age-Friendly Cities Framework</td><td>Outdoor spaces, transport, housing, social participation, respect, communication, civic participation, community support</td></tr></table>
+<div class="callout callout-blue">The settings approach is practical, sustainable and reaches whole populations passively (people don't need to opt in), which is exactly why it complements individually-targeted education — it lowers the "cost/barrier" side of the HBM/TPB equation for everyone in that setting at once.</div>
+</div><div id="st-mark"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📣</span> Social Marketing</div>
+<p>Social marketing applies commercial marketing principles and techniques to influence a target audience to voluntarily accept, reject, modify or abandon a behaviour for the benefit of individuals, groups or society as a whole (Kotler &amp; Zaltman, 1971; Andreasen). The classic 4 Ps are extended:</p><table><tr><th>Element</th><th>In social marketing</th></tr><tr><td>Product</td><td>The behaviour/benefit offered — not a physical good, but sometimes bundled with one (e.g. a free bed-net alongside "sleep protected from malaria")</td></tr><tr><td>Price</td><td>Costs of adopting the behaviour: time, effort, money, social stigma, loss of pleasure</td></tr><tr><td>Place</td><td>Where and when the target audience can access/perform the behaviour</td></tr><tr><td>Promotion</td><td>Persuasive communication tailored to the segmented audience</td></tr><tr><td>+ Public / Partnership / Policy</td><td>The wider stakeholder and policy environment that enables or blocks the behaviour</td></tr></table>
+<div class="callout callout-blue"><strong>Exchange theory</strong> underlies the whole model: ask what the individual gives up (price) and what they get in return (product/benefit) — an effective campaign makes that exchange feel worthwhile. Effective campaigns segment the audience (e.g. by stage of change, not just demographics) and use formative research (pre-testing messages with the actual target group) before launch.</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Worked example: segmenting a "quit smoking" campaign by stage of change <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A national quit-smoking campaign has a limited budget. Rather than one generic message, it segments smokers using the Transtheoretical Model:</p>
+<div class="subpart"><div class="subpart-label">Precontemplators (~40% of smokers)</div><p>Message emphasises <em>consciousness raising</em> — factual harms, secondhand-smoke risk to children — not a "quit now" call to action, which they are not ready for and would tune out (poor fit = wasted "price" of attention).</p></div>
+<div class="subpart"><div class="subpart-label">Contemplators (~35%)</div><p>Message shifts to <em>decisional balance</em> — testimonials that tip the pros-of-quitting/cons-of-smoking balance, plus signposting to a free quitline (lowering price/barrier).</p></div>
+<div class="subpart"><div class="subpart-label">Preparation/Action (~25%)</div><p>Message offers concrete <em>behavioural</em> tools — nicotine replacement therapy subsidy, quit-buddy apps, relapse-prevention tips (stimulus control, reinforcement).</p></div>
+<div class="callout callout-green">This is exchange theory in action: for each segment the "price" the campaign asks them to pay, and the "product" it offers in return, are calibrated to what that segment is actually ready for — a single undifferentiated message would over-price the exchange for two of the three groups.</div>
+</div></div>
+</div><div id="st-pol"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🤝</span> Policy & Intersectoral Action</div>
+<p>Sustained, population-wide impact needs <strong>intersectoral</strong> action — the health sector alone cannot control the determinants of health, so it must liaise with education, transport, urban planning, agriculture, and finance ministries (this is the essence of Health in All Policies, HiAP, formalised at the Helsinki conference, 2013).</p><ul><li>Structural interventions (tax, law, built environment) often outperform individual-level education alone, because they change the default for an entire population without requiring individual motivation or knowledge.</li><li>Classic example: tobacco control combines price (tax), smoke-free laws, cessation support, and counter-marketing — summarised by WHO's <strong>MPOWER</strong> package: <strong>M</strong>onitor tobacco use; <strong>P</strong>rotect people from smoke; <strong>O</strong>ffer help to quit; <strong>W</strong>arn about the dangers (health warnings); <strong>E</strong>nforce bans on advertising/promotion/sponsorship; <strong>R</strong>aise taxes on tobacco.</li></ul>
+<div class="callout callout-red">Health promotion without policy change tends to widen inequities — the already-advantaged (higher income, more health literacy) adopt voluntary behaviour changes first, so education-only strategies can paradoxically <em>increase</em> the health gap unless paired with structural measures that reach everyone regardless of individual motivation (Marmot's "inverse care law"-adjacent logic; WHO Commission on Social Determinants of Health).</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Worked example: price elasticity and cigarette taxation <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Price elasticity of demand (PED)</strong> measures how much consumption changes for a given percentage change in price: <code>PED = %Δ quantity demanded / %Δ price</code>. WHO reports overall PED for cigarettes in low- and middle-income countries of roughly <strong>−0.4</strong> (i.e. demand is inelastic — people keep smoking somewhat even as price rises — but not perfectly so).</p>
+<div class="subpart"><div class="subpart-label">Applying it</div><p>If a government raises cigarette excise tax such that retail price rises by <strong>20%</strong>: <code>%Δ quantity = PED × %Δ price = −0.4 × 20% = −8%</code>. So overall consumption is expected to fall by about 8%.</p></div>
+<div class="subpart"><div class="subpart-label">Why this is an equity-relevant policy tool</div><p>Youth and lower-income smokers tend to have <em>higher</em> elasticity (often cited around −0.6 to −1.0), meaning the same 20% price rise produces a proportionally larger drop in consumption in exactly the groups a health promotion programme most wants to protect — this is why taxation is rated one of the most cost-effective tobacco-control measures (WHO "best buys").</p></div>
+<div class="callout callout-orange">Contrast this with a pure education campaign, whose effect size is much harder to quantify and typically smaller and slower — illustrating the earlier point that structural/fiscal policy tends to outperform individual education alone for population-level behaviour change.</div>
+</div></div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Deep dive: Health Impact Assessment (HIA) as a HiAP tool <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A Health Impact Assessment is a structured method used to judge the potential (positive and negative) health effects of a policy, plan or project <em>outside</em> the health sector — e.g. a new highway, a mining licence, a free-trade agreement — before it is implemented. Typical steps: screening (is an HIA needed?) → scoping (which health determinants/populations?) → appraisal/assessment → recommendations → decision-making and monitoring.</p>
+<div class="callout callout-blue">HIA operationalises action area 1 of the Ottawa Charter ("build healthy public policy") by giving non-health sectors a concrete, evidence-based mechanism to consider health consequences before decisions are locked in.</div>
+</div></div>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Health Education & Health Literacy</div>
+  <div class="page-sub">Sources: WHO Health Promotion Glossary; Nutbeam (2000, health literacy levels); Michie, van Stralen &amp; West (COM-B / Behaviour Change Wheel, 2011)</div>
+<div id="he-ed"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🎓</span> Health Education</div>
+<p>Health education = "any combination of learning experiences designed to help individuals and communities improve their health, by increasing their knowledge or influencing their attitudes" — more specifically, a "communication activity that aims to improve health literacy and develop life skills which are conducive to individual and community health" (WHO). It is <strong>one component</strong> of health promotion, not a synonym for it.</p><ul><li>Aims: inform, motivate, build skills, change social norms, and (ultimately) support informed decision-making.</li><li>Methods: lectures/talks, small-group education, mass media, digital/social media, peer education, one-to-one counselling.</li></ul>
+<table><tr><th>Method</th><th>Strength</th><th>Limitation</th></tr><tr><td>Didactic lecture/talk</td><td>Efficient for large numbers, low cost per head</td><td>Passive, low retention, poor for skills or attitude change</td></tr><tr><td>Small-group / participatory (role-play, demonstration)</td><td>Builds skills &amp; self-efficacy, allows tailoring &amp; questions</td><td>Resource- and time-intensive, reaches fewer people</td></tr><tr><td>Mass media campaign</td><td>Wide reach, can shift social norms</td><td>Weak on skill-building, effect often small &amp; hard to attribute</td></tr><tr><td>Peer education</td><td>High credibility/trust, culturally attuned</td><td>Message consistency and quality-control harder</td></tr><tr><td>Digital / mHealth (apps, SMS reminders)</td><td>Scalable, can be personalised, low marginal cost</td><td>Digital divide can exclude the most vulnerable</td></tr></table>
+</div><div id="he-lit"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📖</span> Health Literacy</div>
+<p>Health literacy = "the cognitive and social skills which determine the motivation and ability of individuals to gain access to, understand and use information in ways which promote and maintain good health" (WHO). Nutbeam (2000) distinguishes three progressively deeper levels:</p>
+<table><tr><th>Level</th><th>Skill</th><th>Example outcome</th></tr><tr><td>Functional</td><td>Basic reading/numeracy to understand health information</td><td>Can read a medicine label correctly</td></tr><tr><td>Interactive</td><td>More advanced skills to extract meaning, communicate, apply new information as circumstances change</td><td>Can ask a nurse the right follow-up questions</td></tr><tr><td>Critical</td><td>Ability to critically analyse information and use it to exert greater control over life events/situations</td><td>Can evaluate conflicting online health claims and participate in community health advocacy</td></tr></table>
+<ul><li>Low health literacy is associated with poorer medication adherence, more emergency visits and hospitalisation, worse chronic-disease control, and higher mortality in multiple studies across health systems.</li><li><strong>Universal precautions approach:</strong> because low health literacy is often invisible and under-disclosed, assume <em>all</em> patients may struggle; use plain language, short sentences, and the <strong>teach-back method</strong>.</li></ul>
+<div class="callout callout-green">Health-literate <em>organisations</em> make the system easy to navigate (clear signage, simplified forms, interpreter services), rather than placing the entire burden of "getting smarter" on the patient — this mirrors the settings-approach logic in Section 3: change the environment, not just the individual.</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Worked example: the teach-back method in practice <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Teach-back is a simple check for understanding, not a test of the patient: after explaining, the provider asks the patient to explain the information back in their own words.</p>
+<div class="subpart"><div class="subpart-label">Poor practice</div><p>Nurse: "Take one tablet twice a day with food. Do you understand?" Patient: "Yes." (Yes/no questions do not verify comprehension — patients often say "yes" out of politeness or embarrassment.)</p></div>
+<div class="subpart"><div class="subpart-label">Teach-back practice</div><p>Nurse: "I want to make sure I explained this clearly — can you tell me how you'll take this medicine at home?" Patient: "I'll take two tablets once a day..." Nurse (catching the error, without blame): "Let me go over that part again — it's actually one tablet, twice a day, with food."</p></div>
+<div class="callout callout-purple">Teach-back shifts the "burden of proof" of understanding from the patient onto the communication itself — directly operationalising Nutbeam's functional health-literacy level in a routine clinical encounter.</div>
+</div></div>
+</div><div id="he-met"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🛠️</span> Education Methods & Fidelity</div>
+<ul><li>Tailor content, language, examples and delivery channel to the audience's literacy level, language, culture and stage of change.</li><li>Prefer participatory methods (role-play, demonstration, discussion) over pure didactic lecturing wherever skill-building or attitude change (not just knowledge) is the goal — adult-learning theory (andragogy) holds that adults learn best through relevant, problem-centred, experiential methods.</li><li>Assess implementation quality using the same lens as any programme: <strong>reach</strong> (who was actually exposed), <strong>dose</strong> (how much of the intended content was delivered/received), and <strong>fidelity</strong> (was it delivered as designed).</li></ul>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Deep dive: COM-B and the Behaviour Change Wheel (Michie et al.) <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>COM-B proposes that any behaviour (B) requires the interaction of three conditions: <strong>Capability</strong> (physical/psychological ability, incl. knowledge and skill), <strong>Opportunity</strong> (physical and social environment that enables the behaviour) and <strong>Motivation</strong> (reflective and automatic processes that direct behaviour). If any one is missing, the behaviour won't happen regardless of the others.</p>
+<p>The Behaviour Change Wheel surrounds COM-B with nine intervention functions — education, persuasion, incentivisation, coercion, training, restriction, environmental restructuring, modelling, enablement — and seven policy categories (e.g. legislation, fiscal measures, regulation) that can deliver them, giving a systematic way to design an intervention once you've diagnosed <em>which</em> of Capability/Opportunity/Motivation is the actual bottleneck.</p>
+<div class="callout callout-blue">Diagnostic use: a hand-hygiene programme that only posts motivational posters (targeting Motivation) will fail if the real bottleneck is Opportunity (no functioning sinks/alcohol gel at the point of care) — a COM-B analysis prevents this mismatch, and is a strong way to structure an exam answer that asks you to "design an intervention".</div>
+</div></div>
+</div>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Programme Planning & Evaluation</div>
+  <div class="page-sub">Sources: Green &amp; Kreuter, <em>Health Program Planning: An Educational and Ecological Approach</em> (PRECEDE-PROCEED); Glasgow, Vogt &amp; Boles (1999, RE-AIM); Kirkpatrick (1994); CDC Framework for Program Evaluation (1999); Rothman, <em>Epidemiology</em> (sample size &amp; hazard ratios)</div>
+<div id="pl-pp"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🗺️</span> PRECEDE-PROCEED</div>
+<p>A planning model (Green &amp; Kreuter) that deliberately works <strong>backwards</strong> from the desired quality-of-life/health outcome to the causes, and then <strong>forwards</strong> through implementation and evaluation — nine phases in total, linking <strong>diagnosis</strong> to <strong>implementation &amp; evaluation</strong>.</p>
+<table><tr><th>Phase</th><th>Name</th><th>Key question</th></tr>
+<tr><td>1</td><td>Social assessment</td><td>What is the community's quality-of-life concern, in their own terms?</td></tr>
+<tr><td>2</td><td>Epidemiological assessment</td><td>Which health problems/behaviours/environmental factors underlie that concern? (Rank by prevalence &amp; changeability)</td></tr>
+<tr><td>3</td><td>Educational &amp; ecological assessment</td><td>What predisposing (knowledge, attitudes), enabling (skills, resources, accessibility) and reinforcing (social support, peer/family influence) factors drive the behaviour? (the "PEF" analysis)</td></tr>
+<tr><td>4</td><td>Administrative &amp; policy assessment</td><td>What organisational resources, policies and regulations will help or hinder implementation?</td></tr>
+<tr><td>5</td><td>Implementation</td><td>Deliver the programme</td></tr>
+<tr><td>6</td><td>Process evaluation</td><td>Was it delivered as planned? (fidelity, reach, dose)</td></tr>
+<tr><td>7</td><td>Impact evaluation</td><td>Did predisposing/enabling/reinforcing factors and the target behaviour change in the short term?</td></tr>
+<tr><td>8</td><td>Outcome evaluation</td><td>Did health status and quality of life change in the long term?</td></tr>
+</table>
+<div class="callout callout-blue">The mnemonic: <strong>PRECEDE</strong> = Predisposing, Reinforcing and Enabling Constructs in Educational/Ecological Diagnosis and Evaluation (phases 1–4, the diagnostic/planning half); <strong>PROCEED</strong> = Policy, Regulatory, and Organizational Constructs in Educational and Environmental Development (phase 5 implementation, phases 6–8 evaluation). Working backwards from quality-of-life to causes (rather than starting with "what intervention do we like") is the model's signature strength — it keeps the programme anchored to what the community actually values.</div>
+</div><div id="pl-re"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📊</span> RE-AIM</div>
+<p>A framework (Glasgow, Vogt &amp; Boles, 1999) for judging whether an efficacious intervention will actually translate into real-world, population-level impact:</p><table><tr><th>Dimension</th><th>Question</th><th>Level</th></tr><tr><td>Reach</td><td>Who participated, as a proportion of the eligible target population — and were they representative?</td><td>Individual</td></tr><tr><td>Effectiveness</td><td>What was the effect on outcomes (and quality of life / any negative effects) under real-world conditions?</td><td>Individual</td></tr><tr><td>Adoption</td><td>What proportion and representativeness of settings/agents (clinics, schools, staff) adopted the programme?</td><td>Setting</td></tr><tr><td>Implementation</td><td>Was it delivered consistently, at what cost, and with what fidelity across those settings?</td><td>Setting</td></tr><tr><td>Maintenance</td><td>Are effects sustained long-term at both the individual level (habit) and setting level (institutionalised)?</td><td>Both</td></tr></table>
+<div class="callout callout-orange">An efficacious programme with poor reach or maintenance has limited public-health value — the overall population impact is often approximated as <strong>Reach × Effectiveness</strong> (sometimes extended to Reach × Effectiveness × Adoption × Implementation for a full "public health impact" estimate).</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Worked example: RE-AIM arithmetic for a workplace smoking-cessation programme <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A factory of 500 employees runs a voluntary stop-smoking programme. 300 employees are current smokers (the eligible population). 120 of them enrol; of those, 30 are smoke-free at 6 months. Among smokers who did <em>not</em> enrol, a background/secular quit rate of 5% is observed over the same period (people quit "on their own" even without the programme).</p>
+<div class="subpart"><div class="subpart-label">Reach</div><p><code>Reach = enrolled / eligible = 120 / 300 = 40%</code>.</p></div>
+<div class="subpart"><div class="subpart-label">Effectiveness (within participants)</div><p><code>Quit rate (participants) = 30 / 120 = 25%</code>.</p></div>
+<div class="subpart"><div class="subpart-label">Comparative effect size</div><ul><li><strong>Risk ratio</strong> = 25% / 5% = <strong>5.0</strong> (participants were five times as likely to quit as non-participants).</li><li><strong>Risk difference (absolute effect attributable to the programme)</strong> = 25% − 5% = <strong>20 percentage points</strong>.</li><li><strong>Number needed to treat (NNT)</strong> = 1 / 0.20 = <strong>5</strong> — about 5 smokers need to go through the programme to produce one additional quitter beyond what would have happened anyway.</li></ul></div>
+<div class="subpart"><div class="subpart-label">Population ("public health") impact</div><p><code>Impact ≈ Reach × (Effectiveness − secular rate) = 0.40 × 0.20 = 8%</code> of all eligible smokers in the factory quit <em>because of</em> the programme — a modest slice of the total 300 smokers, even though the within-participant effect looked impressive (25% quit rate, RR = 5.0).</p></div>
+<div class="callout callout-red">This is precisely why a headline "25% quit rate!" is an incomplete evaluation claim — without Reach, Adoption and Maintenance data, you cannot judge population-level value, and self-selection (motivated smokers volunteering) likely inflates the apparent effectiveness above what a mandatory, whole-workforce programme would achieve.</div>
+</div></div>
+</div><div id="pl-ev"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔍</span> Types of Evaluation</div>
+<ul><li><strong>Process evaluation:</strong> was the programme delivered as planned? (fidelity, dose, reach, participant satisfaction) — answers "did we do what we said we'd do?"</li><li><strong>Impact evaluation:</strong> immediate/short-term changes in knowledge, attitudes, behaviour, or intermediate risk factors (e.g. blood pressure, quit rate at 6 months).</li><li><strong>Outcome evaluation:</strong> long-term changes in health/social outcomes — morbidity, mortality, quality of life, equity — that usually require longer follow-up and larger samples to detect.</li></ul>
+<div class="callout callout-blue">Kirkpatrick's four levels (reaction → learning → behaviour → results) map closely onto process→impact→outcome and are widely used for training/education evaluation specifically. The CDC's six-step Framework for Program Evaluation (engage stakeholders → describe the programme → focus the evaluation design → gather credible evidence → justify conclusions → ensure use and share lessons learned) is a commonly cited practical checklist for planning any evaluation.</div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Worked example: is my evaluation's sample size big enough? <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Suppose you plan to evaluate whether a new cessation programme raises the 6-month quit rate above the background rate of <strong>p₁ = 5%</strong> to a hoped-for <strong>p₂ = 15%</strong>, using a two-arm comparison (programme vs control), two-sided α = 0.05 (Z<sub>α/2</sub> = 1.96) and 80% power (Z<sub>β</sub> = 0.84).</p>
+<div class="subpart"><div class="subpart-label">Formula (comparing two proportions)</div><p><code>n per group = (Z_(α/2) + Z_β)² × [p1(1−p1) + p2(1−p2)] / (p1−p2)²</code></p></div>
+<div class="subpart"><div class="subpart-label">Substituting the numbers</div><p>(1.96+0.84)² = 2.80² = 7.84<br>p1(1−p1) + p2(1−p2) = 0.05×0.95 + 0.15×0.85 = 0.0475 + 0.1275 = 0.175<br>(p1−p2)² = (0.10)² = 0.01<br><code>n = 7.84 × 0.175 / 0.01 = 137.2</code> → round up to <strong>138 per group</strong>, i.e. about <strong>276 participants total</strong>.</p></div>
+<div class="callout callout-green">This is why a pilot evaluation with only, say, 40 participants per arm is usually under-powered to detect this size of effect — a common flaw examiners look for when a question presents a "disappointing" or "inconclusive" small evaluation and asks you to critique it.</div>
+</div></div>
+<div class="accordion"><div class="accordion-head" onclick="toggleAcc(this)">Worked example: interpreting a hazard ratio in a tertiary-prevention evaluation <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A 5-year outcome evaluation of a cardiac-rehabilitation programme (tertiary prevention) reports a <strong>hazard ratio (HR) for all-cause mortality of 0.75</strong> (95% CI 0.62–0.90) comparing attendees vs non-attendees.</p>
+<div class="subpart"><div class="subpart-label">What the HR means</div><p>At any given instant during follow-up, attendees have <strong>25% lower instantaneous risk (hazard) of death</strong> than non-attendees (<code>1 − 0.75 = 0.25</code>), <em>assuming</em> the hazards are proportional over time (an assumption that itself should be checked — Rothman). The 95% CI excludes 1.0, so the reduction is statistically significant at the conventional α = 0.05 threshold.</p></div>
+<div class="subpart"><div class="subpart-label">Turning it into an absolute, decision-relevant number</div><p>An HR alone does not tell you the absolute benefit — you also need the baseline risk. If 5-year mortality among non-attendees is 20%, a hazard ratio of 0.75 corresponds <em>approximately</em> to about 15–16% mortality among attendees (exact conversion requires the full survival curve, but this is a reasonable illustrative approximation for teaching purposes): <code>ARR ≈ 20% − 15% = 5 percentage points</code>, giving <code>NNT ≈ 1/0.05 = 20</code> — about 20 patients need to attend cardiac rehab for 5 years to prevent one additional death.</p></div>
+<div class="callout callout-purple">Exam-relevant point: a relative measure (HR, RR) alone can make an intervention look uniformly impressive, but the <em>absolute</em> benefit (and therefore the NNT and cost-effectiveness) depends heavily on the baseline risk of the population being evaluated — always ask "compared to what baseline?" before judging an evaluation's real-world significance.</div>
+</div></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">📚</span> Key References</div>
+<p>A compact reading list spanning the theory and the underlying quantitative methods used throughout these notes:</p>
+<span class="tag tag-blue">Ottawa Charter, WHO (1986)</span><span class="tag tag-blue">Green &amp; Kreuter, Health Program Planning</span><span class="tag tag-purple">Glanz, Rimer &amp; Viswanath, Health Behavior</span><span class="tag tag-purple">Bandura, Social Cognitive Theory (1986)</span><span class="tag tag-orange">Ajzen, Theory of Planned Behaviour (1991)</span><span class="tag tag-orange">Prochaska &amp; DiClemente, Stages of Change (1983)</span><span class="tag tag-green">Rogers, Diffusion of Innovations (2003)</span><span class="tag tag-green">Nutbeam, Health Literacy (2000)</span><span class="tag tag-red">Michie et al., Behaviour Change Wheel (2011)</span><span class="tag tag-red">Glasgow, Vogt &amp; Boles, RE-AIM (1999)</span><span class="tag tag-blue">Gordis, Epidemiology</span><span class="tag tag-purple">Rothman, Epidemiology: An Introduction</span><span class="tag tag-orange">Porta (ed.), A Dictionary of Epidemiology</span><span class="tag tag-green">Marmot, The Health Gap / WHO CSDH (2008)</span>
+</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of health-promotion past-year papers — try answering (including any calculations) before revealing the model answer</div>
+<div id="pyq-1"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">Ottawa Charter</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Outline the five action areas of the Ottawa Charter for Health Promotion and give a Malaysian (or generic public-health) example for each.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: 5 areas named &amp; briefly explained (1 each = 5) · one relevant example per area (2 each = 10)</div>
+<div class="ans-section"><div class="ans-section-title">Five action areas</div><ol><li>Build healthy public policy</li><li>Create supportive environments</li><li>Strengthen community action</li><li>Develop personal skills</li><li>Reorient health services</li></ol></div>
+<div class="ans-section"><div class="ans-section-title">Worked examples, one per action area</div>
+<div class="subpart"><div class="subpart-label">1. Healthy public policy</div><p>A sugar-sweetened beverage tax and mandatory front-of-pack nutrition labelling, aimed at shifting the whole food environment rather than relying on individuals to read fine print.</p></div>
+<div class="subpart"><div class="subpart-label">2. Supportive environments</div><p>Smoke-free public spaces and workplaces, and urban planning that provides safe walking/cycling paths, making the healthy option the physically easier one.</p></div>
+<div class="subpart"><div class="subpart-label">3. Strengthen community action</div><p>A village or residents' committee (e.g. a community "Healthy Kampung/Community" initiative) that identifies and plans its own dengue-control or exercise activities, with government facilitating rather than dictating.</p></div>
+<div class="subpart"><div class="subpart-label">4. Develop personal skills</div><p>Life-skills-based health education in schools covering nutrition literacy, refusal skills against tobacco/vaping, and basic first aid.</p></div>
+<div class="subpart"><div class="subpart-label">5. Reorient health services</div><p>Primary-care clinics expanding promotive/preventive services — maternal &amp; child health, non-communicable-disease screening, community health kiosks — rather than functioning only as curative, illness-treatment centres.</p></div>
+</div>
+<div class="ans-section"><div class="ans-section-title">Common mistake to avoid</div><p>Do not simply restate the five headings without a concrete example for each — examiners specifically credit application, and a generic "education campaign" example repeated for every action area (rather than one genuinely matched to each) usually loses marks.</p></div>
+</div>
+</div><div id="pyq-2"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Theory</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Using the Health Belief Model, explain why an apparently effective screening programme may have low uptake, and how to improve it. Illustrate your answer with reference to how the test's own statistical performance can itself act as a perceived barrier.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: HBM constructs applied to the scenario (6) · worked screening-statistics illustration (4) · improvement strategies (5)</div>
+<div class="ans-section"><div class="ans-section-title">Low uptake explained via HBM</div><p>Low perceived susceptibility ("it won't happen to me"), low perceived severity, high perceived barriers (cost, time, fear, pain, stigma of a positive result) and weak cues to action all suppress participation, even when the test itself performs well analytically.</p></div>
+<div class="ans-section"><div class="ans-section-title">Worked illustration — the test's own numbers can be a barrier</div><div class="subpart"><div class="subpart-label">Scenario</div><p>Sensitivity 80%, specificity 95%, disease prevalence 2%. Screening 10,000 people gives 200 truly diseased and 9,800 truly disease-free. True positives = 0.80×200=160; false positives = 0.05×9,800=490. <code>PPV = 160/(160+490) = 160/650 ≈ 24.6%</code>.</p></div><div class="subpart"><div class="subpart-label">Interpretation</div><p>About three-quarters of people who test positive do <em>not</em> actually have the condition. If this is well known or experienced in the community, fear of a frightening-but-probably-false positive result (and the cost/anxiety of confirmatory testing) becomes a rational, HBM-recognised <strong>barrier</strong> to attending screening at all — this is a subtler mechanism than "people are simply uninformed."</p></div></div>
+<div class="ans-section"><div class="ans-section-title">Improvement strategies</div><p>Raise perceived susceptibility/severity via targeted, locally-relevant risk messaging; reduce barriers by making screening free, accessible and convenient (mobile clinics, flexible hours); add cues to action (SMS reminders, community champions); build self-efficacy with clear step-by-step instructions; and — specific to the PPV issue above — pre-counsel participants honestly about what a positive result does and doesn't mean, so a false alarm is met with informed reassurance rather than panic or programme distrust.</p></div>
+</div>
+</div><div id="pyq-3"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q3</span>
+<span class="q-topic">Evaluation</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">A workplace health programme reduced smoking in its participants. Using RE-AIM, explain why this alone is insufficient evidence of population impact, show a worked calculation of the programme's true population-level effect, and state what else you would assess.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: RE-AIM critique (8) · worked calculation (6) · additional assessment needed (6)</div>
+<div class="ans-section"><div class="ans-section-title">RE-AIM critique</div><p>Efficacy observed only in enrolled participants says little about <strong>Reach</strong> (what fraction of all eligible workers actually enrolled — likely the more motivated ones, a self-selection/volunteer bias), <strong>Adoption</strong> (whether other worksites took up the programme), <strong>Implementation</strong> (fidelity and cost of delivery across sites), or <strong>Maintenance</strong> (whether quitting persisted at 12+ months, and whether the programme itself was sustained institutionally). A small, self-selected reach can still yield a trivial population impact even with an impressive within-participant effect size.</p></div>
+<div class="ans-section"><div class="ans-section-title">Worked calculation</div><div class="subpart"><div class="subpart-label">Given</div><p>300 eligible smokers; 120 enrolled (Reach = 40%); 30 quit at 6 months among participants (Effectiveness = 25%); background/secular quit rate among non-participants = 5%.</p></div><div class="subpart"><div class="subpart-label">Effect size</div><p>Risk ratio = 25%/5% = <strong>5.0</strong>; risk difference = 20 percentage points; NNT = 1/0.20 = <strong>5</strong>.</p></div><div class="subpart"><div class="subpart-label">Population impact</div><p><code>Reach × (Effectiveness − secular rate) = 0.40 × 0.20 = 8%</code> of all 300 eligible smokers quit because of the programme — a modest population effect despite the headline 25% participant quit rate.</p></div></div>
+<div class="ans-section"><div class="ans-section-title">What else to assess</div><p>Report Reach (% of all eligible employees enrolled, and whether they were representative by age/job grade/baseline dependence), Adoption across other worksites, Implementation fidelity and cost per quitter, and 12-month Maintenance of quitting at both individual and organisational level; formally compare quit rates in participants vs a comparable non-participant group (not just before/after in participants, to avoid conflating programme effect with secular trend or regression to the mean); and quantify the absolute risk reduction across the whole eligible workforce, not just among those who opted in.</p></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Concepts & Principles", "sec2": "Theories & Models", "sec3": "Strategies & Settings", "sec4": "Health Education & Literacy", "sec5": "Planning & Evaluation", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt514_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt514_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt514_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>

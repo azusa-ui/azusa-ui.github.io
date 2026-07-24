@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 516 Health Management</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 516</h2>
+      <div style="font-size:11px;color:var(--text3)">Health Management</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Health Systems & Management</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('hm-sys')">Health System</a><a onclick="scrollTo('hm-bb')">Building Blocks</a><a onclick="scrollTo('hm-gov')">Governance & Leadership</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Quality & Patient Safety</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('qs-dim')">Quality Dimensions</a><a onclick="scrollTo('qs-qi')">QI Models</a><a onclick="scrollTo('qs-err')">Error & Safety</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Human Resources</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('hr-cr')">HRH Crisis</a><a onclick="scrollTo('hr-mot')">Motivation & Retention</a><a onclick="scrollTo('hr-plan')">Planning</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Health Economics & Financing</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('ec-cost')">Costs & Evaluation</a><a onclick="scrollTo('ec-eval')">Economic Evaluation</a><a onclick="scrollTo('ec-uhc')">UHC & Financing</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Strategic & Risk Management</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('sm-sp')">Strategic Planning</a><a onclick="scrollTo('sm-bsc')">Balanced Scorecard</a><a onclick="scrollTo('sm-risk')">Clinical Risk</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1 Quality</a><a onclick="scrollTo('pyq-2')">Q2 Economics</a><a onclick="scrollTo('pyq-3')">Q3 UHC</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 516 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Health Management</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first!
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Health Systems & Management</div><div class="hc-sub">Building blocks, governance, leadership</div><div class="hc-badge"><span class="tag tag-blue">Systems</span><span class="tag tag-green">Governance</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Quality & Patient Safety</div><div class="hc-sub">QI models, error, adverse events</div><div class="hc-badge"><span class="tag tag-orange">QI</span><span class="tag tag-red">Safety</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Human Resources</div><div class="hc-sub">HRH, motivation, planning</div><div class="hc-badge"><span class="tag tag-purple">HRH</span><span class="tag tag-blue">Planning</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Health Economics & Financing</div><div class="hc-sub">Costs, evaluation, UHC</div><div class="hc-badge"><span class="tag tag-green">Cost</span><span class="tag tag-orange">UHC</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Strategic & Risk Management</div><div class="hc-sub">Planning, BSC, clinical risk</div><div class="hc-badge"><span class="tag tag-purple">BSC</span><span class="tag tag-red">Risk</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Health Systems & Management</div>
+  <div class="page-sub">Source: WHO Health Systems Framework; Roemer's model; MOH Malaysia structure</div>
+<div id="hm-sys"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🏥</span> What is a Health System?</div>
+<p>WHO defines a health system as <strong>"all the organisations, people, and actions whose primary intent is to promote, restore, or maintain health."</strong> This is broader than "the health sector" — it includes home care, traditional/complementary medicine, community health volunteers, and inter-sectoral action on the social determinants of health (housing, water, sanitation, education), not just hospitals and clinics.</p>
+<p>WHO's <em>World Health Report 2000</em> frames three <strong>intrinsic goals</strong> any health system should be judged against:</p>
+<ul>
+<li><strong>Improved health</strong> — both the average level (e.g., life expectancy) and its <strong>distribution</strong> across the population (equity in health).</li>
+<li><strong>Responsiveness</strong> — non-health-improving aspects that matter to users: dignity, autonomy, confidentiality, prompt attention, choice of provider.</li>
+<li><strong>Fairness in financial contribution</strong> — households pay according to ability to pay, not according to how sick they are.</li>
+</ul>
+<p>Underneath these sit <strong>instrumental (intermediate) objectives</strong> — access, coverage, quality, safety, and efficiency — the levers managers actually pull to reach the intrinsic goals.</p>
+<div class="callout callout-blue"><strong>Goal:</strong> better health, responsiveness, and fairness in financial contribution — not just more hospitals. A system can have excellent buildings and still fail on all three goals if financing is regressive and workforce is maldistributed.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked comparison: three classic health-system financing models <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<table><tr><th>Model</th><th>Funding source</th><th>Example countries</th><th>Key strength / weakness</th></tr>
+<tr><td>Beveridge (National Health Service)</td><td>General taxation</td><td>UK, Malaysia (public tier)</td><td>Universal, equitable; can be under-funded, long queues</td></tr>
+<tr><td>Bismarck (Social Health Insurance)</td><td>Payroll-linked mandatory insurance, employer + employee</td><td>Germany, Japan</td><td>Strong provider-payment link; can exclude informal-sector workers</td></tr>
+<tr><td>Out-of-pocket / private-dominant</td><td>Direct user payment at point of care</td><td>Many LMICs' private tier</td><td>No pre-payment risk pooling → catastrophic-expenditure risk</td></tr>
+</table>
+<p>Malaysia runs a <strong>hybrid</strong>: a tax-funded public system (Beveridge-like, heavily subsidised at point of use) alongside a fee-for-service private sector and employer/private insurance — this is why national health-financing reform debates keep resurfacing.</p>
+</div>
+</div>
+</div><div id="hm-bb"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧱</span> WHO Building Blocks</div>
+<p>WHO's <em>Everybody's Business</em> (2007) framework decomposes a health system into six interdependent building blocks. Each has its own performance indicators, and a weakness in one block <strong>undermines the returns on investment in every other block</strong>.</p>
+<table><tr><th>Building block</th><th>What it covers</th><th>Typical indicator</th></tr>
+<tr><td>1. Service delivery</td><td>Organisation and delivery of effective, safe, quality interventions</td><td>Effective coverage of a service (e.g., % hypertensives controlled)</td></tr>
+<tr><td>2. Health workforce</td><td>Sufficient, competent, responsive, fairly distributed staff</td><td>Density per 1,000 population; % in rural posts</td></tr>
+<tr><td>3. Health information system</td><td>Production, analysis, dissemination, use of reliable data</td><td>Completeness of vital registration; reporting timeliness</td></tr>
+<tr><td>4. Access to essential medicines</td><td>Equitable access to safe, quality, affordable medicines & technologies</td><td>% facilities with no stock-out of tracer medicines</td></tr>
+<tr><td>5. Financing</td><td>Raising, pooling, purchasing (allocating) funds</td><td>Out-of-pocket % of total health expenditure</td></tr>
+<tr><td>6. Leadership / governance</td><td>Policy frameworks, oversight, coalition-building, accountability</td><td>Existence & implementation of a costed national health plan</td></tr>
+</table>
+<div class="callout callout-green">A weakness in any block compromises the whole system — hence the 'building blocks' metaphor. Example: a new hospital wing (service delivery) with no additional nurses (workforce) and no essential-medicine restocking budget (financing) will not raise effective coverage — it may even worsen burnout in existing wards stretched to cover it.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: linking two building blocks <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Scenario:</strong> a district doubles its number of primary-care clinics (service delivery ↑) but workforce output from training institutions stays flat, and financing for locum/contract staff is not increased.</p>
+<p><strong>Consequence chain:</strong> existing staff are split across more sites → contact time per patient falls → process quality (block 1) falls → outcomes (e.g., diabetes control) may not improve despite more "access points" on paper. Building-block indicators should therefore always be read <em>together</em>, not in isolation.</p>
+</div>
+</div>
+</div><div id="hm-gov"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧭</span> Governance & Leadership</div>
+<p><strong>Stewardship</strong> is WHO's term for the careful, responsible management of population wellbeing — the ministry of health acts as the system's "steward" even for parts of the system (private providers, NGOs) it does not directly own or run.</p>
+<ul>
+<li><strong>Stewardship functions:</strong> generating intelligence (surveillance, evidence), formulating strategic policy direction, ensuring tools for implementation (powers, incentives, sanctions), building coalitions/partnerships, aligning policy objectives with organisational structure/culture, and holding actors <strong>accountable</strong>.</li>
+<li><strong>Good governance principles</strong> (UNDP/WHO): participation, rule of law, transparency, responsiveness, consensus-orientation, equity/inclusiveness, effectiveness/efficiency, accountability.</li>
+<li><strong>Leadership vs management</strong> (Kotter): management copes with <em>complexity</em> — planning, budgeting, organising, controlling, problem-solving to produce predictable results. Leadership copes with <em>change</em> — setting direction, aligning people, motivating/inspiring. Both are needed; a good hospital CEO does both roles at different moments.</li>
+<li><strong>Centralisation vs decentralisation:</strong> devolving authority (political, administrative, fiscal) to state/district level can improve local responsiveness but risks fragmenting standards and capacity if local management skills are weak.</li>
+</ul>
+<div class="callout callout-purple">"Doing the right things" (leadership/strategy) vs "doing things right" (management/operations) — a system needs both; excellent operational management of the wrong strategy still fails.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Case: decentralising hospital management — trade-offs <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Argument for:</strong> hospital boards/CEOs closer to local needs can respond faster, tailor services, and be held locally accountable.</p>
+<p><strong>Argument against:</strong> without strong central stewardship (minimum standards, pooled procurement, referral protocols), decentralisation can widen inter-facility quality gaps and lose economies of scale in purchasing (e.g., drugs, equipment).</p>
+<p><strong>Balance point:</strong> most systems keep policy/standard-setting and large capital investment centralised while devolving day-to-day operational and some budget-execution authority to hospital/state level — sometimes called "deconcentration."</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Quality & Patient Safety</div>
+  <div class="page-sub">Source: Donabedian's SPO framework; WHO Global Patient Safety Action Plan 2021–2030; IOM Crossing the Quality Chasm</div>
+<div id="qs-dim"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⭐</span> Dimensions of Quality (Donabedian)</div>
+<p>Avedis Donabedian's <strong>Structure–Process–Outcome (SPO)</strong> framework remains the backbone of quality measurement:</p>
+<ul>
+<li><strong>Structure</strong> — the setting of care: facilities, staff-to-patient ratios, equipment, health information systems, accreditation status.</li>
+<li><strong>Process</strong> — what is actually done to and for the patient: adherence to clinical guidelines, correct diagnosis, communication, referral pathways.</li>
+<li><strong>Outcome</strong> — the result: mortality, morbidity, patient-reported outcomes, patient satisfaction.</li>
+</ul>
+<p>The assumption behind SPO is a causal chain: <strong>good structure enables good process, which produces good outcome</strong> — but the links are probabilistic, not guaranteed (a well-staffed hospital can still run poor processes).</p>
+<p>WHO/IOM commonly describe six dimensions of quality, remembered by the mnemonic <strong>STEEEP</strong>: Safe, Timely, Effective, Efficient, Equitable, Patient-centred.</p>
+<table><tr><th>Dimension</th><th>Meaning</th><th>Example indicator</th></tr>
+<tr><td>Safe</td><td>Avoiding harm from the care intended to help</td><td>Rate of healthcare-associated infection</td></tr>
+<tr><td>Effective</td><td>Evidence-based care, avoiding under/over-use</td><td>% diabetics with HbA1c at target</td></tr>
+<tr><td>Patient-centred</td><td>Respectful of, and responsive to, individual preferences/needs</td><td>Patient experience survey score</td></tr>
+<tr><td>Timely</td><td>Reducing waits and harmful delays</td><td>Door-to-needle time in stroke care</td></tr>
+<tr><td>Efficient</td><td>Avoiding waste of equipment, supplies, ideas, energy</td><td>Cost per case-mix-adjusted admission</td></tr>
+<tr><td>Equitable</td><td>Quality does not vary by gender, ethnicity, location, SES</td><td>Coverage gap between richest & poorest quintile</td></tr>
+</table>
+<div class="callout callout-orange">Measuring only 'outcome' misses the structure/process levers that produce it — e.g., a rising maternal mortality ratio (outcome) is uninformative for action unless you also audit blood-bank availability (structure) and partograph use (process).</div>
+</div><div id="qs-qi"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔧</span> Quality Improvement Models</div>
+<ul>
+<li><strong>Plan–Do–Study–Act (PDSA)</strong> — a rapid-cycle model: <em>Plan</em> a small test of change → <em>Do</em> it on a small scale → <em>Study</em> the data against predictions → <em>Act</em> (adopt, adapt, or abandon) before scaling up. Multiple small PDSA "ramps" are chained rather than one big-bang rollout.</li>
+<li><strong>Six Sigma (DMAIC)</strong> — Define, Measure, Analyse, Improve, Control — a statistically rigorous method aiming to reduce process variation to near-zero defects.</li>
+<li><strong>Lean</strong> — focuses on removing <strong>waste</strong> from the patient's value stream, summarised by the mnemonic <strong>TIMWOODS</strong> — Transport, Inventory, Motion, Waiting, Over-production, Over-processing, Defects, Skills (under-used staff talent).</li>
+<li><strong>Clinical audit cycle</strong> — set a standard/criterion → measure current practice against it → feed back results → implement change → re-audit ("closing the loop") to confirm improvement.</li>
+</ul>
+<div class="callout callout-green">QI is continuous, team-based, and data-driven — distinct from <strong>research</strong>, which aims to generate generalisable new knowledge under controlled conditions. QI asks "did our unit get better?"; research asks "does this intervention work in general?"</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: clinical audit of hand-hygiene compliance <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Standard set:</strong> WHO "5 Moments for Hand Hygiene" — target ≥80% compliance.</p>
+<p><strong>Baseline audit:</strong> 60 of 100 observed opportunities were compliant → 60/100 = <strong>60%</strong> (below standard).</p>
+<p><strong>Intervention (PDSA cycle):</strong> alcohol-based handrub at every bedside + visual reminders + peer "hand-hygiene champion" feedback for 4 weeks.</p>
+<p><strong>Re-audit:</strong> 88 of 100 opportunities compliant → 88% (meets/exceeds standard) → the loop is "closed" and monitoring continues (e.g., monthly spot-checks) rather than the initiative being abandoned.</p>
+</div>
+</div>
+</div><div id="qs-err"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚠️</span> Patient Safety & Error</div>
+<p>An <strong>error</strong> is the failure of a planned action to be completed as intended (<em>error of execution</em>) or the use of a wrong plan to achieve an aim (<em>error of planning</em>) — James Reason's classic definition.</p>
+<ul>
+<li><strong>Slips & lapses</strong> — attentional/memory failures during a routine task (e.g., picking up the wrong pre-filled syringe). <strong>Mistakes</strong> — a flawed plan/rule is correctly executed (e.g., following an outdated protocol). <strong>Violations</strong> — deliberate deviation from a known safe procedure.</li>
+<li><strong>Active failures</strong> (frontline, immediate, "sharp end") vs <strong>latent conditions</strong> (systemic, "blunt end" — understaffing, poor rostering, confusing drug labelling, weak safety culture) that lie dormant until triggered.</li>
+<li><strong>Adverse event</strong> = unintended harm caused by medical management rather than the underlying disease. <strong>Near miss</strong> = an error that did not reach the patient/caused no harm — a free lesson. <strong>Sentinel event</strong> = an unexpected occurrence involving death or serious physical/psychological injury, signalling the need for immediate investigation.</li>
+<li><strong>Root Cause Analysis (RCA)</strong> — structured retrospective technique (e.g., "5 Whys", fishbone/Ishikawa diagram) tracing an adverse event back from the sharp-end action to underlying latent/systemic causes.</li>
+<li>Reporting & learning systems must be <strong>non-punitive and confidential</strong> to surface latent conditions — a <strong>just culture</strong> distinguishes blameless human error, at-risk behaviour (coaching needed), and reckless behaviour (disciplinary action needed), often via a "substitution test" (would another competent professional in the same circumstances have done the same?).</li>
+</ul>
+<div class="callout callout-red">Reason's Swiss-cheese model: each defence layer (design, training, procedures, supervision) has weaknesses ('holes') that shift over time. An accident occurs only when holes in successive layers momentarily line up, letting a hazard trajectory reach the patient — most bad outcomes therefore reflect a chain of small systemic failures, not one culpable individual.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: "5 Whys" root cause analysis <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Event:</strong> a patient received 10× the intended insulin dose.</p>
+<ol>
+<li>Why? — The nurse drew up 10 mL instead of 1 mL.</li>
+<li>Why? — The insulin vial and a look-alike diluent vial were stored side-by-side.</li>
+<li>Why? — Pharmacy shelving was not redesigned after a recent formulary change.</li>
+<li>Why? — There is no standard protocol requiring visual-alert separation of high-alert medications.</li>
+<li>Why? — The hospital has no high-alert medication policy aligned with national/WHO guidance.</li>
+</ol>
+<p><strong>Root cause:</strong> systemic — absence of a high-alert medication storage policy (latent condition), not simply "nurse error" (active failure). Corrective action targets the system (separate storage, independent double-check for insulin) rather than only re-training the individual nurse.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Human Resources for Health</div>
+  <div class="page-sub">Source: WHO Global Strategy on HRH 2030; Global Health Workforce Alliance; MOH Malaysia workforce data</div>
+<div id="hr-cr"></div>
+<div class="card">
+<div class="card-title"><span class="icon">👩‍⚕️</span> HRH — the Core of the System</div>
+<p>Health workers are the single most important input to a health system — "no health workforce, no health services." The 2006 World Health Report labelled the global shortage a <strong>crisis</strong>, and WHO's Global Strategy on HRH projects a shortfall of roughly <strong>10 million health workers by 2030</strong>, concentrated in low- and lower-middle-income countries.</p>
+<ul>
+<li><strong>Stock</strong> — absolute numbers/density (e.g., doctors, nurses per 1,000 population). Historic reference thresholds range from ~2.3 per 1,000 (Joint Learning Initiative, basic MCH coverage) to ~4.45 per 1,000 (WHO SDG index threshold).</li>
+<li><strong>Distribution</strong> — urban–rural and public–private maldistribution is usually worse than the national average suggests; a country can meet the national density threshold while rural districts remain critically understaffed.</li>
+<li><strong>Skill-mix</strong> — the balance of cadres (doctor, nurse, allied health, community health worker) suited to the burden of disease and service model.</li>
+<li><strong>Performance</strong> — availability, competence, responsiveness, productivity — quantity of staff does not guarantee quality of care.</li>
+</ul>
+<div class="callout callout-blue"><strong>Malaysia context:</strong> the country experienced the opposite problem in the 2010s — rapid expansion of medical schools produced a perceived <em>oversupply</em> of house officers relative to training/specialist posts, prompting the contract doctor/pharmacist scheme from 2016 — while rural and East Malaysia postings remained chronically hard to fill. "Shortage" and "maldistribution/oversupply" can therefore coexist within one country.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: calculating workforce density & gap <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Density formula:</strong> Density per 1,000 = (number of active health workers ÷ total population) × 1,000.</p>
+<p><strong>Example:</strong> a state has 900 doctors serving a population of 1,200,000. Density = (900 ÷ 1,200,000) × 1,000 = <strong>0.75 per 1,000</strong>. If the policy target is 1.8 per 1,000, the state needs 1.8 × 1,200,000 ÷ 1,000 = <strong>2,160 doctors</strong> — a gap of 1,260 doctors to close through training, recruitment, or retention.</p>
+</div>
+</div>
+</div><div id="hr-mot"></div>
+<div class="card">
+<div class="card-title"><span class="icon">💡</span> Motivation & Retention</div>
+<ul>
+<li><strong>Maslow's hierarchy</strong> — physiological (living wage) → safety (job security) → belonging (team support) → esteem (recognition) → self-actualisation (professional growth); explains why pay alone does not fix retention once basic needs are met.</li>
+<li><strong>Herzberg's two-factor theory</strong> — <em>hygiene factors</em> (salary, working conditions, job security, policies) prevent dissatisfaction but do not motivate if merely adequate; <em>motivators</em> (achievement, recognition, responsibility, growth) drive real engagement.</li>
+<li><strong>Vroom's expectancy theory</strong> — Motivation = Expectancy × Instrumentality × Valence: staff must believe effort leads to performance (expectancy), performance leads to a reward (instrumentality), and the reward is personally valued (valence). If any factor is zero, motivation collapses.</li>
+<li><strong>Task-shifting / task-sharing</strong> — delegating tasks to less specialised cadres where safe and competent (e.g., nurse-led hypertension titration, community volunteers doing TB DOTS follow-up) — extends coverage without waiting years for more doctors.</li>
+<li><strong>Retention levers:</strong> rural/hardship allowances, guaranteed career pathway and specialist training slots, adequate staff housing, supportive supervision, manageable workload, bonding schemes for scholarship recipients.</li>
+</ul>
+<div class="callout callout-purple">Performance = Competency × Motivation × Enabling environment — fix all three; a highly motivated, competent nurse still under-performs without functioning equipment and supply chains (the enabling environment).</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: expectancy-theory scoring <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Score each 0–1: Expectancy (effort → performance) = 0.9; Instrumentality (performance → reward) = 0.3 (staff doubt the promotion board is fair); Valence (value of reward) = 0.9 (promotion highly valued).</p>
+<p>Motivation index ≈ 0.9 × 0.3 × 0.9 = <strong>0.24</strong> (low) — despite staff being capable and wanting the reward, weak instrumentality (perceived unfair reward system) is the bottleneck management should fix first, not more training.</p>
+</div>
+</div>
+</div><div id="hr-plan"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📋</span> HR Planning</div>
+<p>Workforce planning matches future <strong>supply</strong> (existing stock + graduates + in-migration − attrition/emigration/retirement) to future <strong>demand</strong> (population growth & ageing, disease burden, service targets such as UHC benefit packages).</p>
+<ul>
+<li><strong>Needs-based method</strong> — starts from epidemiological need (disease burden, guideline staffing ratios) — normative but can be unaffordable.</li>
+<li><strong>Demand-based method</strong> — projects utilisation trends and what the health system can actually finance/absorb.</li>
+<li><strong>Supply projection / stock-and-flow modelling</strong> — models the pipeline: entrants from training institutions minus attrition (retirement, resignation, migration), over time.</li>
+<li><strong>WHO's Workload Indicators of Staffing Need (WISN)</strong> — a facility-level method: define workload components (e.g., outpatient consults, deliveries), assign standard time per activity, compute required staff = total annual workload time ÷ available working time per staff member.</li>
+</ul>
+<div class="callout callout-blue">Track density (workers per 1,000 population) <em>and</em> distribution (a maldistribution index) — a national average masks large sub-national gaps.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: simplified WISN calculation <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A primary care clinic sees 20,000 outpatient visits/year, averaging 15 minutes/visit → total workload = 20,000 × 15 = 300,000 minutes = 5,000 hours/year.</p>
+<p>Available working time per full-time doctor ≈ 1,600 hours/year (after leave, training, admin time deducted from a nominal 2,000-hour year).</p>
+<p>Required doctors = 5,000 ÷ 1,600 ≈ <strong>3.1 → 3 to 4 doctors</strong> needed for outpatient workload alone (before adding inpatient/on-call duties).</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Health Economics & Financing</div>
+  <div class="page-sub">Source: health economics fundamentals; WHO-CHOICE; World Bank UHC financing indicators</div>
+<div id="ec-cost"></div>
+<div class="card">
+<div class="card-title"><span class="icon">💰</span> Costs & Scarcity</div>
+<p>Health economics starts from a simple premise: resources (money, staff, beds, time) are <strong>scarce relative to unlimited health needs/wants</strong>, so choices — and trade-offs — are unavoidable. <strong>Opportunity cost</strong> is the value of the next-best alternative forgone by a choice (e.g., funding a new dialysis centre may mean forgoing an equivalent expansion of a childhood immunisation programme).</p>
+<ul>
+<li><strong>Fixed costs</strong> (rent, capital equipment — do not vary with output in the short run) vs <strong>variable costs</strong> (drugs, disposables — scale with activity).</li>
+<li><strong>Direct costs</strong> (medical resources used) vs <strong>indirect costs</strong> (productivity loss, caregiver time) vs <strong>intangible costs</strong> (pain, anxiety — hard to monetise).</li>
+<li><strong>Marginal cost</strong> — the cost of producing one more unit of output; relevant to "should we do one more" decisions, distinct from average cost.</li>
+</ul>
+<p><strong>Market failures specific to health</strong> justify government intervention in what would otherwise be left to a competitive market:</p>
+<table><tr><th>Market failure</th><th>Explanation</th><th>Example</th></tr>
+<tr><td>Information asymmetry</td><td>Provider knows more than patient about what care is needed</td><td>Supplier-induced demand — unnecessary tests/procedures</td></tr>
+<tr><td>Externalities</td><td>Effects on third parties not reflected in price</td><td>Vaccination protects others (positive); untreated TB spreads (negative)</td></tr>
+<tr><td>Moral hazard</td><td>Insured people over-consume care since a third party pays</td><td>Over-utilisation once insured/covered</td></tr>
+<tr><td>Adverse selection</td><td>Higher-risk individuals more likely to seek insurance</td><td>Voluntary private insurance pools skew sicker/older → premiums rise</td></tr>
+<tr><td>Health as a "merit good"</td><td>Society values access beyond what individual demand alone would provide</td><td>Justifies public subsidy for essential/preventive services</td></tr>
+</table>
+<div class="callout callout-blue">Economics informs <em>allocation</em> under scarcity, not just accounting — the central policy question is rarely "can we afford this?" in isolation but "what do we give up to afford this?" (opportunity cost). The equity–efficiency trade-off (maximise total health vs distribute it fairly) runs through almost every financing and priority-setting decision.</div>
+</div><div id="ec-eval"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚖️</span> Economic Evaluation</div>
+<table><tr><th>Type</th><th>Comparator / output</th></tr><tr><td>Cost-minimisation (CMA)</td><td>Assumes equal outcomes → simply compares cost</td></tr><tr><td>Cost-effectiveness (CEA)</td><td>Cost per natural unit of effect (e.g., per case detected, per DALY averted)</td></tr><tr><td>Cost-utility (CUA)</td><td>Cost per QALY gained (incorporates quality-of-life utility weights)</td></tr><tr><td>Cost-benefit (CBA)</td><td>All outcomes monetised → Net Present Value (NPV) / Benefit-Cost Ratio (BCR)</td></tr></table>
+<p><strong>QALY</strong> (Quality-Adjusted Life Year) = years of life lived × utility weight (0 = dead, 1 = perfect health). <strong>DALY</strong> (Disability-Adjusted Life Year) = YLL (Years of Life Lost to premature death) + YLD (Years Lived with Disability) — DALYs measure <em>burden</em> (lower is better), QALYs measure <em>health gained</em> (higher is better), a common source of confusion.</p>
+<div class="callout callout-green">ICER = (Cost<sub>A</sub> − Cost<sub>B</sub>) ÷ (Effect<sub>A</sub> − Effect<sub>B</sub>) — the extra cost per extra unit of effect of the new option (A) versus the comparator (B); it is only interpretable against a <strong>willingness-to-pay (WTP) threshold</strong> (e.g., NICE historically used ~£20,000–30,000/QALY; WHO-CHOICE historically suggested 1–3× GDP per capita per DALY averted, a rule-of-thumb since widely critiqued and superseded by country-specific thresholds).</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: computing an ICER and reading the cost-effectiveness plane <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Data:</strong> new drug A costs RM 5,000/patient/year and yields 6.2 QALYs. Standard drug B costs RM 3,000/patient/year and yields 5.8 QALYs.</p>
+<p><strong>ICER</strong> = (5,000 − 3,000) ÷ (6.2 − 5.8) = 2,000 ÷ 0.4 = <strong>RM 5,000 per additional QALY</strong>.</p>
+<p><strong>Interpretation:</strong> if the decision-maker's WTP threshold is, say, RM 30,000/QALY (an illustrative benchmark only), drug A is <strong>cost-effective</strong> and worth funding at the margin. If A had cost more <em>and</em> produced fewer QALYs than B (dominated), it would be rejected outright regardless of threshold — this is the "cost-effectiveness plane" logic (four quadrants: dominant, dominated, and two trade-off quadrants).</p>
+</div>
+</div>
+</div><div id="ec-uhc"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🌍</span> Universal Health Coverage & Financing</div>
+<ul>
+<li><strong>UHC</strong> = all people receive the promotive, preventive, curative, rehabilitative, and palliative services they need, of sufficient quality, <strong>without suffering financial hardship</strong> paying for them.</li>
+<li>The classic <strong>"UHC cube"</strong> has three dimensions decision-makers must jointly expand and can trade off against each other: (1) <strong>population</strong> covered — who is covered; (2) <strong>services</strong> covered — breadth of the benefits package; (3) <strong>direct costs</strong> covered — proportion of cost paid by pooled/prepaid funds vs the patient (depth). Pushing outward on one face while holding a fixed budget usually means giving up ground on another.</li>
+<li><strong>Pre-payment & risk pooling</strong> (general taxation, mandatory social health insurance) spreads financial risk across a large population and across time (healthy subsidise sick, rich subsidise poor, working-age subsidise old/young) — voluntary private insurance and out-of-pocket payment do not pool risk broadly enough to deliver this protection.</li>
+<li><strong>Catastrophic health expenditure</strong> — commonly defined as out-of-pocket health spending exceeding 10% of total household consumption/income (or 25% for a stricter cut, and 40% of capacity-to-pay in WHO/World Bank reporting).</li>
+<li><strong>Impoverishing health expenditure</strong> — out-of-pocket payment that pushes a household below the poverty line, even if the absolute amount seems small.</li>
+</ul>
+<div class="callout callout-orange">Malaysia pursues UHC primarily via a tax-funded public system (Ministry of Health hospitals/clinics, heavily subsidised at the point of use) running alongside a fee-for-service private sector; long-running policy debate continues on introducing a broader national health financing/social health insurance scheme to diversify revenue sources as the population ages and non-communicable disease costs rise.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: is this household's spending "catastrophic"? <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A household has total monthly consumption expenditure of RM 3,000, of which RM 1,000 is spent on food (non-discretionary). Capacity to pay = RM 3,000 − RM 1,000 = RM 2,000. The household spends RM 900/month out-of-pocket on a family member's chronic dialysis-related costs.</p>
+<p>Out-of-pocket as % of capacity to pay = 900 ÷ 2,000 = <strong>45%</strong> — above the common 40% "catastrophic health expenditure" cut-off, meaning this household is at financial risk of poverty due to illness, illustrating why renal replacement therapy is prioritised for subsidy in many national UHC benefit packages.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Strategic & Risk Management</div>
+  <div class="page-sub">Source: GKT 516 Course Notes — planning, BSC; Risk</div>
+<div id="sm-sp"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🗺️</span> Strategic Planning</div>
+<p>Defining direction and allocating resources to achieve the organisation's mission.</p><ul><li>SWOT / PESTEL analysis; vision–mission–objectives–strategy–action.</li><li>Monitoring via indicators and review cycles.</li></ul><div class="callout callout-purple">Strategy is about <em>choices</em> under uncertainty — what NOT to do is as important as what to do.</div>
+</div><div id="sm-bsc"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📊</span> Balanced Scorecard</div>
+<p>Kaplan & Norton: measure performance across four perspectives:</p><table><tr><th>Perspective</th><th>Question</th></tr><tr><td>Financial</td><td>Are we sustainable?</td></tr><tr><td>Customer/Patient</td><td>Do we meet stakeholder needs?</td></tr><tr><td>Internal process</td><td>Where must we excel?</td></tr><tr><td>Learning & growth</td><td>Can we improve & innovate?</td></tr></table><div class="callout callout-blue">Prevents over-focus on finance at the expense of quality and learning.</div>
+</div><div id="sm-risk"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🛡️</span> Clinical / Organisational Risk Management</div>
+<ul><li>Identify, assess, mitigate, monitor risks (clinical, financial, legal, reputation).</li><li>Clinical risk = risk of harm from clinical care; managed via protocols, checklists, incident reporting.</li><li>Risk matrices (likelihood × severity); just culture for reporting.</li></ul><div class="callout callout-red">Risk management is proactive (prevention) + reactive (learning from incidents).</div>
+</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 516 past-year papers</div>
+<div id="pyq-1"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">Quality & Safety</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Explain Reason's 'Swiss-cheese' model of system failure and how a just culture supports patient safety.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: model 9 · just culture 6</div>
+<div class="ans-section"><div class="ans-section-title">Swiss-cheese model</div><p>Defences are layers with 'holes' (latent conditions + active failures). An accident happens only when holes in successive layers align, letting a hazard reach the patient. Most failures are systemic, not solely individual.</p></div><div class="ans-section"><div class="ans-section-title">Just culture</div><p>A just culture distinguishes blameless human error from reckless violation; it encourages reporting and learning rather than punishing, so latent holes are found and fixed. This improves safety more than a blame culture, which suppresses reporting.</p></div>
+</div>
+</div><div id="pyq-2"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Health Economics</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Define cost-effectiveness analysis and the ICER, and state why a threshold is needed.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: CEA 5 · ICER 5 · threshold 5</div>
+<div class="ans-section"><div class="ans-section-title">CEA</div><p>Cost-effectiveness analysis compares alternatives by cost per unit of health effect (e.g., cost per DALY/QALY averted), when outcomes are measured in natural/utility units and programmes differ in both cost and effect.</p></div><div class="ans-section"><div class="ans-section-title">ICER</div><p>Incremental cost-effectiveness ratio = (CostA−CostB)/(EffectA−EffectB) — the extra cost per extra unit of effect of the newer vs comparator option.</p></div><div class="ans-section"><div class="ans-section-title">Threshold</div><p>A willingness-to-pay threshold (e.g., per QALY) decides whether the ICER is 'worth it'; without it, ICERs cannot be judged affordable or equitable.</p></div>
+</div>
+</div><div id="pyq-3"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q3</span>
+<span class="q-topic">UHC</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">Define Universal Health Coverage and discuss the three dimensions policy-makers must balance, with reference to financial risk protection.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: definition 5 · dimensions 9 · financial protection 6</div>
+<div class="ans-section"><div class="ans-section-title">Definition</div><p>UHC = all people have access to the full range of quality promotive, preventive, curative, rehabilitative and palliative services they need, when and where they need them, <strong>without financial hardship</strong>.</p></div><div class="ans-section"><div class="ans-section-title">Three dimensions</div><p>(1) <strong>Population</strong> covered (who); (2) <strong>Services</strong> covered (what basket); (3) <strong>Direct cost</strong> covered (how much protected). Expanding one dimension often strains the others.</p></div><div class="ans-section"><div class="ans-section-title">Financial protection</div><p>Pre-payment and risk-pooling (tax/social insurance) replace out-of-pocket payments, preventing catastrophic expenditure and impoverishment — the equity heart of UHC. Malaysia relies on tax-funded public services toward this goal.</p></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Health Systems & Management", "sec2": "Quality & Patient Safety", "sec3": "Human Resources", "sec4": "Health Economics & Financing", "sec5": "Strategic & Risk Management", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt516_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt516_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt516_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 513 Community Nutrition</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 513</h2>
+      <div style="font-size:11px;color:var(--text3)">Community Nutrition</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Introduction & Concepts</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('in-def')">Definition & Scope</a><a onclick="scrollTo('in-det')">Determinants</a><a onclick="scrollTo('in-sec')">Food & Nutrition Security</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Malnutrition & NCDs</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('ma-form')">Forms of Malnutrition</a><a onclick="scrollTo('ma-double')">Double Burden</a><a onclick="scrollTo('ma-ncd')">NCD Diet Link</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Nutritional Assessment</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('as-abcd')">ABCD Methods</a><a onclick="scrollTo('as-anth')">Anthropometry</a><a onclick="scrollTo('as-diet')">Dietary Assessment</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Life-Course Nutrition</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('lc-mat')">Maternal & Infant</a><a onclick="scrollTo('lc-bf')">Breastfeeding</a><a onclick="scrollTo('lc-ae')">Adolescent & Elderly</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Food Security & Policy</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('fs-safe')">Food Safety</a><a onclick="scrollTo('fs-int')">Interventions</a><a onclick="scrollTo('fs-pol')">Policy</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1 Double Burden</a><a onclick="scrollTo('pyq-2')">Q2 Assessment</a><a onclick="scrollTo('pyq-3')">Q3 Breastfeeding Code</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 513 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Community Nutrition</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first! Worked calculations are marked with a <span class="tag tag-green" style="margin:0">calc</span> tag so you can find them quickly for exam revision.
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Introduction & Concepts</div><div class="hc-sub">Definition, scope, determinants of nutrition</div><div class="hc-badge"><span class="tag tag-blue">Scope</span><span class="tag tag-orange">Determinants</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Malnutrition & NCDs</div><div class="hc-sub">Undernutrition, overnutrition, double burden</div><div class="hc-badge"><span class="tag tag-red">Stunting</span><span class="tag tag-orange">Obesity</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Nutritional Assessment</div><div class="hc-sub">Anthropometry, biochemical, dietary, clinical</div><div class="hc-badge"><span class="tag tag-blue">ABCD</span><span class="tag tag-green">Anthropometry</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Life-Course Nutrition</div><div class="hc-sub">Maternal, infant, adolescent, elderly</div><div class="hc-badge"><span class="tag tag-purple">Life-course</span><span class="tag tag-blue">Breastfeeding</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Food Security & Policy</div><div class="hc-sub">Security, safety, code, interventions</div><div class="hc-badge"><span class="tag tag-green">Security</span><span class="tag tag-red">Code</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Introduction & Core Concepts</div>
+  <div class="page-sub">Source: GKT 513 Course Notes — Introduction; Public Health Nutrition (WHO, FAO, Gordis)</div>
+<div id="in-def"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🥗</span> What is Community / Public Health Nutrition?</div>
+<p><strong>Community nutrition</strong> applies nutrition science to groups/populations to promote health and prevent disease, working through clinics, schools, workplaces and community organisations. <strong>Public health nutrition (PHN)</strong> goes further: it is the application of nutrition and public-health principles to design programmes, systems and policies that protect and promote good nutrition and health for the whole population, emphasising 'collective responsibility for nutrition and the role of policy and environment' (WHO).</p>
+<p>PHN differs from <strong>clinical/therapeutic dietetics</strong>, which treats individual patients. The distinction matters for exam answers: clinical nutrition intervenes at the level of the patient (one-to-one counselling, medical nutrition therapy), whereas PHN intervenes at the level of populations and the structures that shape their diets (fiscal policy, food supply, the built environment, social norms).</p>
+<table><tr><th>Feature</th><th>Clinical / Therapeutic Nutrition</th><th>Community / Public Health Nutrition</th></tr><tr><td>Unit of concern</td><td>Individual patient</td><td>Population / community</td></tr><tr><td>Setting</td><td>Hospital, clinic</td><td>Community, schools, workplaces, food system</td></tr><tr><td>Main tool</td><td>Diet prescription, counselling</td><td>Policy, programmes, environmental change, surveillance</td></tr><tr><td>Outcome measured</td><td>Patient's biochemical/anthropometric change</td><td>Population prevalence rates, DALYs, food-environment indicators</td></tr></table>
+<div class="callout callout-blue">PHN shifts the unit of concern from the individual patient to the <em>population</em> and the <em>food environment</em> — mirroring the shift from clinical medicine to epidemiology in general public health training.</div>
+<h4>Core functions of a public health nutrition system</h4>
+<ul><li><strong>Assessment</strong> — surveillance of nutritional status and its determinants (see Section 3).</li><li><strong>Policy development</strong> — evidence-informed guidelines, standards and legislation (see Section 5).</li><li><strong>Assurance</strong> — ensuring services, food safety and equitable access are actually delivered (adapted from the three core public-health functions, Institute of Medicine 1988).</li></ul>
+</div><div id="in-det"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🌱</span> Determinants of Nutritional Status</div>
+<ul><li><strong>Food (availability, access, utilisation, stability)</strong> — the food-security chain.</li><li><strong>Care & feeding practices</strong> — maternal care, hygiene, feeding behaviours, intra-household food allocation.</li><li><strong>Health environment & services</strong> — water, sanitation and hygiene (WASH), immunization, access to health services, infectious-disease burden.</li><li><strong>Underlying:</strong> political, economic, social, cultural drivers — income, education, employment, gender norms, governance.</li></ul>
+<div class="callout callout-green"><strong>UNICEF conceptual framework (1990, revised 2020):</strong> malnutrition and its consequences (death, disability, impaired growth) arise from a causal hierarchy — <em>immediate</em> causes (inadequate dietary intake, disease) sit within a household, driven by <em>underlying</em> causes (household food insecurity, inadequate care, unhealthy household environment/limited health access), which are themselves shaped by <em>basic/structural</em> causes (political, economic and social context, including inequality, poor governance and climate).</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🔎 Deep dive — applying the UNICEF framework to a case vignette <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Vignette:</strong> A 20-month-old child in a low-income urban household presents with stunting (HAZ −2.8 SD). The mother returned to informal daily-wage work six weeks after delivery; the child is cared for by an older sibling and was given diluted formula early because breastfeeding was seen as "not enough."</p>
+<table><tr><th>Level</th><th>Factor identified in the vignette</th></tr><tr><td>Immediate</td><td>Inadequate dietary intake (diluted formula, low energy/protein density) and likely repeated infections from unsafe preparation</td></tr><tr><td>Underlying</td><td>Inadequate child-care arrangement (young sibling as caregiver), possible household food insecurity, limited maternal knowledge of exclusive breastfeeding</td></tr><tr><td>Basic/structural</td><td>Informal, insecure low-wage employment with no paid maternity leave; urban poverty; weak enforcement of the WHO Code allowing formula marketing to influence perception</td></tr></table>
+<p>An exam-quality answer should explicitly name all three levels and show how an intervention at one level (e.g., workplace breastfeeding breaks) can address an underlying cause even though it does not touch the child directly — this "systems thinking" is what examiners reward over a simple list of causes.</p>
+</div>
+</div>
+<p>These determinants overlap heavily with the broader <strong>social determinants of health</strong> (Marmot, WHO Commission on Social Determinants of Health, 2008): "the conditions in which people are born, grow, live, work and age." Nutrition is one of the clearest pathways by which social disadvantage becomes biological disadvantage — a core reason nutrition is taught within public health rather than only within clinical science.</p>
+</div><div id="in-sec"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔒</span> Food & Nutrition Security</div>
+<p>FAO (1996, restated at the 2009 World Summit on Food Security): food security exists 'when all people, at all times, have physical, social and economic access to sufficient, safe and nutritious food that meets their dietary needs and food preferences for an active and healthy life.'</p>
+<ul><li><strong>Four pillars:</strong> <em>availability</em> (enough food is produced/supplied), <em>access</em> (households can obtain it — physically and economically), <em>utilisation</em> (the body can biologically make use of it — safe food, clean water, good health, correct feeding practices), <em>stability</em> (the other three hold over time, i.e. resilience to shocks such as drought, price spikes, conflict or pandemics).</li><li><strong>Nutrition security</strong> is a narrower, more clinically meaningful concept: secure access to a well-balanced diet <em>and</em> to sanitation, health care and good caregiving practices needed for a nutritionally healthy life. A household can be food secure (enough calories) yet nutrition insecure (micronutrient-poor, monotonous diet) — this distinction is a favourite short-answer exam item.</li></ul>
+<div class="callout callout-purple"><strong>calc — worked example: measuring food insecurity prevalence.</strong> A district survey uses the 8-item Food Insecurity Experience Scale (FIES). Of 400 households surveyed, 92 report moderate-to-severe food insecurity (raw score ≥ 4 on the FIES severity scale).<br>Prevalence = 92 / 400 × 100 = <strong>23%</strong> of households moderately-to-severely food insecure.<br>95% CI (normal approximation) = p ± 1.96√(p(1−p)/n) = 0.23 ± 1.96√(0.23×0.77/400) = 0.23 ± 0.041 → <strong>18.9% to 27.1%</strong>. Reporting the CI, not just the point estimate, is what distinguishes a surveillance-quality answer from a purely descriptive one.</div>
+<h4>Diet quality indicators (complement food-security measures)</h4>
+<ul><li><strong>Household Dietary Diversity Score (HDDS)</strong> — counts food groups (of 12) consumed in the past 24h; a proxy for household access.</li><li><strong>Minimum Dietary Diversity for Women (MDD-W)</strong> — consuming ≥5 of 10 defined food groups; a validated proxy for micronutrient adequacy.</li><li><strong>Minimum Acceptable Diet (MAD)</strong> in children 6–23 months — combines minimum dietary diversity and minimum meal frequency.</li></ul>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">📈</span> The Nutrition Transition (extra depth)</div>
+<p>Popkin's <strong>nutrition transition</strong> model describes how diets and disease patterns shift as countries develop economically — directly explaining why the double burden of malnutrition (Section 2) emerges.</p>
+<table><tr><th>Stage</th><th>Diet / disease pattern</th></tr><tr><td>1. Collecting food</td><td>Foraging; diverse but low-energy diet; high physical activity</td></tr><tr><td>2. Famine</td><td>Cereal-dominant, low diversity, periodic scarcity; undernutrition and infectious disease dominate</td></tr><tr><td>3. Receding famine</td><td>More fruit/vegetables/protein as incomes rise; famine recedes</td></tr><tr><td>4. Degenerative disease</td><td>High fat, sugar, processed food, low fibre, low activity; obesity and NCDs rise sharply — many middle-income countries, including Malaysia, are here</td></tr><tr><td>5. Behavioural change</td><td>Health-conscious dietary and activity change, often policy-driven; typical of some high-income settings</td></tr></table>
+<div class="callout callout-orange">Rapid, compressed nutrition transitions (decades rather than a century, unlike historical Western transitions) are why many Asian countries face undernutrition and obesity <em>simultaneously</em>, rather than sequentially.</div>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Malnutrition & Diet-Related NCDs</div>
+  <div class="page-sub">Source: GKT 513 Course Notes — Malnutrition, Obesity, Chronic Disease (WHO, UNICEF, Barker/DOHaD)</div>
+<div id="ma-form"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚠️</span> Forms of Malnutrition</div>
+<p>Malnutrition = deficiencies, excesses or imbalances in a person's intake of energy and/or nutrients. It spans <strong>undernutrition</strong> (wasting, stunting, underweight, micronutrient deficiencies) and <strong>overnutrition</strong> (overweight, obesity, diet-related NCDs) — WHO's unified definition deliberately covers both ends so that programmes do not treat them as unrelated problems.</p>
+<table><tr><th>Type</th><th>Indicator (children)</th><th>Severe cut-off</th></tr><tr><td>Stunting (chronic)</td><td>HAZ &lt; −2 SD (low height-for-age)</td><td>HAZ &lt; −3 SD = severe stunting</td></tr><tr><td>Wasting (acute)</td><td>WHZ &lt; −2 SD (low weight-for-height)</td><td>WHZ &lt; −3 SD = severe acute malnutrition (SAM)</td></tr><tr><td>Underweight</td><td>WAZ &lt; −2 SD</td><td>WAZ &lt; −3 SD = severe underweight</td></tr><tr><td>Overweight/obesity</td><td>WHZ or BMI-for-age &gt; +2 SD</td><td>&gt; +3 SD = obese</td></tr></table>
+<div class="callout callout-red">Stunting is largely irreversible after age 2 — it impairs cognition, schooling and adult earning potential (the 'window of opportunity', first 1,000 days). Wasting, by contrast, is acute and can improve rapidly with treatment, but carries a much higher immediate risk of death.</div>
+<h4>calc — worked example: converting a raw measurement to a Z-score</h4>
+<p>A 24-month-old boy has a height of 78 cm. WHO growth-standard reference for boys at 24 months: median height ≈ 87.1 cm, SD ≈ 3.2 cm.</p>
+<p>HAZ = (observed − median) / SD = (78 − 87.1) / 3.2 = −9.1 / 3.2 = <strong>−2.84 SD</strong> → classified as <strong>stunted</strong> (HAZ &lt; −2 SD), approaching severe stunting.</p>
+<h4>Micronutrient deficiencies ("hidden hunger")</h4>
+<table><tr><th>Micronutrient</th><th>Deficiency disorder</th><th>Public-health response</th></tr><tr><td>Iron</td><td>Anaemia, impaired cognition, maternal mortality risk</td><td>Iron-folic acid supplementation, fortification, deworming</td></tr><tr><td>Vitamin A</td><td>Xerophthalmia, night blindness, increased infection mortality</td><td>High-dose supplementation, food fortification (e.g. cooking oil), dietary diversification</td></tr><tr><td>Iodine</td><td>Goitre, cretinism, impaired cognitive development</td><td>Universal salt iodisation</td></tr><tr><td>Zinc</td><td>Growth faltering, impaired immunity, diarrhoea severity</td><td>Zinc in diarrhoea management, supplementation/fortification</td></tr></table>
+<div class="callout callout-blue">"Hidden hunger" can coexist with a normal or even high BMI — a key reason anthropometry alone is insufficient (see Section 3 and PYQ Q2).</div>
+</div><div id="ma-double"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚖️</span> The Double Burden of Malnutrition</div>
+<p>Countries, communities and even individual households — and sometimes a single individual across the life-course — increasingly experience <strong>co-existing under- and overnutrition</strong>: stunted children alongside overweight adults in the same family, or a formerly stunted child who becomes an overweight adolescent.</p>
+<ul><li>Driven by the nutrition transition: cheap, energy-dense ultra-processed food, urbanisation, and reduced physical activity, layered onto a population still carrying unresolved undernutrition.</li><li>Consequence: early stunting followed by later obesity increases NCD risk more than either problem alone (Barker hypothesis / 'thrifty phenotype').</li></ul>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🔎 Deep dive — the biological mechanism behind "early stunting, later obesity" <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>The <strong>Developmental Origins of Health and Disease (DOHaD)</strong> framework, building on Barker's original epidemiological observations in the 1980s–90s, proposes that a fetus or infant exposed to poor nutrition adapts metabolically to conserve energy — reduced pancreatic beta-cell mass, altered muscle fibre composition, and a preference for fat storage over lean tissue accretion ("thrifty phenotype"). If that same child then encounters an energy-dense, low-activity environment postnatally (common in rapidly urbanising settings), the mismatch between prenatal "programming" for scarcity and postnatal abundance drives central adiposity, insulin resistance and early-onset type 2 diabetes and hypertension — often at a lower BMI than in populations without early undernutrition.</p>
+<p>This is why WHO recommends lower BMI action thresholds for some Asian populations (see Section 3) and why stunting prevention is now framed as <em>NCD</em> prevention, not only child-survival policy.</p>
+</div>
+</div>
+<div class="callout callout-orange">National health surveys in Malaysia and comparable middle-income countries typically report high adult obesity and diabetes prevalence alongside persistent child stunting in specific vulnerable subgroups — a textbook double burden that resists single-sector solutions.</div>
+</div><div id="ma-ncd"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🩸</span> Diet & NCDs — mechanisms and evidence</div>
+<ul><li><strong>Excess sodium</strong> → increases extracellular fluid volume and peripheral vascular resistance → hypertension → stroke and ischaemic heart disease risk.</li><li><strong>Trans and saturated fat</strong> → raises LDL cholesterol via reduced hepatic LDL-receptor activity → atherogenesis, dyslipidaemia, CVD.</li><li><strong>Free sugars</strong> → dental caries (fermentable substrate for oral bacteria), positive energy balance and weight gain, and chronic hyperinsulinaemia contributing to insulin resistance and type 2 diabetes.</li><li><strong>Low fruit, vegetable and whole-grain intake</strong> → less fibre, potassium and antioxidants → higher CVD and some cancer risk (colorectal in particular, per WCRF/AICR evidence).</li></ul>
+<h4>calc — worked example: quantifying a diet–disease association</h4>
+<p>A hypothetical cohort of 1,000 adults is followed for 10 years. 300 report habitually high sodium intake (&gt;5 g/day); 700 report intake within the WHO-recommended range (&lt;5 g/day).</p>
+<table><tr><th></th><th>Developed hypertension</th><th>No hypertension</th><th>Total</th></tr><tr><td>High sodium</td><td>120</td><td>180</td><td>300</td></tr><tr><td>Low/normal sodium</td><td>105</td><td>595</td><td>700</td></tr></table>
+<p>Risk in exposed = 120/300 = 0.40; Risk in unexposed = 105/700 = 0.15.<br><strong>Relative Risk (RR)</strong> = 0.40 / 0.15 = <strong>2.67</strong> — high sodium intake is associated with 2.67 times the risk of developing hypertension over 10 years compared with normal intake.<br><strong>Attributable risk (AR)</strong> = 0.40 − 0.15 = 0.25, i.e. 25 percentage points of hypertension risk in the high-sodium group is attributable to their sodium intake.<br><strong>Population Attributable Risk (PAR)%</strong> ≈ [ (overall risk − risk in unexposed) / overall risk ] × 100 — illustrating why salt-reduction policy can meaningfully shift population-level hypertension burden even with a modest RR, because exposure prevalence is high (a Rothman/Gordis-style teaching point on why population strategies often outperform individually-targeted ones for common exposures).</p>
+<h4>WHO 'best buys' for NCD prevention (diet-related)</h4>
+<table><tr><th>Best buy</th><th>Mechanism of effect</th></tr><tr><td>Salt reduction (reformulation, targets)</td><td>Lowers population mean blood pressure</td></tr><tr><td>Taxation of sugar-sweetened beverages</td><td>Reduces consumption via price elasticity (evidence from Mexico, UK soft-drinks levy)</td></tr><tr><td>Front-of-pack nutrition labelling</td><td>Improves informed choice at point of purchase</td></tr><tr><td>Restricting marketing of unhealthy food to children</td><td>Reduces pester-power driven demand and early taste preference formation</td></tr></table>
+<div class="callout callout-green">Diet-related NCDs are a leading contributor to global <strong>DALYs</strong> (disability-adjusted life years) — combining years of life lost to premature death and years lived with disability — which is why nutrition policy is evaluated using DALYs averted, not just mortality.</div>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Nutritional Assessment (ABCD)</div>
+  <div class="page-sub">Source: GKT 513 Course Notes — Assessment; Anthropometry (WHO Growth Standards, Gordis)</div>
+<div id="as-abcd"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📏</span> The ABCD of Assessment</div>
+<p>Four complementary methods, ideally combined ("triangulation"):</p>
+<table><tr><th>Method</th><th>What it measures</th><th>Tool</th></tr><tr><td>Anthropometric</td><td>Body size/composition</td><td>Weight, height, MUAC, BMI, skinfolds</td></tr><tr><td>Biochemical</td><td>Status of nutrients/biomarkers</td><td>Hb, ferritin, glucose, lipids, serum albumin</td></tr><tr><td>Dietary</td><td>Intake</td><td>24-h recall, FFQ, food record</td></tr><tr><td>Clinical</td><td>Signs/symptoms of deficiency</td><td>Physical exam, oedema, hair/skin/eye signs</td></tr></table>
+<div class="callout callout-blue">No single method is sufficient — triangulation improves validity. An anthropometrically "normal" child can still be biochemically iron-deficient; a clinically well child can be dietarily inadequate but not yet showing signs.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🔎 Deep dive — Screening vs Assessment vs Surveillance vs Survey <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>These four terms are frequently confused in exam answers (Porta's <em>Dictionary of Epidemiology</em> is the standard reference for precise definitions):</p>
+<ul><li><strong>Screening</strong> — a rapid, simple test applied to apparently healthy individuals to identify those who <em>probably</em> have a condition, for referral to diagnostic assessment (e.g., MUAC tape screening at a village outreach post).</li><li><strong>Assessment</strong> — a more detailed evaluation (often ABCD, combined) of an individual's nutritional status, typically following a positive screen or in a clinical setting.</li><li><strong>Surveillance</strong> — ongoing, systematic collection and analysis of data over time to detect trends and trigger action (e.g., a national nutrition surveillance system tracking stunting prevalence annually).</li><li><strong>Survey</strong> — a one-off (or periodic), representative data collection exercise to estimate prevalence at a point in time (e.g., a national health and morbidity survey).</li></ul>
+</div>
+</div>
+</div><div id="as-anth"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📐</span> Anthropometry & Indices</div>
+<ul><li><strong>BMI</strong> = weight(kg)/height(m)²; WHO standard adult cut-offs: &lt;18.5 underweight, 18.5–24.9 normal, 25–29.9 overweight, ≥30 obese.</li><li><strong>Child indices:</strong> weight-for-age (underweight), height-for-age (stunting), weight-for-height (wasting), MUAC for acute malnutrition.</li><li><strong>WHO growth standards</strong> (2006, based on healthy breastfed children across 6 countries) define the −2 SD / +2 SD cut-offs used worldwide.</li></ul>
+<h4>calc — worked example: adult BMI classification</h4>
+<p>An adult weighs 68 kg and is 1.60 m tall. BMI = 68 / (1.60)² = 68 / 2.56 = <strong>26.6 kg/m²</strong> → classified as <em>overweight</em> under WHO standard cut-offs.</p>
+<div class="callout callout-orange"><strong>Ethnicity-specific cut-offs:</strong> WHO Western Pacific/IASO guidance for Asian populations lowers action points because Asians tend to have higher body-fat percentage and cardiometabolic risk at a given BMI: overweight ≥23 kg/m², obese ≥27.5 kg/m² (commonly applied in Malaysian clinical and public-health practice, alongside the international cut-offs). Using the same 26.6 kg/m² example above under Asian cut-offs, the same individual would already be classified <em>obese</em> (≥27.5 is obese, 23–27.4 overweight — so 26.6 remains "overweight" here, but the threshold for concern is reached far earlier than the international 25.0 cut-off).</div>
+<h4>MUAC (Mid-Upper Arm Circumference) — a simple field screening tool</h4>
+<table><tr><th>MUAC (children 6–59 months)</th><th>Classification</th></tr><tr><td>&lt; 11.5 cm</td><td>Severe acute malnutrition (SAM)</td></tr><tr><td>11.5 – &lt;12.5 cm</td><td>Moderate acute malnutrition (MAM)</td></tr><tr><td>≥ 12.5 cm</td><td>No acute malnutrition</td></tr></table>
+<p>MUAC requires no weight/height equipment, is age-independent within the 6–59 month band, and is strongly predictive of mortality risk — this is why community health workers are trained to use MUAC tapes for rapid case-finding, referring positives for full ABCD assessment.</p>
+<h4>calc — worked example: sensitivity, specificity and PPV of MUAC screening</h4>
+<p>A screening exercise tests MUAC against a gold-standard clinical/anthropometric diagnosis of SAM in 500 children:</p>
+<table><tr><th></th><th>True SAM (gold standard)</th><th>No SAM</th><th>Total</th></tr><tr><td>MUAC positive (&lt;11.5cm)</td><td>38</td><td>12</td><td>50</td></tr><tr><td>MUAC negative</td><td>7</td><td>443</td><td>450</td></tr><tr><td>Total</td><td>45</td><td>455</td><td>500</td></tr></table>
+<p><strong>Sensitivity</strong> = 38/45 = <strong>84.4%</strong> (proportion of true SAM cases correctly identified).<br><strong>Specificity</strong> = 443/455 = <strong>97.4%</strong> (proportion of non-SAM correctly excluded).<br><strong>Positive predictive value (PPV)</strong> = 38/50 = <strong>76%</strong> (of those flagged positive, the proportion who truly have SAM) — PPV depends on prevalence, so it will be lower again in a lower-prevalence population, a common exam trap.<br><strong>Negative predictive value (NPV)</strong> = 443/450 = <strong>98.4%</strong>.</p>
+</div><div id="as-diet"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🍽️</span> Dietary Assessment Methods</div>
+<ul><li><strong>24-hour recall</strong> — quick, low respondent burden, but subject to recall bias and single-day intake may not reflect usual diet; repeated non-consecutive days improve accuracy.</li><li><strong>Food frequency questionnaire (FFQ)</strong> — captures usual/long-term intake and is efficient for large surveys, but gives less quantitative detail and depends on a pre-defined food list (may miss local/mixed dishes).</li><li><strong>Food record / weighed intake</strong> — most precise, prospective (avoids recall bias) but burdensome and prone to reactivity (people eat differently while being observed/recording).</li><li><strong>Biomarkers</strong> (e.g., 24-h urinary sodium excretion, doubly-labelled water for energy expenditure) are objective and not subject to reporting bias, but are costly and often only feasible in sub-samples.</li></ul>
+<table><tr><th>Method</th><th>Best for</th><th>Main bias/limitation</th></tr><tr><td>24-h recall</td><td>Population mean intake (with repeats)</td><td>Recall bias, day-to-day variation</td></tr><tr><td>FFQ</td><td>Ranking individuals, usual intake, large surveys</td><td>Limited detail, list-dependent</td></tr><tr><td>Weighed food record</td><td>Detailed individual intake</td><td>Respondent burden, reactivity</td></tr><tr><td>Biomarkers</td><td>Objective validation</td><td>Cost, limited nutrients available</td></tr></table>
+<div class="callout callout-green">Choose method by research question, resources and respondent burden — and remember that dietary assessment tools should ideally be <strong>validated against a biomarker</strong> in the target population before being trusted for surveillance decisions.</div>
+<h4>calc — worked example: prevalence with a 95% confidence interval in a nutrition survey</h4>
+<p>A cross-sectional survey of 600 children under 5 in a district finds 138 stunted (HAZ &lt; −2 SD).</p>
+<p>Point prevalence = 138/600 = 0.23 = <strong>23.0%</strong>.<br>95% CI = p ± 1.96 × √[p(1−p)/n] = 0.23 ± 1.96 × √(0.23×0.77/600) = 0.23 ± 0.0337 → <strong>19.6% to 26.4%</strong>.<br>This CI tells us that, if we repeated the survey many times, 95% of such intervals would contain the true district stunting prevalence — important when comparing this district against a national target (e.g., WHO Global Nutrition Target) to judge whether an observed difference is likely to be real or within sampling error.</p>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Life-Course Nutrition</div>
+  <div class="page-sub">Source: GKT 513 Course Notes — Pregnancy, Breastfeeding, Adolescent, Elderly (WHO, UNICEF, Lancet Maternal & Child Nutrition Series)</div>
+<div id="lc-mat"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🤱</span> Maternal & Infant Nutrition</div>
+<ul><li><strong>Preconception & pregnancy:</strong> folate (prevents neural tube defects — most effective if started before conception), iron (prevents maternal anaemia and low birth weight), iodine (fetal neurodevelopment), adequate gestational weight gain; maternal anaemia and undernutrition in pregnancy are strongly linked to fetal growth restriction and later childhood stunting.</li><li><strong>Complementary feeding:</strong> should be timely (starting at ≈6 months, not before or long after), adequate (meets energy/nutrient needs), safe (hygienically prepared and stored) and responsive (feeding cues followed, active encouragement) — the WHO "timely, adequate, safe, responsive" framework — introduced alongside continued breastfeeding, not replacing it.</li><li><strong>First 1,000 days</strong> (conception to a child's 2nd birthday) is the critical, largely non-repeatable window for brain and physical development — the single most cited framing concept in maternal-child nutrition policy.</li></ul>
+<div class="callout callout-purple">Barker hypothesis / <strong>DOHaD</strong>: fetal undernutrition "programmes" later hypertension, coronary heart disease and diabetes — the fetus adapts to a nutrient-poor environment in ways that become disadvantageous if postnatal nutrition is abundant (see Section 2 double-burden mechanism).</div>
+<h4>calc — worked example: risk ratio of low birth weight associated with maternal anaemia</h4>
+<p>Among 500 pregnant women followed to delivery: 150 had anaemia (Hb &lt;11 g/dL) in the third trimester, 350 did not. Low birth weight (&lt;2,500g) occurred in 45 of the anaemic group and 35 of the non-anaemic group.</p>
+<p>Risk in anaemic = 45/150 = 0.30; Risk in non-anaemic = 35/350 = 0.10.<br>RR = 0.30/0.10 = <strong>3.0</strong> — infants of anaemic mothers in this sample had three times the risk of low birth weight, consistent with the established maternal-anaemia → intrauterine-growth-restriction pathway and reinforcing why antenatal iron-folic acid supplementation is a global priority intervention.</p>
+<h4>Gestational diabetes mellitus (GDM) — an overnutrition-related maternal risk</h4>
+<p>GDM illustrates the double burden at the level of a single pregnancy: excess maternal adiposity/glucose intolerance can coexist with fetal macrosomia <em>and</em> later childhood obesity risk in the offspring, while also increasing maternal risk of type 2 diabetes post-partum — again a DOHaD-consistent pathway, but running through overnutrition rather than undernutrition.</p>
+</div><div id="lc-bf"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🍼</span> Breastfeeding</div>
+<p>Protective for infants (reduced infection, allergy risk, improved cognitive outcomes) and mothers (reduced breast and ovarian cancer risk, birth spacing via lactational amenorrhoea). WHO recommends <strong>exclusive breastfeeding for the first 6 months</strong>, continued to 2 years or beyond alongside appropriate complementary foods.</p>
+<ul><li><strong>WHO/UNICEF International Code of Marketing of Breast-milk Substitutes (1981):</strong> restricts marketing of breast-milk substitutes to protect breastfeeding from commercial pressure.</li><li>Malaysia has adopted elements of the Code into domestic regulation; ongoing monitoring of code violations (e.g., health-facility promotion, misleading labelling) remains a public-health advocacy priority.</li><li><strong>Baby-Friendly Hospital Initiative (BFHI)</strong> — WHO/UNICEF's "Ten Steps to Successful Breastfeeding" for maternity facilities, operationalising Code principles at the point of birth (e.g., early skin-to-skin contact, rooming-in, no free formula samples).</li></ul>
+<div class="callout callout-red">The <em>International Code of Marketing of Breast-milk Substitutes</em> bans advertising, free samples, and health-facility promotion of formula, and prohibits idealising images (e.g., of infants) on formula packaging.</div>
+<h4>calc — worked example: exclusive breastfeeding (EBF) rate</h4>
+<p>In a survey of 250 mothers of infants aged 0–5 months, 145 report the infant received breast milk only (no other liquids/solids, aside from prescribed medicine) in the previous 24 hours.</p>
+<p>EBF rate = 145/250 × 100 = <strong>58%</strong>. Comparing this against the WHO Global Nutrition Target of ≥50% exclusive breastfeeding shows the district is currently meeting the minimum target, but examiners often ask what could still be improved: duration (rate can fall sharply after 3 months), and equity (rate may be lower among working mothers without adequate maternity protection or lactation breaks).</p>
+<h4>Common barriers to exclusive breastfeeding</h4>
+<ul><li>Early return to work without paid leave or lactation facilities.</li><li>Aggressive or informal marketing of formula, including through health workers.</li><li>Cultural beliefs that breast milk alone is "not enough," prompting early water/formula introduction.</li><li>Lack of skilled breastfeeding support in the immediate postnatal period (poor latch, perceived low supply).</li></ul>
+</div><div id="lc-ae"></div>
+<div class="card">
+<div class="card-title"><span class="icon">👵</span> Adolescent & Elderly Nutrition</div>
+<ul><li><strong>Adolescence:</strong> high requirements to support the growth spurt; iron needs rise sharply after menarche (menstrual losses); calcium and vitamin D needed for peak bone mass accrual; disordered eating patterns and rising obesity risk both occur in this age group, often in the same population.</li><li><strong>Elderly:</strong> sarcopenia (age-related loss of muscle mass and strength) increases fall and frailty risk; reduced appetite/intake ("anorexia of ageing"); higher needs for vitamin D and B12 (reduced absorption with age, especially after long-term metformin use or reduced gastric acid); protein needs are often <em>higher</em> per kg body weight than in younger adults to counter anabolic resistance; food insecurity and chewing/swallowing (dysphagia) problems compound risk.</li></ul>
+<h4>Screening and diagnostic tools by life stage</h4>
+<table><tr><th>Life stage</th><th>Key screening/diagnostic tool</th></tr><tr><td>Adolescent</td><td>BMI-for-age percentiles/Z-scores; eating-disorder screening questionnaires</td></tr><tr><td>Elderly</td><td>Mini Nutritional Assessment (MNA); grip strength and gait speed for sarcopenia (per Asian Working Group for Sarcopenia criteria)</td></tr></table>
+<div class="callout callout-blue">A life-course lens means nutrition programming should not stop at "under-5" — adolescent nutrition (especially in girls, as future mothers) and elderly nutrition are both increasingly prioritised in national nutrition plans, including Malaysia's, given population ageing.</div>
+</div>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Food Security, Safety & Policy</div>
+  <div class="page-sub">Source: GKT 513 Course Notes — Food Security, Safety, Interventions (WHO, FAO, Malaysia NPANM)</div>
+<div id="fs-safe"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧫</span> Food Safety</div>
+<p>Food safety prevents foodborne illness across the entire food chain ("farm to fork"). Key hazards: biological (<em>Salmonella</em>, <em>Campylobacter</em>, <em>E. coli</em>, norovirus), chemical (pesticide residues, heavy metals, mycotoxins, food additives beyond safe limits), and physical (glass, metal fragments).</p>
+<ul><li><strong>Five keys to safer food</strong> (WHO): keep clean; separate raw and cooked; cook thoroughly; keep food at safe temperatures; use safe water and raw materials.</li><li><strong>HACCP</strong> (Hazard Analysis and Critical Control Points) and GAP/GMP (Good Agricultural/Manufacturing Practice) in production and processing; surveillance systems detect and respond to outbreaks.</li></ul>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🔎 Deep dive — HACCP's seven principles & an outbreak-investigation link to epidemiology <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<ol><li>Conduct a hazard analysis.</li><li>Identify critical control points (CCPs) — steps where control is essential to prevent/eliminate a hazard.</li><li>Establish critical limits for each CCP (e.g., minimum cooking temperature).</li><li>Establish monitoring procedures.</li><li>Establish corrective actions for when a critical limit is not met.</li><li>Establish verification procedures.</li><li>Establish documentation and record-keeping.</li></ol>
+<p>When a foodborne outbreak does occur, investigation follows standard epidemiological steps (as in general epidemiology): confirm the outbreak exists (compare observed vs expected cases), define a case, count cases and plot an epidemic curve, characterise by person/place/time, generate a hypothesis about the vehicle (often via a case-control study comparing food exposures between ill and well individuals — computing an <strong>odds ratio</strong> for each food item), and implement control measures at the implicated CCP.</p>
+</div>
+</div>
+</div><div id="fs-int"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🛠️</span> Nutrition Interventions</div>
+<table><tr><th>Level</th><th>Examples</th></tr><tr><td>Food/subsidy</td><td>Food assistance, school feeding programmes, fortified staples (e.g., iodised salt, fortified flour)</td></tr><tr><td>Nutrition-specific</td><td>Micronutrient supplementation, breastfeeding support/counselling, Community-based Management of Acute Malnutrition (CMAM)</td></tr><tr><td>Nutrition-sensitive</td><td>Agriculture (biofortification, homestead gardens), social protection (cash transfers), WASH, girls' education</td></tr></table>
+<div class="callout callout-green"><strong>Community-based Management of Acute Malnutrition (CMAM)</strong> decentralises treatment of severe acute malnutrition (SAM) to outpatient/community care using Ready-to-Use Therapeutic Food (RUTF), reserving inpatient care for SAM with medical complications or poor appetite ("appetite test" as a triage tool). Moderate acute malnutrition (MAM) is typically managed with supplementary feeding (e.g., Ready-to-Use Supplementary Food, RUSF) rather than RUTF.</div>
+<h4>calc — worked example: Number Needed to Treat (NNT) for a fortification programme</h4>
+<p>A community trial of iron-fortified flour reduces anaemia prevalence from 32% (control) to 22% (fortified) over 12 months.</p>
+<p>Absolute Risk Reduction (ARR) = 0.32 − 0.22 = 0.10.<br>NNT = 1/ARR = 1/0.10 = <strong>10</strong> — ten people need to consume iron-fortified flour for 12 months to prevent one additional case of anaemia, compared with unfortified flour. Small NNTs strengthen the case for mandatory, population-wide fortification over voluntary approaches, since fortification reaches the whole population passively rather than depending on individual uptake.</p>
+</div><div id="fs-pol"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🏛️</span> Policy & Governance</div>
+<ul><li>Malaysia: <strong>National Plan of Action for Nutrition of Malaysia (NPANM)</strong>, now in its third iteration, sets national targets across the life-course (maternal, child, adolescent, elderly, food safety, surveillance); <strong>Recommended Nutrient Intakes (RNI)</strong> for Malaysia set nutrient-specific targets; the Malaysian Dietary Guidelines and food-based dietary guideline "quarter-quarter-half plate" model translate RNI into everyday practice.</li><li>Fiscal and regulatory tools: excise tax on sugar-sweetened beverages, mandatory/voluntary front-of-pack nutrition labelling (e.g., "Healthier Choice" logo schemes), fortification mandates (e.g., iodised salt, vitamin A in cooking oil in some settings).</li><li>International: <strong>WHO Global Nutrition Targets 2025</strong> — six targets covering stunting (40% reduction), anaemia in women of reproductive age (50% reduction), low birth weight (30% reduction), no increase in childhood overweight, increasing exclusive breastfeeding to ≥50%, and reducing/holding wasting below 5%; and <strong>SDG 2 (Zero Hunger)</strong>, which nests nutrition targets within the broader 2030 Sustainable Development Goals agenda.</li></ul>
+<div class="callout callout-orange">Effective nutrition policy requires multisectoral action — the health sector alone cannot fix the food environment; agriculture, trade, education, finance and urban-planning sectors all shape what food is available, affordable and marketed. This is often summarised as moving "nutrition" out of the health ministry silo and into whole-of-government planning (echoing Marmot's argument that health inequalities require action on the social determinants, not health-service delivery alone).</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">🔎 Deep dive — why multisectoral nutrition policy is politically hard <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Nutrition policy frequently competes with powerful commercial interests (food and beverage industry) whose products may be implicated in the very NCD burden the policy targets — a dynamic sometimes called the "political economy of food." Effective governance structures (e.g., a high-level multisectoral nutrition council with authority over budget, rather than an advisory committee only) and transparent conflict-of-interest management in policy-setting are increasingly emphasised in global guidance (WHO, Lancet Nutrition Series) as preconditions for translating evidence into enforceable policy such as sugar taxes or marketing restrictions.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 513 past-year papers</div>
+<div id="pyq-1"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">Double Burden</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Explain the 'double burden of malnutrition' and why it matters for a middle-income country such as Malaysia.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: definition 5 · mechanism 5 · Malaysia relevance 5</div>
+<div class="ans-section"><div class="ans-section-title">Definition</div><p>The double burden = co-existence of undernutrition (stunting, wasting, micronutrient deficiency) and overnutrition (overweight, obesity, diet-related NCDs) within the same country, community, household or — across the life-course — the same individual.</p></div>
+<div class="ans-section"><div class="ans-section-title">Mechanism</div><p>Driven by the nutrition transition (Popkin) and the 'thrifty phenotype' (Barker/DOHaD): intrauterine growth restriction or early undernutrition followed by postnatal overnutrition programmes later obesity, insulin resistance and CVD — so early stunting raises later NCD risk rather than protecting against it.</p>
+<div class="subpart"><div class="subpart-label">Worth adding for higher marks</div><p>Asian-specific BMI cut-offs (overweight ≥23, obese ≥27.5 kg/m²) exist precisely because populations with a history of early undernutrition develop cardiometabolic risk at a lower BMI — direct evidence linking the mechanism to real clinical practice.</p></div></div>
+<div class="ans-section"><div class="ans-section-title">Malaysia relevance</div><p>National surveys typically show high adult obesity/diabetes prevalence alongside persistent child stunting in vulnerable subgroups (e.g., low-income, rural or indigenous communities, urban poor) — demanding integrated programmes that tackle both ends simultaneously (e.g., a school-feeding programme designed to prevent both underweight <em>and</em> excess weight gain) rather than treating undernutrition and obesity as separate portfolios.</p></div>
+</div>
+</div><div id="pyq-2"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Assessment</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">A nutritionist must assess the nutritional status of children in a rural clinic. Describe the ABCD approach and name one limitation of relying on anthropometry alone.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: ABCD 8 · limitation with example 4 · field-appropriate tool justification 3</div>
+<div class="ans-section"><div class="ans-section-title">ABCD</div><ul><li><strong>Anthropometric:</strong> weight, height, MUAC, BMI — body size/composition.</li><li><strong>Biochemical:</strong> Hb, ferritin, glucose — biomarker status.</li><li><strong>Dietary:</strong> 24-h recall, FFQ — intake.</li><li><strong>Clinical:</strong> physical signs — oedema, pallor, hair/skin changes.</li></ul></div>
+<div class="ans-section"><div class="ans-section-title">Limitation</div><p>Anthropometry alone cannot reveal <strong>hidden hunger</strong> (micronutrient deficiencies without an overt size deficit, e.g., iron or vitamin A deficiency in a child with normal weight-for-height) and cannot distinguish nutritional oedema (kwashiorkor) from true tissue mass gain on a weight scale — hence the need to combine with clinical and biochemical methods.</p></div>
+<div class="ans-section"><div class="ans-section-title">Field-appropriate tool</div><p>In a rural/resource-limited clinic, MUAC is a practical first-line anthropometric screening tool — it needs no calibrated scale or height board, is quick, low-cost, and strongly predictive of mortality risk, allowing rapid identification of children needing referral for full ABCD assessment and possible CMAM enrolment.</p></div>
+</div>
+</div><div id="pyq-3"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q3</span>
+<span class="q-topic">Breastfeeding & Code</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Outline the WHO International Code of Marketing of Breast-milk Substitutes and explain its public-health rationale.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: code content 8 · rationale 7</div>
+<div class="ans-section"><div class="ans-section-title">Code content</div><p>Adopted 1981 by the World Health Assembly: bans advertising of breast-milk substitutes, bottles and teats to the public; no free samples to mothers, families or health workers; no promotion in health facilities; labels must not idealise formula feeding (e.g., no pictures of infants, no language implying superiority); no gifts or financial inducements to health workers to promote products.</p>
+<div class="subpart"><div class="subpart-label">Operational extension</div><p>The Baby-Friendly Hospital Initiative (BFHI) "Ten Steps" operationalise the Code inside maternity facilities — e.g., no formula given to breastfed infants without medical indication, mothers supported with early skin-to-skin contact and rooming-in — turning a marketing-restriction instrument into a practical clinical-care standard.</p></div></div>
+<div class="ans-section"><div class="ans-section-title">Rationale</div><p>Aggressive marketing undermines breastfeeding, which is the safest, cheapest, most complete infant food and protects against infection, allergy and later NCD risk. Protecting breastfeeding from commercial pressure reduces infant morbidity and mortality and lowers health-system costs — especially critical where safe water and sterilisation for formula preparation are unreliable, since incorrectly prepared formula carries a real risk of diarrhoeal disease.</p></div>
+</div>
+</div><div id="pyq-4"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q4</span>
+<span class="q-topic">Calculation — Prevalence & Risk</span>
+<span class="q-marks">10 marks</span>
+</div>
+<div class="q-stem">A survey of 800 children under 5 in a district finds 176 with weight-for-height Z-score &lt; −2 SD (wasting). Of these wasted children, 40 also had a recent diarrhoeal illness, compared with 96 diarrhoeal cases among the 624 non-wasted children. (a) Calculate the prevalence of wasting with its 95% CI. (b) Calculate the relative risk of wasting associated with recent diarrhoea and interpret it.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 10 marks: prevalence + CI 4 · RR calculation 4 · interpretation 2</div>
+<div class="ans-section"><div class="ans-section-title">(a) Prevalence of wasting</div><p>Prevalence = 176/800 = 0.22 = <strong>22.0%</strong>.<br>95% CI = 0.22 ± 1.96√(0.22×0.78/800) = 0.22 ± 0.0287 → <strong>19.1% to 24.9%</strong>.</p></div>
+<div class="ans-section"><div class="ans-section-title">(b) Relative risk (diarrhoea → wasting)</div><p>Risk of wasting given diarrhoea = 40/(40+96) = 40/136 = 0.294.<br>Risk of wasting given no diarrhoea = (176−40)/(800−136) = 136/664 = 0.205.<br>RR = 0.294/0.205 ≈ <strong>1.44</strong>.</p><p><strong>Interpretation:</strong> children with a recent diarrhoeal illness had approximately 1.44 times the risk of being wasted compared with children without recent diarrhoea in this survey — consistent with the known bidirectional relationship between infection and undernutrition (diarrhoea reduces nutrient absorption and appetite; undernutrition impairs immune function and increases infection susceptibility), a cycle central to the UNICEF conceptual framework's "immediate causes" (diet <em>and</em> disease, acting together).</p></div>
+</div>
+</div><div id="pyq-5"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q5</span>
+<span class="q-topic">Policy</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Critically discuss why nutrition policy requires multisectoral action, using WHO's 'best buys' and Malaysia's National Plan of Action for Nutrition as examples.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: rationale for multisectoral action 6 · best buys examples 5 · Malaysia/NPANM example 4</div>
+<div class="ans-section"><div class="ans-section-title">Rationale</div><p>Nutritional status is shaped by determinants outside the health sector's direct control — agricultural production and pricing, trade policy, urban food-retail environments, education (especially of girls/women), and social protection. A health-sector-only response (e.g., dietary counselling) cannot change food price, availability or marketing exposure, so outcomes remain constrained by upstream structural causes (see the UNICEF conceptual framework's "basic causes" level).</p></div>
+<div class="ans-section"><div class="ans-section-title">Best buys as multisectoral examples</div><ul><li>Sugar-sweetened beverage taxation — requires finance/treasury cooperation, not just health-ministry endorsement.</li><li>Marketing restrictions to children — requires media/broadcast regulation.</li><li>Front-of-pack labelling — requires trade/standards agencies to set and enforce format.</li></ul></div>
+<div class="ans-section"><div class="ans-section-title">Malaysia example</div><p>NPANM sets nutrition targets that depend on coordinated action across agriculture (food fortification supply chains), education (school feeding and nutrition education), local government (food-safety enforcement) and finance (SSB tax) — illustrating that a "Plan of Action for Nutrition" is, by design, a whole-of-government instrument rather than a health-ministry programme alone, echoing the broader public-health principle (Marmot) that reducing health inequalities requires action on social determinants, not health services in isolation.</p></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Introduction & Concepts", "sec2": "Malnutrition & NCDs", "sec3": "Nutritional Assessment", "sec4": "Life-Course Nutrition", "sec5": "Food Security & Policy", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt513_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt513_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt513_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>

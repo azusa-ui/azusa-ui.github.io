@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 517 Research Project</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 517</h2>
+      <div style="font-size:11px;color:var(--text3)">Research Project</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Research Process & Question</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('rp-proc')">Research Process</a><a onclick="scrollTo('rp-rq')">Research Question</a><a onclick="scrollTo('rp-pico')">PICO & Objectives</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Literature & Protocol</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('lt-search')">Literature Search</a><a onclick="scrollTo('lt-rev')">Review Types</a><a onclick="scrollTo('lt-prot')">Protocol & Proposal</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Study Design & Sampling</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('sd-cho')">Design Choice</a><a onclick="scrollTo('sd-samp')">Sampling</a><a onclick="scrollTo('sd-size')">Sample Size</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Data & Measurement</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('dm-col')">Data Collection</a><a onclick="scrollTo('dm-vr')">Validity & Reliability</a><a onclick="scrollTo('dm-tools')">Tools</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Analysis, Writing & Ethics</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('an-plan')">Analysis Plan</a><a onclick="scrollTo('an-write')">Thesis Writing</a><a onclick="scrollTo('an-eth')">Research Ethics</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1 RQ/Design</a><a onclick="scrollTo('pyq-2')">Q2 Sampling/Size</a><a onclick="scrollTo('pyq-3')">Q3 Ethics</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 517 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Research Project</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first!
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Research Process & Question</div><div class="hc-sub">Problem, RQ, objectives, PICO</div><div class="hc-badge"><span class="tag tag-blue">RQ</span><span class="tag tag-orange">PICO</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Literature & Protocol</div><div class="hc-sub">Search, review, protocol, proposal</div><div class="hc-badge"><span class="tag tag-green">Review</span><span class="tag tag-purple">Protocol</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Study Design & Sampling</div><div class="hc-sub">Design choice, sampling, size</div><div class="hc-badge"><span class="tag tag-blue">Design</span><span class="tag tag-red">Sample</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Data & Measurement</div><div class="hc-sub">Collection, validity, reliability, tools</div><div class="hc-badge"><span class="tag tag-green">Validity</span><span class="tag tag-orange">Tools</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Analysis, Writing & Ethics</div><div class="hc-sub">Analysis plan, thesis, ethics</div><div class="hc-badge"><span class="tag tag-blue">Analysis</span><span class="tag tag-red">Ethics</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. The Research Process & Question</div>
+  <div class="page-sub">Source: GKT 517 Course Notes — Concept, Problem, Objectives, RQ</div>
+<div id="rp-proc"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔄</span> The Research Process</div>
+<ol><li>Identify a research problem (gap in knowledge/practice).</li><li>Review literature; refine the problem.</li><li>State research question(s) &amp; objectives/hypotheses.</li><li>Design the study &amp; sampling.</li><li>Collect &amp; analyse data.</li><li>Interpret, write up, disseminate, apply.</li></ol><div class="callout callout-blue">An iterative, not strictly linear, cycle — proposals often loop back after literature review.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Why the cycle is iterative, not linear <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Textbooks draw the research process as a straight line (problem → literature → question → design → data → write-up) for teaching purposes, but in practice each step feeds back on the ones before it. This matters for grading and for real projects because examiners expect you to show awareness of the looping, not just recite the list.</p>
+<ul>
+<li><strong>Literature review reshapes the problem.</strong> A student starting with "factors associated with poor glycaemic control" may discover, after reading 30 papers, that the construct has already been extensively studied for adherence but not for the specific sub-group of newly-diagnosed patients — the problem statement narrows accordingly.</li>
+<li><strong>Design reshapes the question.</strong> If a cohort design is infeasible within a one-year master's timeline, the RQ may need to shift from "does X cause Y over 5 years" to a cross-sectional "what is the association between X and Y at one point in time" — with the causal language removed.</li>
+<li><strong>Piloting reshapes the instrument, and sometimes the objectives.</strong> A pilot may reveal that a key exposure variable is too sensitive to collect via self-administered questionnaire and needs face-to-face administration, or that a proposed scale has floor/ceiling effects in the local population.</li>
+<li><strong>Ethics review can reshape sampling.</strong> An IRB/JEPeM committee may require an opt-in rather than opt-out consent procedure, which changes the expected response rate and therefore the sample-size calculation.</li>
+</ul>
+<p>Gordis (<em>Epidemiology</em>) frames this as the constant interplay between "what we want to know" and "what we can feasibly and ethically measure" — a mismatch anywhere in the cycle should send you back a step, not forward with a flawed plan.</p>
+</div>
+</div>
+<div class="callout callout-purple"><strong>Exam tip:</strong> When asked to "describe the research process," draw or narrate it as a loop with explicit feedback arrows (literature ⇄ problem, design ⇄ question, pilot ⇄ instrument) rather than a numbered list only — this earns application marks beyond simple recall.</div>
+</div><div id="rp-rq"></div>
+<div class="card">
+<div class="card-title"><span class="icon">❓</span> From Problem to Research Question</div>
+<p>A good RQ is <strong>focused, feasible, and researchable</strong>. It should arise from a clear problem statement and literature gap.</p><ul><li>Quantitative RQ often asks about relationship / difference / frequency.</li><li>Qualitative RQ asks how / why / what is the experience.</li><li>Avoid vague or unanswerable questions.</li></ul><div class="callout callout-orange">A weak RQ dooms the project — spend time here before designing.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">FINER and SMART criteria for a research question <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Two complementary checklists are commonly used to critique a draft RQ before committing to it:</p>
+<table><tr><th>FINER (Hulley et al.)</th><th>What it checks</th></tr>
+<tr><td><strong>F</strong>easible</td><td>Adequate subjects, technical expertise, time, money, manageable scope</td></tr>
+<tr><td><strong>I</strong>nteresting</td><td>Intellectually engaging to the investigator (sustains motivation through a long project)</td></tr>
+<tr><td><strong>N</strong>ovel</td><td>Confirms, refutes, or extends prior findings — not simple duplication</td></tr>
+<tr><td><strong>E</strong>thical</td><td>Amenable to a study that an ethics committee will approve</td></tr>
+<tr><td><strong>R</strong>elevant</td><td>To scientific knowledge, clinical/public-health practice, or future research/policy</td></tr>
+</table>
+<p>Once FINER is satisfied, the RQ itself is often refined against <strong>SMART</strong>: Specific, Measurable, Achievable, Relevant, Time-bound. In practice, "specific" and "measurable" are where most weak RQs fail — e.g. "Is smoking bad for health?" is neither specific (which health outcome? which population?) nor measurable as written.</p>
+<h4>Worked example of RQ refinement</h4>
+<div class="subpart"><div class="subpart-label">Vague draft</div><p>"Does poor diet affect diabetes in Malaysia?"</p></div>
+<div class="subpart"><div class="subpart-label">Refined, FINER-checked RQ</div><p>"Among adults aged 30–65 years with type 2 diabetes attending a primary care clinic, what is the association between high dietary glycaemic index intake (assessed by validated FFQ) and poor glycaemic control (HbA1c ≥ 7%) within the past 6 months?"</p></div>
+<p>Notice the refined version specifies population, exposure with a measurement method, outcome with a threshold, and a time frame — each addition closes off a source of ambiguity that would otherwise cause disagreement between researcher, supervisor and analyst about what is actually being tested.</p>
+</div>
+</div>
+</div><div id="rp-pico"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🎯</span> PICO & Objectives</div>
+<p>Frame quantitative questions with <strong>PICO</strong>:</p><table><tr><th>Letter</th><th>Meaning</th></tr><tr><td>P</td><td>Population / Participants</td></tr><tr><td>I</td><td>Intervention / Exposure</td></tr><tr><td>C</td><td>Comparison</td></tr><tr><td>O</td><td>Outcome</td></tr></table><ul><li>Objectives are specific, measurable statements translating the RQ.</li><li>Primary objective (main) vs secondary objectives.</li></ul><div class="callout callout-green">Well-built PICO makes design, sampling and analysis flow logically.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">PICO variants, and translating PICO into objectives <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>PICO was originally developed for clinical questions about interventions; for observational aetiological or descriptive research the "I" is more naturally read as <strong>Exposure</strong>, giving the variant <strong>PECO</strong> (Population, Exposure, Comparison, Outcome). For prevalence/burden studies without a comparison group, some authors use <strong>PO</strong> only (Population, Outcome) plus a Time/Setting element, sometimes written <strong>PICOT</strong> or <strong>PEO</strong>.</p>
+<table><tr><th>Question type</th><th>Frame</th><th>Example</th></tr>
+<tr><td>Therapy/intervention</td><td>PICO</td><td>Does a text-message reminder (I) vs no reminder (C) improve medication adherence (O) in diabetic patients (P)?</td></tr>
+<tr><td>Aetiology / risk factor</td><td>PECO</td><td>Is night-shift work (E) vs day work (C) associated with higher risk of hypertension (O) among nurses (P)?</td></tr>
+<tr><td>Prevalence / descriptive</td><td>PO(+T)</td><td>What is the prevalence (O) of low back pain (O) among factory workers (P) in the past 12 months (T)?</td></tr>
+<tr><td>Diagnostic accuracy</td><td>PIRO</td><td>In patients with suspected TB (P), how does GeneXpert (I=index test) compare with sputum culture (R=reference standard) for detecting infection (O)?</td></tr>
+</table>
+<h4>Turning PICO into SMART objectives</h4>
+<p>Each PICO element usually maps onto one clause of the objective statement. Using the diabetes-adherence example from PYQ 1:</p>
+<div class="subpart"><div class="subpart-label">Primary objective</div><p>"To determine the prevalence of, and factors associated with, non-adherence to oral hypoglycaemic medication among adults with type 2 diabetes attending [clinic] between [month] and [month] [year]."</p></div>
+<div class="subpart"><div class="subpart-label">Secondary objectives (examples)</div><ul><li>To describe the socio-demographic profile of non-adherent patients.</li><li>To determine the association between health literacy and medication adherence.</li><li>To identify the most commonly reported reasons for non-adherence using the Morisky Medication Adherence Scale (MMAS-8).</li></ul></div>
+<p>Note each objective is measurable (has a named variable/instrument), time-bound, and traceable directly back to a PICO element — an examiner marking an objectives section is essentially checking that every PICO component reappears somewhere in the objectives, and nothing appears in the objectives that wasn't in the PICO/RQ.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Literature Review, Protocol & Proposal</div>
+  <div class="page-sub">Source: GKT 517 Course Notes — Literature, Review, Protocol, Proposal</div>
+<div id="lt-search"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🔎</span> Literature Search & Management</div>
+<p>Systematic, reproducible searching using a defined strategy.</p><ul><li>Databases: PubMed, Scopus, Web of Science, Cochrane, MyJurnal, Google Scholar (supplementary).</li><li>Build a search with MeSH / keywords, Boolean (AND/OR/NOT), limits.</li><li>Manage references with EndNote / Mendeley / Zotero; use a PRISMA flow if systematic.</li></ul><div class="callout callout-blue">Document the search (databases, dates, terms) for reproducibility.</div>
+</div><div id="lt-rev"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📚</span> Types of Review</div>
+<table><tr><th>Type</th><th>Synthesis</th></tr><tr><td>Narrative review</td><td>Thematic, non-systematic</td></tr><tr><td>Systematic review</td><td>Explicit, reproducible, low bias</td></tr><tr><td>Meta-analysis</td><td>Statistical pooling of effect sizes</td></tr><tr><td>Scoping review</td><td>Map breadth of evidence</td></tr></table><div class="callout callout-purple">A protocol (PROSPERO) pre-registers a systematic review to reduce bias.</div>
+</div><div id="lt-prot"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📝</span> Protocol & Research Proposal</div>
+<p>The <strong>protocol</strong> is the detailed plan of the study (the 'rulebook'). The <strong>proposal</strong> justifies and seeks approval for it.</p><ul><li>Proposal sections: title, background, problem, RQ/objectives, significance, methods, ethics, timeline, budget, references.</li><li>A strong proposal shows feasibility, rigour and relevance.</li></ul><div class="callout callout-green">Write the protocol before data collection — it is your quality guarantee and ethics-submission backbone.</div>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Study Design, Sampling & Sample Size</div>
+  <div class="page-sub">Source: GKT 517 Course Notes — Study Design, Sampling, Determination</div>
+<div id="sd-cho"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🌳</span> Choosing a Design</div>
+<p>Design follows the RQ (see GKT 502 module for the taxonomy). For a master's project, feasibility is decisive.</p><ul><li>Aetiologic 'what causes?' → cohort / case-control.</li><li>Prevalence / burden → cross-sectional.</li><li>Intervention → RCT / quasi-experimental (if ethical/feasible).</li><li>Experience/meaning → qualitative (phenomenology, grounded theory).</li></ul><div class="callout callout-orange">Mixed-methods combine quantitative + qualitative to answer complementary questions.</div>
+</div><div id="sd-samp"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🎲</span> Sampling Methods</div>
+<table><tr><th>Probability</th><th>Non-probability</th></tr><tr><td>Simple random</td><td>Convenience</td></tr><tr><td>Systematic</td><td>Purposive</td></tr><tr><td>Stratified</td><td>Quota</td></tr><tr><td>Cluster / multi-stage</td><td>Snowball</td></tr></table><ul><li>Probability sampling → generalisable inference.</li><li>Sample frame must cover the target population.</li></ul><div class="callout callout-blue">The unit of sampling, unit of analysis and unit of inference must be explicit and aligned.</div>
+</div><div id="sd-size"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📐</span> Sample Size & Power</div>
+<ul><li>Determined by: expected effect size, α, power (1−β, ≥0.80), variability, design.</li><li>Use formulas or software (OpenEpi, G*Power, PASS).</li><li>For proportions/means, precision (margin of error) may drive size when no hypothesis test.</li></ul><div class="callout callout-red">Under-powered studies risk type II error; over-sized waste resources. Justify every assumption.</div>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Data Collection, Measurement & Tools</div>
+  <div class="page-sub">Source: GKT 517 Course Notes — Collection, Validity, Reliability, Questionnaire</div>
+<div id="dm-col"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🗂️</span> Data Collection</div>
+<p>Plan who collects, how, when, and quality control (training, piloting, double-entry, SOPs).</p><ul><li>Quantitative: questionnaire, records, biomarkers, observation.</li><li>Qualitative: interview, focus group, observation, document review.</li><li>Pilot test the instrument before full fieldwork.</li></ul><div class="callout callout-green">Piloting reveals ambiguous items, timing and logistics problems cheaply.</div>
+</div><div id="dm-vr"></div>
+<div class="card">
+<div class="card-title"><span class="icon">✅</span> Validity & Reliability</div>
+<table><tr><th>Concept</th><th>Meaning</th></tr><tr><td>Validity</td><td>Measures what it claims to (accuracy)</td></tr><tr><td>Reliability</td><td>Consistent / reproducible results</td></tr><tr><td>Internal</td><td>Correctly measures the construct in this study</td></tr><tr><td>External</td><td>Generalisable to other settings</td></tr></table><ul><li>A tool can be reliable but invalid (consistently wrong).</li><li>Improve via standardised tools, translation &amp; back-translation, training.</li></ul><div class="callout callout-orange">Use validated, published instruments where possible; cite their psychometrics.</div>
+</div><div id="dm-tools"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📋</span> Questionnaire Design</div>
+<ul><li>Clear, unbiased, single-concept items; logical flow; appropriate response scales.</li><li>Demographics first/last; sensitive items later; randomised where needed.</li><li>Pre-test readability and average completion time.</li></ul><div class="callout callout-purple">Avoid leading/double-barrelled questions; match language to respondents.</div>
+</div>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Analysis, Writing & Research Ethics</div>
+  <div class="page-sub">Source: GKT 517 Course Notes — Analysis, Writing, Ethics, Referencing</div>
+<div id="an-plan"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📊</span> Analysis Plan</div>
+<p>Pre-specify analysis to avoid data dredging.</p><ul><li>Descriptive then inferential; choose tests by data type &amp; distribution (see GKT 515).</li><li>Handle missing data (complete-case, imputation) &amp; confounders (regression).</li><li>Qualitative: thematic / content analysis, with coding framework &amp; triangulation.</li></ul><div class="callout callout-blue">State the software (SPSS/R/STATA), significance level, and how you'll report effect sizes &amp; CIs.</div>
+</div><div id="an-write"></div>
+<div class="card">
+<div class="card-title"><span class="icon">✍️</span> Thesis & Report Writing</div>
+<p>Standard thesis/report structure (IMRaD + appendices): title, abstract, intro, lit review, methods, results, discussion, conclusion, references, appendices.</p><ul><li>Results report findings; Discussion interprets vs literature, limits, implications.</li><li>Use a consistent referencing style (Harvard/APA/ Vancouver per faculty).</li><li>Write for clarity; figures/tables self-explanatory.</li></ul><div class="callout callout-green">A good discussion addresses limitations honestly and situates findings in context.</div>
+</div><div id="an-eth"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚖️</span> Research Ethics</div>
+<ul><li>Respect for persons (informed consent, autonomy), beneficence, justice (Belmont).</li><li>Minimise harm; confidentiality &amp; anonymisation; secure data.</li><li>Submit to the relevant <strong>ethics committee / IRB</strong> (e.g., JEPeM) before data collection.</li><li>Special populations: children, vulnerable groups need extra safeguards.</li></ul><div class="callout callout-red">No data collection without approved ethics clearance. De-identify and keep raw data out of shared/synced spaces per PDPA governance.</div>
+</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 517 past-year papers</div>
+<div id="pyq-1"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">Question & Design</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">A master's student wants to study factors associated with non-adherence to diabetes medication in a clinic. (a) Frame a PICO question. (b) Suggest a suitable design and justify briefly.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: PICO 8 · design 7</div>
+<div class="ans-section"><div class="ans-section-title">PICO</div><p><strong>P</strong>: adults with type 2 diabetes attending the clinic. <strong>I</strong>: non-adherent (vs adherent) to oral hypoglycaemics. <strong>C</strong>: adherent patients (referent). <strong>O</strong>: prevalence/odds of non-adherence and associated factors (e.g., forgetfulness, cost, knowledge).</p></div><div class="ans-section"><div class="ans-section-title">Design</div><p>A <strong>cross-sectional study</strong> is suitable to estimate the prevalence of non-adherence and its correlates efficiently; if testing specific causal predictors with temporality, a <strong>case-control</strong> (non-adherent vs adherent) could explore multiple factors. Cohort is less feasible for a master's timeline.</p></div>
+</div>
+</div><div id="pyq-2"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Sampling & Size</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Explain the difference between probability and non-probability sampling, and why sample-size justification matters for a research project.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: difference 8 · justification 7</div>
+<div class="ans-section"><div class="ans-section-title">Difference</div><p><strong>Probability sampling</strong> (simple random, stratified, cluster) gives every unit a known chance of selection → generalisable inference. <strong>Non-probability</strong> (convenience, purposive, snowball) is pragmatic and used in qualitative/pilot work but limits generalisability.</p></div><div class="ans-section"><div class="ans-section-title">Sample-size justification</div><p>Size is driven by the desired power (1−β), α, expected effect size and variability. Justifying it prevents under-powering (type II error, wasted effort) and over-sizing (waste); it is required by ethics committees and shows feasibility.</p></div>
+</div>
+</div><div id="pyq-3"></div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q3</span>
+<span class="q-topic">Ethics</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">List the three core principles of research ethics and describe three concrete protections you would build into a study interviewing patients about a sensitive condition.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: principles 6 · protections 9</div>
+<div class="ans-section"><div class="ans-section-title">Principles</div><p>Belmont principles: <strong>respect for persons</strong> (informed consent, autonomy), <strong>beneficence</strong> (maximise benefit, minimise harm), <strong>justice</strong> (fair subject selection &amp; burden-sharing).</p></div><div class="ans-section"><div class="ans-section-title">Protections</div><ul><li>Voluntary <strong>informed consent</strong> in the participant's language, with right to withdraw.</li><li><strong>Confidentiality</strong>: anonymise recordings/transcripts; secure, access-restricted storage.</li><li><strong>Minimise harm</strong>: private interview setting, trained interviewer, referral to support services if distress; submit to IRB before starting.</li></ul></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Research Process & Question", "sec2": "Literature & Protocol", "sec3": "Study Design & Sampling", "sec4": "Data & Measurement", "sec5": "Analysis, Writing & Ethics", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt517_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt517_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt517_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>
