@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Environmental Health — DrPH Learning Notes (Compiled by Dr Azul)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #faf8ff;
+    --bg-paper: #ffffff;
+    --bg-soft: #f3eefe;
+    --ink: #1a1530;
+    --ink-soft: #4a4368;
+    --ink-mute: #7c7595;
+    --line: #e7e1f5;
+    --line-strong: #d4caee;
+
+    --indigo-900: #3b0764;
+    --indigo-700: #7e22ce;
+    --indigo-600: #9333ea;
+    --indigo-500: #a855f7;
+    --indigo-400: #a78bfa;
+    --indigo-200: #ddd6fe;
+    --indigo-100: #f3e8ff;
+
+    --purple-700: #7e22ce;
+    --purple-600: #9333ea;
+    --purple-500: #a855f7;
+    --purple-300: #d8b4fe;
+    --purple-100: #f3e8ff;
+
+    --amber: #b45309;
+    --teal:  #0f766e;
+    --green: #15803d;
+
+    --shadow-sm: 0 1px 2px rgba(30, 27, 75, 0.06);
+    --shadow: 0 6px 20px -8px rgba(76, 29, 149, 0.18), 0 2px 6px rgba(30, 27, 75, 0.05);
+    --shadow-lg: 0 24px 60px -20px rgba(76, 29, 149, 0.30);
+
+    --radius: 14px;
+    --radius-lg: 22px;
+
+    --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+    --sans:  "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ===== Layout ===== */
+  .shell {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 48px;
+    padding: 0 32px;
+  }
+  @media (max-width: 980px) {
+    .shell { grid-template-columns: 1fr; padding: 0 20px; gap: 0; }
+    aside.nav { position: static; height: auto; padding-top: 24px; }
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(900px 400px at 90% -20%, rgba(124, 58, 237, 0.22), transparent 60%),
+      radial-gradient(700px 360px at 10% 110%, rgba(99, 102, 241, 0.22), transparent 60%),
+      linear-gradient(180deg, #1a1448 0%, #2a1c75 55%, #3d2bb0 100%);
+    color: #fff;
+    padding: 68px 0 120px;
+    margin-bottom: -60px;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(closest-side at 60% 40%, black 30%, transparent 80%);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #d8b4fe;
+    font-weight: 600;
+    margin-bottom: 22px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 28px; height: 1px; background: #d8b4fe;
+  }
+  h1.title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(38px, 5.6vw, 70px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+    max-width: 900px;
+  }
+  h1.title em { font-style: italic; color: #d8c8ff; }
+  .hero-sub {
+    max-width: 680px;
+    font-size: 18px;
+    color: #e0d8ff;
+    line-height: 1.55;
+    margin: 0 0 30px;
+  }
+  .author-line {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    align-items: baseline;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    padding: 10px 20px;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+  .author-line b { color: #fff; font-family: var(--serif); font-size: 16px; }
+  .author-line span { color: #cdbdf5; }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px 40px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    max-width: 900px;
+  }
+  .meta-item .k {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #b8a8ec;
+    margin-bottom: 6px;
+  }
+  .meta-item .v {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: #fff;
+  }
+
+  /* ===== Sidebar nav ===== */
+  aside.nav {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    height: calc(100vh - 48px);
+    overflow-y: auto;
+    padding: 90px 0 40px;
+    border-right: 1px solid var(--line);
+  }
+  aside.nav::-webkit-scrollbar { width: 6px; }
+  aside.nav::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 6px; }
+
+  .search-wrap {
+    position: relative;
+    margin: 0 18px 22px;
+  }
+  #searchBox {
+    width: 100%;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    padding: 10px 12px 10px 34px;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="%237c7595" stroke-width="2"><circle cx="6.5" cy="6.5" r="5"/><line x1="10.2" y1="10.2" x2="15" y2="15"/></svg>') no-repeat 10px center;
+    color: var(--ink);
+    outline: none;
+  }
+  #searchBox:focus { border-color: var(--purple-500); box-shadow: 0 0 0 3px var(--purple-100); }
+  .search-count {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-mute);
+    margin: 6px 2px 0;
+    min-height: 14px;
+  }
+  mark.search-hit { background: #fde68a; color: #1a1530; border-radius: 2px; padding: 0 1px; }
+
+  .nav-group { margin-bottom: 28px; }
+  .nav-group-title {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 700;
+    padding: 0 18px 10px;
+    border-bottom: 1px dashed var(--line);
+    margin-bottom: 8px;
+  }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease;
+    line-height: 1.35;
+  }
+  .nav-link:hover { color: var(--purple-700); background: var(--bg-soft); border-left-color: var(--purple-300); }
+  .nav-link.active { color: var(--indigo-700); background: var(--bg-soft); border-left-color: var(--purple-600); font-weight: 600; }
+  .nav-link .num { font-family: var(--mono); font-size: 10px; color: var(--ink-mute); width: 26px; flex-shrink: 0; }
+
+  /* ===== Main ===== */
+  main { padding: 60px 0 120px; min-width: 0; }
+
+  section.unit { margin-bottom: 96px; scroll-margin-top: 24px; }
+
+  .section-head { margin-bottom: 30px; }
+  .section-head .label {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--purple-600);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-head .label::before { content: ""; width: 28px; height: 1px; background: var(--purple-600); }
+  .section-head h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(30px, 3.6vw, 46px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    color: var(--indigo-900);
+  }
+  .section-head p.lede { font-family: var(--serif); font-size: 19px; line-height: 1.5; color: var(--ink-soft); max-width: 740px; }
+
+  /* ===== Collapsible content blocks ===== */
+  details.block {
+    margin: 22px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  details.block > summary {
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.15;
+    color: var(--indigo-900);
+    padding: 6px 0 14px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    user-select: none;
+  }
+  details.block > summary::-webkit-details-marker { display: none; }
+  details.block > summary::before {
+    content: "▸";
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--purple-600);
+    transition: transform 0.18s ease;
+    flex-shrink: 0;
+  }
+  details.block[open] > summary::before { transform: rotate(90deg); }
+  details.block > .block-body { padding-bottom: 22px; }
+
+  h4 { font-family: var(--serif); font-weight: 500; font-size: 18.5px; color: var(--indigo-900); margin: 22px 0 10px; }
+  h5 { font-family: var(--serif); font-weight: 500; font-size: 16px; color: var(--indigo-900); margin: 16px 0 8px; }
+  p { margin: 0 0 15px; color: var(--ink); }
+  p.lede { font-family: var(--serif); font-size: 19px; line-height: 1.5; color: var(--ink-soft); }
+
+  ul.lst { list-style: none; padding: 0; margin: 0 0 16px; }
+  ul.lst li { padding: 6px 0 6px 20px; position: relative; font-size: 15px; border-bottom: 1px solid var(--line); }
+  ul.lst li::before { content: "○"; position: absolute; left: 0; color: var(--purple-500); }
+  ul.lst li:last-child { border-bottom: none; }
+  ul.plain, ol.plain { padding-left: 22px; font-size: 15px; }
+  ul.plain li, ol.plain li { margin-bottom: 8px; }
+
+  .card { background: var(--bg-paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 24px; margin: 18px 0; box-shadow: var(--shadow-sm); }
+  .card.tinted { background: linear-gradient(180deg, #f3eefe, #faf8ff); }
+  .card h4 { margin-top: 0; }
+
+  .grid { display: grid; gap: 18px; margin: 18px 0; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 800px) { .grid-3 { grid-template-columns: 1fr; } }
+
+  table.q { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14.5px; }
+  table.q th {
+    text-align: left; padding: 11px 14px; background: var(--bg-soft); color: var(--indigo-900);
+    font-family: var(--sans); font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  table.q td { padding: 11px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+  table.q tr td:first-child { font-family: var(--serif); font-size: 15.5px; color: var(--purple-700); font-weight: 500; }
+  table.q tr:hover td { background: #fbf7ff; }
+
+  .pull {
+    background: var(--bg-soft); border-left: 4px solid var(--purple-600); padding: 18px 22px;
+    border-radius: 0 var(--radius) var(--radius) 0; font-family: var(--serif); font-size: 17px;
+    line-height: 1.5; color: var(--ink); margin: 20px 0;
+  }
+
+  .keypoints {
+    background: linear-gradient(120deg, #2a1c75 0%, #5b2ec0 100%);
+    color: #fff; padding: 24px 28px; border-radius: var(--radius-lg); margin: 20px 0;
+    position: relative; overflow: hidden;
+  }
+  .keypoints::before {
+    content: ""; position: absolute; right: -40px; top: -40px; width: 220px; height: 220px;
+    border-radius: 50%; background: radial-gradient(circle, rgba(196,181,253,0.4), transparent 60%);
+  }
+  .keypoints h4 { color: #fff; margin-top: 0; font-size: 15px; letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--sans); }
+  .keypoints ul { margin: 0; padding-left: 20px; position: relative; }
+  .keypoints li { color: #ece4ff; margin-bottom: 8px; font-size: 15px; }
+
+  .examq { background: #fff8ec; border: 1px solid #f3dfae; border-radius: var(--radius); padding: 20px 22px; margin: 18px 0; }
+  .examq h4 { margin-top: 0; color: var(--amber); font-family: var(--sans); font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .examq ol { margin: 0; padding-left: 20px; }
+  .examq li { margin-bottom: 10px; font-family: var(--serif); font-size: 16px; color: #4a3a12; }
+
+  .refs-box { font-size: 13.5px; color: var(--ink-mute); margin-top: 16px; }
+  .refs-box ul { padding-left: 18px; margin: 6px 0 0; }
+  .refs-box li { margin-bottom: 6px; }
+
+  .hl { background: linear-gradient(180deg, transparent 60%, var(--purple-100) 60%); padding: 0 2px; }
+  .small { font-size: 13px; color: var(--ink-mute); }
+  .twocol { columns: 2; column-gap: 36px; }
+  @media (max-width: 760px) { .twocol { columns: 1; } }
+
+  [id] { scroll-margin-top: 24px; }
+
+  .toolbar { display:flex; gap:10px; margin: 0 0 20px; flex-wrap: wrap; }
+  .toolbar button {
+    font-family: var(--sans); font-size: 12.5px; border: 1px solid var(--line-strong); background: #fff;
+    color: var(--ink-soft); padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  }
+  .toolbar button:hover { background: var(--bg-soft); color: var(--purple-700); }
+
+  /* ===== Footer ===== */
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 40px 0; color: var(--ink-mute); font-size: 13px; }
+  footer .refs { font-family: var(--serif); font-size: 15.5px; color: var(--ink-soft); line-height: 1.65; }
+  footer b { color: var(--indigo-900); }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Learning &amp; Revision Notes</div>
+    <h1 class="title">Environmental Health<br/>&amp; <em>Epidemiology</em></h1>
+    <p class="hero-sub">An interactive study guide covering environmental epidemiology, the ecological framework of human health, global warming, time series analysis, chronic disease surveillance, urbanisation, and public health entomology, compiled for a DrPH (Doctor of Public Health) programme.</p>
+
+    <div class="author-line">
+      <b>Author &amp; Compiler: Dr Azul</b>
+      <span>Compiled from DrPH Environmental Health course materials.</span>
+    </div>
+
+    <div class="hero-meta">
+      <div class="meta-item"><div class="k">Programme</div><div class="v">DrPH (Public Health)</div></div>
+      <div class="meta-item"><div class="k">Module</div><div class="v">Environmental &amp; Occupational Health</div></div>
+      <div class="meta-item"><div class="k">Topics</div><div class="v">8 sections</div></div>
+      <div class="meta-item"><div class="k">Use</div><div class="v">Revision &amp; exam preparation</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== SHELL ===== -->
+<div class="shell">
+
+  <!-- ===== Sidebar nav ===== -->
+  <aside class="nav">
+    <div class="search-wrap">
+      <input id="searchBox" type="text" placeholder="Search notes…" autocomplete="off" />
+      <span class="search-count" id="searchCount"></span>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Topics</div>
+      <a class="nav-link" href="#env-epi"><span class="num">01</span>Environmental Epidemiology</a>
+      <a class="nav-link" href="#eco-framework"><span class="num">02</span>Human Health in the Ecological Framework</a>
+      <a class="nav-link" href="#global-warming"><span class="num">03</span>Global Warming &amp; Climate Change</a>
+      <a class="nav-link" href="#time-series"><span class="num">04</span>Time Series for Environmental Health</a>
+      <a class="nav-link" href="#chronic-surv"><span class="num">05</span>Chronic Disease Surveillance</a>
+      <a class="nav-link" href="#urbanisation"><span class="num">06</span>Urbanisation &amp; Health</a>
+      <a class="nav-link" href="#entomology"><span class="num">07</span>Public Health Entomology</a>
+      <a class="nav-link" href="#revision"><span class="num">08</span>Exam Revision &amp; Study Guide</a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main>
+
+    <!-- ============================================================ -->
+    <section class="unit" id="env-epi">
+      <div class="section-head">
+        <div class="label">Topic 01</div>
+        <h2>Environmental Epidemiology</h2>
+        <p class="lede">Learning notes based on lecture materials from <strong>Course Lecturer (Environmental Epidemiology)</strong>.</p>
+      </div>
+
+      <details class="block" open>
+        <summary>Introduction</summary>
+        <div class="block-body">
+          <p>Environmental epidemiology is the branch of epidemiology concerned with the distribution and determinants of health-related states or events in populations that arise from exposure to physical, chemical, and biological agents in the ambient, occupational, and domestic environment. Unlike clinical medicine, which treats the individual patient, environmental epidemiology works at the population level, asking whether people exposed to a given environmental agent (air pollution, contaminated water, heavy metals, noise, radiation, or a changing climate) experience a different pattern of disease from those who are not exposed.</p>
+          <p>The discipline sits at the intersection of exposure science, toxicology, biostatistics, and classical epidemiology. Its central task is causal inference under imperfect conditions: exposures are rarely randomly assigned, are often measured with error, act over long latency periods, and interact with numerous confounders and effect modifiers. A recurring worked example used in the module is the association between environmental lead exposure and childhood asthma or neurodevelopmental outcomes — a case that illustrates how the choice of study design shapes the strength and credibility of the causal claim that can be made.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Key Concepts &amp; Definitions</summary>
+        <div class="block-body">
+          <ul class="lst">
+            <li><strong>Exposure assessment</strong> — estimating the intensity, frequency, duration, and route (inhalation, ingestion, dermal) of contact with an environmental agent, using personal monitors, ambient monitoring stations, geographic proxies, or biomarkers.</li>
+            <li><strong>Confounding</strong> — a third variable associated with both the exposure and the outcome, but not on the causal pathway, which distorts the observed exposure–outcome relationship (e.g., socioeconomic status confounding the air pollution–asthma link because poorer households also cluster near busy roads and have poorer housing conditions).</li>
+            <li><strong>Effect modification (interaction)</strong> — when the magnitude of an exposure–outcome association genuinely differs across strata of a third variable (e.g., children and the elderly experience larger effects of air pollution on respiratory hospitalisation than healthy adults).</li>
+            <li><strong>Biomarkers</strong> — measurable biological indicators of exposure (e.g., blood lead level, urinary cotinine), effect (e.g., lung function decline), or susceptibility (e.g., genetic polymorphisms) that sharpen the accuracy of exposure or outcome classification.</li>
+            <li><strong>Latency</strong> — the time lag between exposure and the manifestation of disease, which is often long for chronic outcomes such as cancer and short for acute outcomes such as asthma exacerbation.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Study Designs in Environmental Epidemiology</summary>
+        <div class="block-body">
+          <p>Selecting the correct design is the single most examined skill in this topic. The table below compares the designs most relevant to environmental health questions.</p>
+          <table class="q">
+            <tr><th>Design</th><th>Logic</th><th>Best suited to</th><th>Key limitation</th></tr>
+            <tr><td>Cohort study</td><td>Follow exposed and unexposed groups forward in time; compare incidence of disease</td><td>Common exposures, moderately common outcomes; establishing temporality</td><td>Expensive, long follow-up, loss to follow-up</td></tr>
+            <tr><td>Case-control study</td><td>Compare past exposure between diseased cases and healthy controls</td><td>Rare diseases, long latency (e.g., cancer)</td><td>Recall bias; control selection bias</td></tr>
+            <tr><td>Case-crossover design</td><td>Each case serves as their own control, comparing exposure just before the event to exposure at other reference times</td><td>Acute, transient exposures with short induction periods (e.g., air pollution spikes and myocardial infarction)</td><td>Only applicable to short-term, reversible exposures</td></tr>
+            <tr><td>Time series study</td><td>Relates day-to-day (or week-to-week) fluctuations in an ecological exposure series to fluctuations in a health outcome series</td><td>Acute effects of air pollution, temperature, and other continuously monitored exposures on mortality/morbidity counts</td><td>Ecological exposure (no individual measurement); autocorrelation must be modelled</td></tr>
+            <tr><td>Ecological study</td><td>Compares exposure and outcome rates across groups or areas rather than individuals</td><td>Hypothesis generation; hazard mapping; when only aggregate data exist</td><td>Ecological fallacy — group-level associations may not hold at the individual level</td></tr>
+          </table>
+          <p>For the classic exam scenario of <em>lead exposure and childhood asthma</em>, a <strong>cohort</strong> or <strong>time series</strong> design is generally preferred: a cohort allows individual-level exposure measurement (blood lead) and temporality to be established, while a time series is appropriate if the question concerns population-level short-term fluctuations in ambient lead/air pollutant levels against daily asthma admissions. A case-control design becomes attractive if asthma is being studied as a rare, severe outcome (e.g., status asthmaticus admissions) where retrospective exposure history is feasible to reconstruct.</p>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>Exposure–Outcome Domains Commonly Assessed</summary>
+        <div class="block-body">
+          <ul class="lst">
+            <li><strong>Air pollution:</strong> particulate matter (PM2.5, PM10), ground-level ozone, nitrogen dioxide, sulphur dioxide — commonly linked to respiratory and cardiovascular morbidity and mortality.</li>
+            <li><strong>Water quality:</strong> heavy metals, pesticide residues, and microbial pathogens in drinking water; blood or urinary biomarkers are used to validate exposure.</li>
+            <li><strong>Chemical contaminants:</strong> persistent organic pollutants, endocrine disruptors, and industrial chemicals in soil, air, and water with potential long-latency effects.</li>
+            <li><strong>Climate-related exposures:</strong> ambient temperature, heatwaves, and extreme weather, studied using long-run meteorological records linked to routine health data (this connects directly to the time series and global warming topics below).</li>
+          </ul>
+        </div>
+      </details>
+
+      <div class="keypoints">
+        <h4>Key Points</h4>
+        <ul>
+          <li>Environmental epidemiology studies population-level associations between environmental exposures and health outcomes, requiring careful control of confounding and attention to effect modification.</li>
+          <li>The choice of study design (cohort, case-control, case-crossover, time series, ecological) should match the exposure pattern (chronic vs acute), the outcome frequency, and data availability.</li>
+          <li>Biomarkers and improved exposure assessment reduce misclassification bias and strengthen causal inference.</li>
+          <li>The lead–asthma example demonstrates that no single "correct" design exists — the appropriate choice depends on whether the question concerns individual chronic exposure or population-level acute fluctuation.</li>
+        </ul>
+      </div>
+
+      <div class="examq">
+        <h4>Exam / Study Questions</h4>
+        <ol>
+          <li>Describe the suitable study/research design to apply in environmental epidemiology, using lead exposure and asthma as a worked example.</li>
+          <li>Distinguish between confounding and effect modification, giving an environmental health example of each.</li>
+          <li>Explain why the case-crossover design is well suited to acute, transient environmental exposures.</li>
+          <li>What is the "ecological fallacy", and why does it limit the inferences that can be drawn from ecological studies?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="unit" id="eco-framework">
+      <div class="section-head">
+        <div class="label">Topic 02</div>
+        <h2>Human Health within an Ecological Framework</h2>
+        <p class="lede">Learning notes based on lecture materials from <strong>Course Lecturer (Ecology &amp; Climate)</strong>.</p>
+      </div>
+
+      <details class="block" open>
+        <summary>Introduction: Ecology, Environment, Ecosystem</summary>
+        <div class="block-body">
+          <p><em>Ecology</em> derives from the Greek <em>oikos</em> ("house" or "home") and is defined as the study of an organism's home — that is, the study of organisms and their environment. The <em>environment</em> is everything external to the individual human host, living and non-living, with which the person is in constant interaction. Three nested scales are distinguished: the <strong>macro-environment</strong> (the external environment responsible for the majority of preventable disease), the <strong>micro-environment</strong> (the domestic environment in which a person lives), and the <strong>internal environment</strong> (conditions inside the body).</p>
+          <p>An <strong>ecosystem</strong> refers to all the species found in a given area together with the physical environment in which they reside, bound together by interdependent relationships; ecosystems occur across a huge range of spatial and temporal scales. The <strong>biosphere</strong> is the sum of the atmosphere, hydrosphere, and lithosphere in which life exists. Ecosystems function through an energy hierarchy — solar energy captured by photosynthesis, passed through food chains, with nutrients retained and recycled and water/gases disseminated and replenished — producing a dynamic (if imperfect) internal balance.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>The Ecological Framework and the Value of Ecosystem Services</summary>
+        <div class="block-body">
+          <p>The <strong>ecological framework</strong> describes the obligatory interdependence between living organisms and their physical and biological environment — the web of interdependence that constitutes an ecosystem. Human survival depends on a continuous flow of ecosystem services: food, water, fuel, building materials, and resources for population expansion, alongside the environment's capacity to absorb the by-products of human activity (sewage, refuse, hazardous and industrial waste).</p>
+          <p>Costanza and colleagues (1997) attempted to place an economic value on global ecosystem services, illustrating just how large — and how easily overlooked — these services are.</p>
+          <table class="q">
+            <tr><th>Ecosystem service</th><th>Estimated value (US$ trillion/yr)</th></tr>
+            <tr><td>Soil formation</td><td>17.1</td></tr>
+            <tr><td>Recreation</td><td>3.0</td></tr>
+            <tr><td>Nutrient cycling</td><td>2.3</td></tr>
+            <tr><td>Water regulation &amp; supply</td><td>2.3</td></tr>
+            <tr><td>Climate regulation</td><td>2.3</td></tr>
+            <tr><td>Habitat</td><td>1.4</td></tr>
+            <tr><td>Flood &amp; storm protection</td><td>1.1</td></tr>
+            <tr><td>Genetic resources</td><td>0.8</td></tr>
+            <tr><td>Atmosphere gas balance</td><td>0.7</td></tr>
+            <tr><td>Pollination</td><td>0.4</td></tr>
+            <tr><td>All other services</td><td>1.6</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>33.3</strong></td></tr>
+          </table>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>Homeostasis and the Gaia Hypothesis</summary>
+        <div class="block-body">
+          <p>The concept of <strong>homeostasis</strong> (Claude Bernard, 19th-century physiologist) describes how complex interrelated systems maintain constancy of environment and function despite external perturbations. This principle was extended to the whole planet by an atmospheric scientist in 1972 as the <strong>Gaia hypothesis</strong>: the components of the Earth's biosphere — all living organisms plus the geosphere and the cycles of water, gases, nutrients, and energy — together constitute a global homeostatic mechanism that maintains environmental constancy, with the Earth acting as a coordinated, self-regulating "superorganism" using feedback to counter disturbance.</p>
+          <p>The hypothesis is controversial for three main reasons: (1) it is difficult to test empirically; (2) it does not sit comfortably within some scientific/cultural frameworks that resist attributing purposive regulation to a non-sentient planet; and (3) it raises an unresolved question of mechanism — how could such a planet-wide homeostatic system have originated without some higher-order selective process? The lecture also situates this discussion alongside an Islamic perspective on the created order of the heavens and earth, presenting the Gaia hypothesis as one of several lenses — scientific and theological — through which the interdependence of life and planet can be understood.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Health as an Ecological Indicator</summary>
+        <div class="block-body">
+          <p>Several historical definitions link health directly to ecological fitness:</p>
+          <ul class="lst">
+            <li><strong>WHO (1946):</strong> "Health is a state of complete physical, mental, social and spiritual well-being, and not merely the absence of disease or infirmity" — later amplified to include "the ability to lead a socially and economically productive life."</li>
+            <li><strong>WHO (1957) basic definition:</strong> "Health is a condition of the human organism which expresses adequate functioning under given genetic and environmental conditions."</li>
+            <li><strong>Dubos (1965):</strong> "Health is an expression of fitness to the environment."</li>
+          </ul>
+          <p>Optimal biological functioning requires sustaining the ecosystem within which a species evolved. A concrete example given is stratospheric ozone thinning as a sign of the biosphere's carrying capacity being exceeded, with skin cancer, cataract, and immune suppression serving as measurable health indicators of that ecological overshoot.</p>
+          <h4>Population growth models</h4>
+          <table class="q">
+            <tr><th>Model</th><th>Shape</th><th>Assumption</th><th>Realism</th></tr>
+            <tr><td>Exponential growth</td><td>J-shaped</td><td>Population expands without resource limits</td><td>Not ecologically realistic long-term; useful for short-term prediction when resources are not limiting</td></tr>
+            <tr><td>Logistic growth</td><td>S-shaped</td><td>Growth levels off as the population approaches the carrying capacity of the ecosystem</td><td>More realistic; reflects resource limitation</td></tr>
+          </table>
+          <p>Historical episodes are used to illustrate what happens when a population's demands exceed local ecological/carrying capacity — the collapse of Mesopotamian agricultural civilisation roughly 5,000 years ago, drought-assisted plague epidemics in the ancient Mediterranean, the 14th-century Black Death in Europe (an estimated 30–60% mortality, driven by <em>Yersinia pestis</em> carried by fleas on black rats, and favoured by overcrowded, poorly ventilated, sewage-laden urban conditions), and cholera pandemics in Africa and Latin America.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Environmental Determinants of Human Health</summary>
+        <div class="block-body">
+          <p>The lecture frames environmental exposure as contributing an estimated <strong>80% of the impact on human health</strong>, alongside hereditary/biological factors, medical care, lifestyle, and economic and social stability. Environmental health practice is described as the population's <em>first line of defence against disease</em>, spanning water quality management, human/solid/hazardous waste disposal, rodent and insect control, milk and food quality management, occupational health, travel sanitation, air and water pollution control, noise control, housing hygiene, radiological health, recreational sanitation, land-use management, and product safety. A recurring caution is that curative/therapeutic programmes attract funding and publicity more easily than preventive environmental health programmes, even though prevention is the more cost-effective and sustainable approach.</p>
+          <p>When adaptation (technology, trade, mechanised agriculture, industrialisation) allows a population to exceed the natural carrying capacity of its ecosystem, short-term economic gains can be offset by long-term consequences such as soil erosion, land degradation, and greenhouse warming — directly linking this topic to the Global Warming and Chronic Disease Surveillance sections that follow. A specific applied example discussed is how urbanisation-driven environmental change (water storage practices, population density, waste management) reshapes the epidemiology of dengue in urban settings by altering mosquito breeding conditions and human-vector contact.</p>
+        </div>
+      </details>
+
+      <div class="keypoints">
+        <h4>Key Points</h4>
+        <ul>
+          <li>Ecology is the study of organisms and their environment; an ecosystem is the set of species in an area plus their physical environment, bound by interdependent relationships.</li>
+          <li>Ecosystems provide measurable, economically significant services (Costanza et al., 1997); human health and survival cannot be sustained if a population exceeds its ecosystem's carrying capacity.</li>
+          <li>The Gaia hypothesis frames the biosphere as a self-regulating system, but remains scientifically contested on testability and mechanism grounds.</li>
+          <li>Multiple historical definitions converge on health as "fitness to the environment"; environmental exposure is estimated to account for roughly 80% of impacts on human health.</li>
+          <li>Historical ecological collapses (Mesopotamia, Black Death, cholera pandemics) illustrate the health consequences of exceeding ecological balance.</li>
+        </ul>
+      </div>
+
+      <div class="examq">
+        <h4>Exam / Study Questions</h4>
+        <ol>
+          <li>Explain at least three ways in which degradation of the ecosystem could threaten human health.</li>
+          <li>What is the Gaia hypothesis? Is it consistent with ecological principles, and is it informative with regard to human health?</li>
+          <li>Explain the concept of the ecosystem and its relationship with human health.</li>
+          <li>Describe how human contact with the natural environment contributes to complete physical, mental, and social well-being.</li>
+          <li>Discuss environmental changes affecting dengue epidemiology in urban settings.</li>
+          <li>Discuss the environmental determinants relevant to a pandemic scenario (e.g., COVID-19).</li>
+        </ol>
+      </div>
+
+      <div class="refs-box">
+        <strong>References / further reading (from course materials):</strong>
+        <ul>
+          <li>Frumkin, H. (2005). <em>Environmental Health: From Global to Local.</em> Jossey-Bass.</li>
+          <li>Last, J. M. (1998). <em>Public Health and Human Ecology</em> (2nd ed.). Appleton &amp; Lange.</li>
+          <li>McMichael, A. J. (1993). <em>Planetary Overload: Global Environmental Change and the Health of the Human Species.</em> Cambridge University Press.</li>
+          <li>Morgan, M. T. (2003). <em>Environmental Health</em> (3rd ed.). Peter Marshall.</li>
+          <li>Thompson, R. C., Moore, C. J., Vom Saal, F. S., &amp; Swan, S. H. (2009). Plastics, the environment and human health: current consensus and future trends. <em>Philosophical Transactions of the Royal Society B.</em> (Supplementary reading.)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="unit" id="global-warming">
+      <div class="section-head">
+        <div class="label">Topic 03</div>
+        <h2>Global Warming &amp; Climate Change</h2>
+        <p class="lede">Learning notes based on lecture materials and student seminar readings from <strong>Course Lecturer (Ecology &amp; Climate)</strong>.</p>
+      </div>
+
+      <details class="block" open>
+        <summary>Introduction</summary>
+        <div class="block-body">
+          <p>Global warming refers to the long-term rise in the Earth's average surface temperature, driven predominantly by anthropogenic increases in atmospheric greenhouse gas (GHG) concentrations. Climate change is the broader term encompassing shifts in temperature, precipitation, and extreme weather patterns over decades. The seminar component of this module reviewed the evidence for global warming and the mechanisms by which a warming climate translates into measurable public health harm, drawing on a set of assigned readings on heat, storms, preterm birth, and epidemiological transition.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Greenhouse Gases and Sources of Emissions</summary>
+        <div class="block-body">
+          <p>The principal greenhouse gases are carbon dioxide (CO₂, from fossil fuel combustion and deforestation), methane (CH₄, from fossil fuel extraction, agriculture, livestock, and landfills), nitrous oxide (N₂O, mainly from fertiliser use), and fluorinated gases such as CFCs. Global GHG emissions are commonly broken down by economic sector:</p>
+          <table class="q">
+            <tr><th>Sector</th><th>Approx. share of global GHG emissions</th></tr>
+            <tr><td>Electricity &amp; heat production</td><td>29%</td></tr>
+            <tr><td>Agriculture</td><td>14%</td></tr>
+            <tr><td>Industry</td><td>12%</td></tr>
+            <tr><td>Transportation</td><td>12%</td></tr>
+            <tr><td>Manufacturing &amp; construction</td><td>12%</td></tr>
+            <tr><td>Land-use change &amp; forestry</td><td>12%</td></tr>
+            <tr><td>Waste management</td><td>3%</td></tr>
+          </table>
+          <p>Oceans and forests act as major natural carbon sinks (the ocean absorbs roughly half of atmospheric CO₂ input each year), but deforestation, land clearing for agriculture, and fossil/forest burning are pushing net emissions beyond what these sinks can absorb — the same "carrying capacity" logic introduced in the ecological-framework topic.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Health Impacts of a Changing Climate</summary>
+        <div class="block-body">
+          <p>The assigned readings collectively document several convergent pathways from climate change to health harm:</p>
+          <ul class="lst">
+            <li><strong>Direct thermal stress:</strong> heatwaves increase cardiovascular and respiratory mortality, and are especially harmful to children, whose thermoregulatory capacity is less mature (reviewed systematically in the assigned heat-wave/children's-health reading).</li>
+            <li><strong>Reproductive and perinatal effects:</strong> elevated environmental temperature is associated with increased risk of preterm birth, reviewed as a distinct evidence stream in the assigned literature.</li>
+            <li><strong>Coastal storms and flooding:</strong> intensifying storm and flood events in urban areas increase drowning risk, injury, waterborne disease outbreaks, mental health sequelae, and displacement, with urban populations identified as a distinct vulnerability group requiring dedicated risk assessment.</li>
+            <li><strong>Food and nutrition insecurity:</strong> altered rainfall and temperature patterns disrupt crop yields and food systems.</li>
+            <li><strong>Unsafe water and infectious disease:</strong> flooding and warming can contaminate water supplies and expand the geographic and seasonal range of vector-borne disease.</li>
+            <li><strong>Air quality degradation:</strong> higher temperatures promote ground-level ozone formation and can worsen particulate pollution episodes (e.g., through more frequent wildfires/haze).</li>
+            <li><strong>Mental health:</strong> disaster exposure, displacement, and chronic environmental stress (sometimes termed "eco-anxiety") contribute to psychological morbidity.</li>
+            <li><strong>Epidemiological transition:</strong> climate change is argued to accelerate shifts in disease burden patterns, compounding the existing transition from infectious to chronic disease in many populations while simultaneously re-emphasising climate-sensitive infectious disease risk.</li>
+          </ul>
+          <p>Vulnerable groups consistently identified across the readings include children, the elderly, pregnant women, people with disabilities or comorbidities, and outdoor/manual workers.</p>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>Public Health Actions and Policy Responses</summary>
+        <div class="block-body">
+          <p>The policy-translation reading in this module frames the public health response to climate change around several coordinated actions:</p>
+          <ul class="lst">
+            <li><strong>Surveillance systems</strong> to monitor climate-sensitive disease trends (heat-related illness, vector-borne disease, storm-related injury).</li>
+            <li><strong>Health research</strong> to quantify population-specific risks and inform adaptation planning.</li>
+            <li><strong>Health promotion</strong> and public communication on adaptive behaviour (heat warnings, flood preparedness).</li>
+            <li><strong>Health service strengthening</strong> so that facilities can absorb surge demand during extreme weather events.</li>
+            <li><strong>Inter-agency and inter-sectoral collaboration</strong>, since climate adaptation requires coordination across health, environment, urban planning, and disaster management agencies.</li>
+            <li><strong>Preparedness and early-warning systems</strong> for extreme weather and climate-sensitive outbreaks.</li>
+          </ul>
+        </div>
+      </details>
+
+      <div class="keypoints">
+        <h4>Key Points</h4>
+        <ul>
+          <li>Global warming is driven mainly by CO₂ from fossil fuel combustion and land-use change, with electricity/heat production the single largest emitting sector.</li>
+          <li>Health harms operate through multiple, overlapping pathways: heat stress, preterm birth risk, storm/flood injury and displacement, food and water insecurity, vector-borne disease expansion, air quality decline, and mental health impacts.</li>
+          <li>Children, older adults, pregnant women, and outdoor workers are consistently the most vulnerable groups.</li>
+          <li>An effective public health response combines surveillance, research, promotion, service strengthening, inter-agency collaboration, and preparedness.</li>
+        </ul>
+      </div>
+
+      <div class="examq">
+        <h4>Exam / Study Questions</h4>
+        <ol>
+          <li>Discuss the evidence supporting global warming as a real and ongoing phenomenon.</li>
+          <li>Describe the public health actions and responses required to address global warming.</li>
+          <li>Explain the mechanisms by which elevated environmental temperature increases the risk of preterm birth.</li>
+          <li>Discuss the health effects of coastal storms and flooding in urban areas, and identify the population groups most vulnerable to these events.</li>
+        </ol>
+      </div>
+
+      <div class="refs-box">
+        <strong>References / further reading (student seminar support materials):</strong>
+        <ul>
+          <li>Franchini, M., &amp; Mannucci, P. M. (2015). Impact on human health of climate changes.</li>
+          <li>Kathryn (2013). Health effects of coastal storms and flooding in urban areas: a review and vulnerability assessment.</li>
+          <li>Mary (2014). High environmental temperature and preterm birth: a review.</li>
+          <li>Zhiwei (2014). The impact of heat waves on children's health: a systematic review.</li>
+          <li>Barrett, B., &amp; Charles, J. W. (2015). Climate change, human health, and epidemiological transition.</li>
+          <li>Braks, M. et al. (2014). Climate change and public health policy: translating the science.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="unit" id="time-series">
+      <div class="section-head">
+        <div class="label">Topic 04</div>
+        <h2>Time Series Analysis for Environmental Health</h2>
+        <p class="lede">Learning notes based on lecture materials from <strong>Course Lecturer (Biostatistics &amp; Time Series)</strong>.</p>
+      </div>
+
+      <details class="block" open>
+        <summary>What Is a Time Series?</summary>
+        <div class="block-body">
+          <p>A <strong>time series</strong> is a sequence of measurements of a variable, recorded at successive, equally spaced points in time (daily air pollution concentrations, weekly dengue case counts, monthly hospital admissions). Its defining statistical feature — and the reason ordinary linear regression is unsuitable without modification — is that observations close together in time tend to be correlated with one another. This <strong>autocorrelation</strong> violates the independence assumption that underlies standard regression, so applying ordinary least-squares regression naively to time series data produces underestimated standard errors, spuriously significant p-values, and unreliable inference.</p>
+          <p>Plotting the raw series against time is always the first analytic step: a time series plot reveals the trend, the presence and shape of seasonality, potential outliers, sudden level shifts, and whether variance appears to change over time — all features that must be understood before a formal model is fitted.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Components of a Time Series</summary>
+        <div class="block-body">
+          <ul class="lst">
+            <li><strong>Trend:</strong> a long-term, gradual increase or decrease in the series' level.</li>
+            <li><strong>Seasonality:</strong> a regular, repeating pattern tied to a fixed period (day of week, month, season) — e.g., dengue incidence rising in wetter months.</li>
+            <li><strong>Outliers:</strong> observations far removed from the general pattern of the series, which may reflect data errors or genuine one-off events (e.g., a heatwave spike in mortality).</li>
+            <li><strong>Long-run cycles:</strong> fluctuations that repeat over periods longer than a year and are not tied to a fixed calendar period.</li>
+            <li><strong>Changing variance:</strong> periods of greater or lesser volatility (non-constant variance) that may require variance-stabilising transformation.</li>
+            <li><strong>Abrupt/structural changes:</strong> sudden shifts in the series level, often linked to policy interventions (e.g., a new air quality regulation) or external shocks.</li>
+          </ul>
+          <p>Time series <strong>decomposition</strong> separates the series (Y<sub>t</sub>) into a smooth component and a rough (residual) component. An <em>additive</em> decomposition assumes Y<sub>t</sub> = Trend<sub>t</sub> + Seasonal<sub>t</sub> + Residual<sub>t</sub>, appropriate when the amplitude of seasonal fluctuation is roughly constant over time; a <em>multiplicative</em> decomposition (Y<sub>t</sub> = Trend<sub>t</sub> × Seasonal<sub>t</sub> × Residual<sub>t</sub>) is preferred when seasonal swings grow proportionally with the level of the series.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Stationarity, ACF, and PACF</summary>
+        <div class="block-body">
+          <p>Many classical time series models require the series to be (weakly) <strong>stationary</strong>: its mean, variance, and autocorrelation structure do not change over time. Non-stationary series (most raw environmental and health series, which usually show trend and/or seasonality) are typically made stationary by <em>differencing</em> — subtracting each observation from the one before it, sometimes repeated at the seasonal lag.</p>
+          <ul class="lst">
+            <li><strong>Autocorrelation function (ACF):</strong> the correlation between the series and its own lagged values; used to identify the order of the Moving Average (MA) component and to visually assess whether a series is stationary.</li>
+            <li><strong>Partial autocorrelation function (PACF):</strong> the correlation between the series and a given lag after removing the effect of shorter intervening lags; used to identify the order of the Autoregressive (AR) component.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>ARIMA Modelling</summary>
+        <div class="block-body">
+          <p><strong>ARIMA (Autoregressive Integrated Moving Average)</strong> models are the workhorse of classical time series forecasting, combining three elements:</p>
+          <table class="q">
+            <tr><th>Component</th><th>Symbol</th><th>Role</th></tr>
+            <tr><td>Autoregressive</td><td>AR(p)</td><td>Models the current value as a function of its own <em>p</em> previous values</td></tr>
+            <tr><td>Integrated</td><td>I(d)</td><td>Differencing the series <em>d</em> times to achieve stationarity</td></tr>
+            <tr><td>Moving Average</td><td>MA(q)</td><td>Models the current value as a function of the previous <em>q</em> forecast errors (residuals)</td></tr>
+          </table>
+          <p>An ARIMA(p, d, q) model therefore has three orders to select, typically guided by inspection of the ACF/PACF plots and by information criteria (e.g., AIC). When a series also shows a repeating seasonal pattern, the model is extended to a <strong>seasonal ARIMA (SARIMA)</strong> specification with an additional set of seasonal AR, differencing, and MA terms at the seasonal periodicity.</p>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>Applications in Environmental Health</summary>
+        <div class="block-body">
+          <ul class="lst">
+            <li><strong>Air pollution and mortality/morbidity:</strong> time series regression (often Poisson-based, e.g., generalised additive models) links daily pollutant concentrations to daily counts of deaths or hospital admissions, controlling for trend, season, day-of-week, and temperature.</li>
+            <li><strong>Vector-borne disease surveillance:</strong> weekly or monthly dengue/malaria case counts are modelled against rainfall and temperature series to anticipate outbreak timing.</li>
+            <li><strong>Heat waves and health outcomes:</strong> temperature time series are related to short-term spikes in mortality or emergency admissions, often using distributed lag non-linear models to capture delayed and non-linear temperature effects.</li>
+          </ul>
+          <p>Practical implementation in the module used the R statistical environment, working through data import, time series object creation, decomposition, stationarity checking, and ARIMA model fitting/forecasting using base R and the standard time series packages, alongside supplementary readings that introduce these methods for public health practitioners with limited prior statistical programming experience.</p>
+        </div>
+      </details>
+
+      <div class="keypoints">
+        <h4>Key Points</h4>
+        <ul>
+          <li>A time series is a sequence of equally spaced measurements in which nearby observations are correlated (autocorrelation), violating the independence assumption of ordinary linear regression.</li>
+          <li>Series can be decomposed into trend, seasonal, and residual components using additive or multiplicative models.</li>
+          <li>Stationarity (constant mean, variance, and autocorrelation over time) is required for classical models; differencing is the standard tool to achieve it.</li>
+          <li>ACF identifies MA order; PACF identifies AR order; together they guide ARIMA/SARIMA model specification.</li>
+          <li>Time series methods underpin core environmental health applications: air pollution–mortality studies, vector-borne disease surveillance, and heatwave–health outcome analysis.</li>
+        </ul>
+      </div>
+
+      <div class="examq">
+        <h4>Exam / Study Questions</h4>
+        <ol>
+          <li>Define a time series and explain why standard linear regression is unsuitable for analysing it without modification.</li>
+          <li>Describe what a time series plot can reveal about the underlying data before formal modelling.</li>
+          <li>Describe the limitations of using linear regression for time series data.</li>
+          <li>Explain the difference between the ACF and the PACF, and how each is used in model identification.</li>
+          <li>Outline the three components of an ARIMA(p, d, q) model and give an environmental health example of its application.</li>
+        </ol>
+      </div>
+
+      <div class="refs-box">
+        <strong>References / further reading:</strong>
+        <ul>
+          <li>Cowpertwait, P. S. P., &amp; Metcalfe, A. V. <em>A Little Book of R for Time Series.</em> (Supplementary reading.)</li>
+          <li>Supplementary <em>Annual Review of Public Health</em> article on time-series methods in environmental epidemiology (assigned reading).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="unit" id="chronic-surv">
+      <div class="section-head">
+        <div class="label">Topic 05</div>
+        <h2>Chronic Disease Surveillance &amp; Environmental Health</h2>
+        <p class="lede">Learning notes based on lecture materials from <strong>Course Lecturer (Ecology &amp; Climate)</strong>.</p>
+      </div>
+
+      <details class="block" open>
+        <summary>Introduction</summary>
+        <div class="block-body">
+          <p>Environmental health surveillance is the systematic, ongoing collection, integration, analysis, and interpretation of data on environmental hazards, human exposures, and health effects, undertaken to guide public health action. Two parallel data streams are combined: an <strong>environmental stream</strong> (hazard and exposure data — air, water, land, built environment) and a <strong>health stream</strong> (disease incidence, prevalence, and outcome data). Because most environmentally influenced conditions of interest are chronic — with long latency, multifactorial causation, and diffuse exposure — linking the two streams convincingly is substantially harder than for acute, infectious-disease surveillance.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Aims, Concepts, and Principles</summary>
+        <div class="block-body">
+          <p>The core aims of environmental health surveillance are to: track hazards and exposures over time and place; link exposure data to health outcomes; support evidence-based decision-making; guide policy and regulation; and detect disease clusters early enough to permit a timely public health response.</p>
+          <p>Underlying principles include: the availability of good-quality hazard and disease data; sustained collaboration between environmental and health agencies (which often hold separate, incompatible datasets); whole-of-government commitment and resourcing; appropriate analytical tools (notably geographic information systems, GIS); and a consistent population-level focus rather than reliance on isolated case reports.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Disease and Environmental Hazard Categories Monitored</summary>
+        <div class="block-body">
+          <table class="q">
+            <tr><th>Disease category</th><th>Representative conditions</th></tr>
+            <tr><td>Respiratory</td><td>Asthma, chronic obstructive pulmonary disease</td></tr>
+            <tr><td>Reproductive/perinatal</td><td>Fetal growth restriction, preterm birth, low birth weight</td></tr>
+            <tr><td>Cancer</td><td>Lung, skin, and other environmentally-associated cancers</td></tr>
+            <tr><td>Developmental</td><td>Neurodevelopmental disorders</td></tr>
+            <tr><td>Metabolic</td><td>Type 2 diabetes mellitus</td></tr>
+            <tr><td>Cardiovascular</td><td>Hypertension, coronary artery disease</td></tr>
+            <tr><td>Dermatological / autoimmune</td><td>Contact dermatitis, rheumatoid arthritis</td></tr>
+            <tr><td>Renal &amp; neurological</td><td>Chronic kidney disease, neurodegenerative disease</td></tr>
+            <tr><td>Food- and vector-borne</td><td>Foodborne illness, dengue, malaria</td></tr>
+          </table>
+          <p>These are tracked against environmental hazard categories: air quality (PM2.5, ozone, NO₂), water quality (heavy metals, microplastics, microbial contamination), climate and geography (extreme heat, urban heat islands, coastal flooding), the built environment (housing quality, green space access), food safety (pesticide and heavy-metal residues), and land contamination (industrial soil pollution, contaminated groundwater).</p>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>Tools: Spatial Epidemiology, the Rapid Inquiry Facility, and Biomonitoring</summary>
+        <div class="block-body">
+          <p><strong>Spatial epidemiology</strong> uses geographic patterning of disease to generate and test hypotheses about environmental causation, addressing questions such as disease clustering around point sources, geographic variation in incidence, and small-area health risk near environmental hazards. A companion reading in the module reviews current approaches and future challenges in spatial epidemiology, highlighting recurring methodological issues such as boundary effects, the modifiable areal unit problem, and confounding by socioeconomic deprivation.</p>
+          <p>The <strong>Rapid Inquiry Facility (RIF)</strong> is an example of a purpose-built software tool that automates standardised small-area health-and-environment analyses (e.g., disease rates around a putative point-source hazard), improving consistency and turnaround time compared with bespoke ad hoc studies — a companion reading evaluates its use in practice.</p>
+          <p><strong>Human biomonitoring</strong> — the direct measurement of environmental chemicals or their metabolites in human tissues or fluids — complements area-based exposure data with individual-level exposure evidence; a companion reading describes the design and operation of a national human biomonitoring surveillance system as an illustrative example of institutionalising this approach.</p>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>Limitations of Chronic Disease Environmental Surveillance</summary>
+        <div class="block-body">
+          <ul class="lst">
+            <li><strong>Temporal mismatch:</strong> chronic diseases may take years or decades to manifest after the causative exposure, making the timing of surveillance data collection difficult to align with aetiologically relevant exposure windows.</li>
+            <li><strong>Exposure measurement error:</strong> individual exposure to diffuse environmental hazards is difficult to measure precisely, and area-level proxies (e.g., residential postcode) introduce misclassification.</li>
+            <li><strong>Multifactorial causation:</strong> chronic diseases usually have multiple interacting causes (genetic, behavioural, occupational, environmental), complicating attribution to any single environmental factor.</li>
+            <li><strong>Cross-organisational data-sharing barriers:</strong> environmental and health data are frequently held by different agencies with different formats, governance rules, and update frequencies.</li>
+          </ul>
+        </div>
+      </details>
+
+      <div class="keypoints">
+        <h4>Key Points</h4>
+        <ul>
+          <li>Environmental health surveillance links an environmental hazard/exposure data stream with a health outcome data stream to guide prevention, policy, and early detection of disease clusters.</li>
+          <li>Effective surveillance depends on data quality, inter-agency collaboration, government commitment, analytical tools (GIS, RIF), and a population-level focus.</li>
+          <li>Spatial epidemiology and human biomonitoring are complementary tools: the former exploits geographic pattern, the latter provides individual-level exposure confirmation.</li>
+          <li>Chronic disease surveillance is inherently harder than infectious disease surveillance because of long latency, multifactorial causation, and exposure measurement error.</li>
+        </ul>
+      </div>
+
+      <div class="examq">
+        <h4>Exam / Study Questions</h4>
+        <ol>
+          <li>Discuss the aims, concept, and guiding principles of environmental health surveillance.</li>
+          <li>Explain the role of spatial epidemiology in linking environmental hazards to chronic disease outcomes, and describe current methodological challenges.</li>
+          <li>Describe the purpose of a human biomonitoring system and how it complements area-based environmental surveillance.</li>
+          <li>Discuss the specific challenges of surveilling chronic (as opposed to acute/infectious) disease in relation to environmental exposures.</li>
+        </ol>
+      </div>
+
+      <div class="refs-box">
+        <strong>References / further reading (assigned readings):</strong>
+        <ul>
+          <li>Beale, L. et al. (2010). Evaluation of spatial relationships between health and the environment: the Rapid Inquiry Facility.</li>
+          <li>Cerna, M. et al. (2007). Human biomonitoring system in the Czech Republic.</li>
+          <li>Elliott, P., &amp; Wartenberg, D. (2004). Spatial epidemiology: current approaches and future challenges.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="unit" id="urbanisation">
+      <div class="section-head">
+        <div class="label">Topic 06</div>
+        <h2>Urbanisation &amp; Environmental Health</h2>
+        <p class="lede">Learning notes based on lecture and student seminar materials from <strong>Course Lecturers (Urbanisation module)</strong>.</p>
+      </div>
+
+      <details class="block" open>
+        <summary>Defining Urbanisation</summary>
+        <div class="block-body">
+          <p><strong>Urbanisation</strong> is the process by which an increasing proportion of a population comes to live in urban areas, driven by industrialisation, commercialisation, expanding social services, employment opportunities, modernisation, and the broader transformation of rural into urban land use and livelihoods. National definitions of "urban" vary; Malaysia, for example, defines an urban area as a gazetted locality with a population of at least 10,000 in which 60% or more of the economically active population is engaged in non-agricultural activities.</p>
+          <p>Globally, more than half of the world's population became urban during the 2010s, with projections of roughly 60% urban by 2030; Malaysia's urbanisation rate is considerably higher, at approximately 77%, placing it among the more urbanised nations in the region.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Health Impacts: Positive and Negative</summary>
+        <div class="block-body">
+          <table class="q">
+            <tr><th>Positive impacts</th><th>Negative impacts</th></tr>
+            <tr><td>Better access to healthcare facilities and specialist services</td><td>Overcrowding and inadequate housing (informal settlements)</td></tr>
+            <tr><td>Improved access to education</td><td>Rising inequality between the urban poor and the wealthy</td></tr>
+            <tr><td>Better sanitation and piped water infrastructure (where planning keeps pace)</td><td>Environmental threats: flooding, urban heat islands, air pollution</td></tr>
+            <tr><td>Economic opportunity and higher formal employment</td><td>Resource strain — water, food, and energy scarcity</td></tr>
+            <tr><td>Greater social and civic infrastructure</td><td>Governance and infrastructure challenges from rapid, unplanned growth</td></tr>
+          </table>
+          <p>The net health effect of urbanisation is therefore not uniform: it depends heavily on whether infrastructure, housing, and governance capacity keep pace with population growth. Where they do not, urban populations — particularly the urban poor — can experience a "double burden," combining infectious disease risks associated with poor sanitation and crowding with the rising non-communicable disease burden associated with sedentary, obesogenic urban lifestyles.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Key Urban Environmental Health Issues</summary>
+        <div class="block-body">
+          <ul class="lst">
+            <li><strong>Environmental threats:</strong> urban flooding (exacerbated by impervious surfaces and inadequate drainage), urban heat islands, and heightened pandemic transmission risk from population density.</li>
+            <li><strong>Resource scarcity:</strong> water, food, and energy demand routinely outpacing the capacity of urban infrastructure, especially in rapidly growing secondary cities.</li>
+            <li><strong>Inequality:</strong> stark contrasts between informal/slum settlements and affluent urban districts in access to sanitation, green space, and healthcare.</li>
+            <li><strong>Rapid, unplanned population growth:</strong> overwhelming municipal service delivery (waste collection, water supply, public transport).</li>
+            <li><strong>Governance challenges:</strong> fragmented planning authority and weak enforcement capacity undermining efforts to manage urban environmental risk.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>Global and National Policy Responses</summary>
+        <div class="block-body">
+          <ul class="lst">
+            <li><strong>UN-Habitat:</strong> coordinates global urban policy around flagship priorities including deprived/informal settlement upgrading, digital transformation of cities, urban equality, humanitarian response in urban crises, and eco-city/green urban development.</li>
+            <li><strong>World Bank:</strong> provides financing instruments and technical support for urban infrastructure development and city-level climate/disaster resilience.</li>
+            <li><strong>ASEAN:</strong> promotes sustainable city practice and knowledge-sharing among member states through regional cooperation frameworks.</li>
+            <li><strong>WHO Healthy Cities framework:</strong> advocates a settings-based approach placing health promotion and equity at the centre of urban planning and governance.</li>
+            <li><strong>Malaysia's Second National Urban Policy (Dasar Perbandaran Negara Kedua), 2016–2025:</strong> a national policy framework guiding sustainable, liveable urban development.</li>
+          </ul>
+        </div>
+      </details>
+
+      <div class="keypoints">
+        <h4>Key Points</h4>
+        <ul>
+          <li>Urbanisation is defined by population and economic-activity thresholds that vary by country; Malaysia is highly urbanised (≈77%) relative to global averages (≈55–60%).</li>
+          <li>Urbanisation carries both positive health effects (service access) and negative effects (inequality, overcrowding, environmental threats), with outcomes strongly dependent on planning and governance capacity.</li>
+          <li>Core urban environmental health issues are environmental threats, resource scarcity, inequality, rapid unplanned growth, and governance weakness.</li>
+          <li>Multiple global (UN-Habitat, WHO Healthy Cities, World Bank, ASEAN) and national frameworks aim to steer urbanisation toward more health-promoting outcomes.</li>
+        </ul>
+      </div>
+
+      <div class="examq">
+        <h4>Exam / Study Questions</h4>
+        <ol>
+          <li>Describe environmental health issues arising from rapid urbanisation.</li>
+          <li>Discuss the impact of urbanisation on health, addressing both positive and negative dimensions.</li>
+          <li>Explain how national and global policy frameworks (e.g., WHO Healthy Cities, UN-Habitat) attempt to mitigate the negative health effects of urbanisation.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="unit" id="entomology">
+      <div class="section-head">
+        <div class="label">Topic 07</div>
+        <h2>Public Health Entomology</h2>
+        <p class="lede">Learning notes based on briefing materials from the field visit, delivered by <strong>Guest Lecturer (Public Health Entomology, State Health Department)</strong>.</p>
+      </div>
+
+      <details class="block" open>
+        <summary>Introduction: Arthropods and Human Health</summary>
+        <div class="block-body">
+          <p>Public health entomology is the applied study of arthropods (insects, arachnids, and crustaceans) that affect human health. Arthropods impact health through three broad mechanisms: <strong>transmission of disease agents</strong> (as mechanical or biological vectors), <strong>direct tissue invasion</strong> (myiasis, mite infestation), and <strong>inoculation of venom or toxins</strong> (stings and bites). The discipline underpins vector-borne disease control programmes, including dengue, malaria, and filariasis elimination efforts, and links directly to the climate-sensitive disease patterns discussed under Global Warming and Chronic Disease Surveillance.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Biological Transmission Types</summary>
+        <div class="block-body">
+          <table class="q">
+            <tr><th>Transmission type</th><th>Mechanism</th><th>Example</th></tr>
+            <tr><td>Propagative</td><td>Pathogen multiplies within the vector but undergoes no developmental change</td><td>Plague bacillus in fleas</td></tr>
+            <tr><td>Cyclopropagative</td><td>Pathogen both develops and multiplies within the vector</td><td>Malaria parasite in <em>Anopheles</em> mosquitoes</td></tr>
+            <tr><td>Cyclodevelopmental</td><td>Pathogen develops within the vector but does not multiply</td><td>Filarial worms in mosquitoes</td></tr>
+            <tr><td>Transovarian</td><td>Pathogen passes from an infected female vector directly to her offspring via the eggs</td><td>Dengue virus in <em>Aedes</em> mosquitoes</td></tr>
+          </table>
+          <p>Key vector-relevant insect orders include <strong>Diptera</strong> (mosquitoes and flies — the dominant vector group for dengue, malaria, and filariasis), <strong>Lepidoptera</strong> (moths and butterflies, some of public health relevance through irritant scales), <strong>Coleoptera</strong> (beetles), and <strong>Hymenoptera</strong> (ants, bees, and wasps, chiefly relevant through venomous sting reactions).</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Vector Control and Prevention Strategies</summary>
+        <div class="block-body">
+          <p>Effective vector control follows an <strong>integrated vector management</strong> approach combining multiple complementary strategies rather than relying on any single method:</p>
+          <table class="q">
+            <tr><th>Strategy</th><th>Examples / mode of action</th></tr>
+            <tr><td>Chemical (insecticides)</td><td>Space spraying (adulticiding), larviciding, and residual (surface) spraying</td></tr>
+            <tr><td>Biological control</td><td><em>Bacillus thuringiensis israelensis</em> (Bti) and larvivorous fish targeting larval stages with minimal non-target harm</td></tr>
+            <tr><td>Environmental management</td><td>Source reduction — eliminating or modifying breeding sites (removing standing water, improving drainage and solid waste management)</td></tr>
+            <tr><td>Genetic/novel control</td><td>Sterile insect technique and related approaches that suppress reproduction in wild vector populations</td></tr>
+            <tr><td>Personal/household protection</td><td>Bed nets, repellents, screening — reducing human–vector contact directly</td></tr>
+          </table>
+          <p>The <strong>roles of the public health entomologist</strong> within an elimination programme include vector species surveillance and identification, monitoring insecticide resistance, guiding the selection and timing of control interventions, evaluating programme effectiveness, and providing technical input into outbreak investigation and response.</p>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>The Insectarium: Purpose and Operating Requirements</summary>
+        <div class="block-body">
+          <p>An <strong>insectarium</strong> is a controlled facility for rearing and maintaining arthropod colonies, used to support vector research, insecticide susceptibility testing, staff training, and public health education. Recommended operating conditions include a stable temperature around 26°C, relative humidity around 80%, and ordinary (non-intense) lighting. Colony management must avoid overcrowding and over-feeding, both of which promote disease and pest problems within the colony, and must exclude pesticide contamination, which can compromise experimental validity and colony survival.</p>
+          <p>Standard biosafety and hygiene practice for insectarium operation includes treating eggs with hot water (above 80°C) prior to disposal, destroying larvae and pupae with boiling water, and housing adult insects in insecticide-free cages to prevent unintended exposure that would confound susceptibility testing.</p>
+        </div>
+      </details>
+
+      <div class="keypoints">
+        <h4>Key Points</h4>
+        <ul>
+          <li>Arthropods affect health via disease transmission, tissue invasion, and venom/toxin inoculation.</li>
+          <li>Biological transmission is classified as propagative, cyclopropagative, cyclodevelopmental, or transovarian, each with a characteristic disease example.</li>
+          <li>Integrated vector management combines chemical, biological, environmental, genetic, and personal-protection strategies rather than relying on any single method.</li>
+          <li>Entomologists play a surveillance, technical, and evaluative role in vector-borne disease elimination programmes.</li>
+          <li>An insectarium requires carefully controlled temperature, humidity, and hygiene conditions, with strict protocols to avoid pesticide contamination and to safely dispose of colony material.</li>
+        </ul>
+      </div>
+
+      <div class="examq">
+        <h4>Exam / Study Questions</h4>
+        <ol>
+          <li>Describe the roles of the entomologist in a vector-borne disease elimination programme.</li>
+          <li>Discuss vector control and prevention strategies within an integrated vector management approach.</li>
+          <li>Explain the purpose and operating requirements of an insectarium.</li>
+          <li>Differentiate between propagative, cyclopropagative, cyclodevelopmental, and transovarian transmission, with an example of each.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="unit" id="revision">
+      <div class="section-head">
+        <div class="label">Topic 08</div>
+        <h2>Exam Revision &amp; Study Guide</h2>
+        <p class="lede">A cross-topic synthesis for final revision, integrating the module's recurring themes and exam-style questions.</p>
+      </div>
+
+      <details class="block" open>
+        <summary>How the Topics Connect</summary>
+        <div class="block-body">
+          <p>Although taught as separate topics, the module forms a coherent argument: the <strong>ecological framework</strong> (Topic 02) establishes that human health is inseparable from the functioning of ecosystems and their carrying capacity. <strong>Global warming</strong> (Topic 03) is the clearest current example of humanity exceeding that carrying capacity, with direct and measurable health consequences. <strong>Environmental epidemiology</strong> (Topic 01) and <strong>time series analysis</strong> (Topic 04) supply the methodological toolkit needed to detect and quantify those consequences at the population level. <strong>Chronic disease surveillance</strong> (Topic 05) operationalises this methodology into ongoing monitoring systems. <strong>Urbanisation</strong> (Topic 06) is the dominant demographic process reshaping human exposure to environmental hazards in the 21st century, while <strong>public health entomology</strong> (Topic 07) illustrates a concrete, applied vector-borne disease control response that sits at the intersection of climate, urbanisation, and surveillance.</p>
+        </div>
+      </details>
+
+      <details class="block" open>
+        <summary>Cross-Topic Comparison Table</summary>
+        <div class="block-body">
+          <table class="q">
+            <tr><th>Topic</th><th>Core analytic tool</th><th>Signature exam theme</th></tr>
+            <tr><td>Environmental epidemiology</td><td>Study design selection (cohort, case-control, case-crossover, time series, ecological)</td><td>Matching design to exposure–outcome pattern (e.g., lead and asthma)</td></tr>
+            <tr><td>Ecological framework</td><td>Ecosystem/carrying-capacity concepts</td><td>Mechanisms linking ecosystem degradation to human health</td></tr>
+            <tr><td>Global warming</td><td>GHG emissions inventories; climate–health pathway mapping</td><td>Evidence for global warming; public health response</td></tr>
+            <tr><td>Time series</td><td>ARIMA/SARIMA, ACF/PACF, decomposition</td><td>Why standard regression fails for correlated time-ordered data</td></tr>
+            <tr><td>Chronic disease surveillance</td><td>GIS/spatial epidemiology, RIF, biomonitoring</td><td>Aims and principles of environmental surveillance systems</td></tr>
+            <tr><td>Urbanisation</td><td>Urban definition criteria; policy frameworks</td><td>Positive vs negative health impacts of urban growth</td></tr>
+            <tr><td>Public health entomology</td><td>Integrated vector management</td><td>Vector control strategy and the entomologist's role</td></tr>
+          </table>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary>Consolidated Exam Question Bank</summary>
+        <div class="block-body">
+          <ol class="plain">
+            <li>Describe a suitable study/research design to apply in environmental epidemiology, using lead exposure and asthma as a worked example.</li>
+            <li>Explain at least three ways in which degradation of the ecosystem could threaten human health.</li>
+            <li>What is the Gaia hypothesis, and is it consistent with — and informative for — ecological and public health principles?</li>
+            <li>Discuss the evidence for global warming and describe the public health actions and responses required.</li>
+            <li>Define a time series and describe the limitations of applying ordinary linear regression to time series data.</li>
+            <li>Discuss the aims, concepts, and guiding principles of environmental (health) surveillance.</li>
+            <li>Discuss the impact of urbanisation on health, covering both positive and negative dimensions.</li>
+            <li>Describe the roles of the entomologist in a vector-borne disease elimination programme, and discuss vector control and prevention strategies.</li>
+            <li>Discuss the environmental determinants relevant to a pandemic scenario, integrating ecological, surveillance, and urbanisation perspectives.</li>
+          </ol>
+        </div>
+      </details>
+
+      <div class="pull">"Environmental health practice functions as the first line of defence against disease — yet prevention programmes, unlike therapeutic ones, are often taken for granted and under-resourced." This tension between prevention and cure recurs across every topic in this module and is a productive lens for essay-style exam answers.</div>
+    </section>
+
+  </main>
+
+</div>
+
+<footer>
+  <div class="hero-inner" style="padding-left:0;padding-right:0;">
+    <p class="refs"><b>Author &amp; Compiler: Dr Azul</b><br/>Compiled from DrPH Environmental Health course materials.</p>
+    <p class="small">This page is a study aid synthesising lecture content, assigned readings, and field-visit briefing materials from the DrPH Environmental Health module. Lecturer names and specific institutional affiliations have been generalised to role labels. Content should be cross-checked against original course materials before examinations.</p>
+  </div>
+</footer>
+
+<script>
+  // ---- Active nav link on scroll ----
+  const sections = document.querySelectorAll('section.unit');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.id;
+      const link = document.querySelector('.nav-link[href="#' + id + '"]');
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ---- Search / filter / highlight ----
+  const searchBox = document.getElementById('searchBox');
+  const searchCount = document.getElementById('searchCount');
+
+  function clearHighlights() {
+    document.querySelectorAll('mark.search-hit').forEach(mark => {
+      const parent = mark.parentNode;
+      parent.replaceChild(document.createTextNode(mark.textContent), mark);
+      parent.normalize();
+    });
+  }
+
+  searchBox.addEventListener('input', () => {
+    const q = searchBox.value.trim().toLowerCase();
+    clearHighlights();
+
+    navLinks.forEach(link => {
+      const text = link.textContent.toLowerCase();
+      link.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+
+    if (!q || q.length < 2) {
+      searchCount.textContent = '';
+      return;
+    }
+
+    let count = 0;
+    document.querySelectorAll('section.unit').forEach(sec => {
+      const walker = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT, {
+        acceptNode: node => (node.parentNode && node.parentNode.tagName !== 'SCRIPT' && node.nodeValue.trim())
+          ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+      });
+      const nodes = [];
+      let n;
+      while ((n = walker.nextNode())) nodes.push(n);
+
+      nodes.forEach(node => {
+        const idx = node.nodeValue.toLowerCase().indexOf(q);
+        if (idx > -1) {
+          const range = document.createRange();
+          range.setStart(node, idx);
+          range.setEnd(node, idx + q.length);
+          const mark = document.createElement('mark');
+          mark.className = 'search-hit';
+          try {
+            range.surroundContents(mark);
+            count++;
+            if (sec.tagName === 'SECTION' && sec.hasAttribute) {
+              const details = sec.querySelectorAll('details.block');
+              details.forEach(d => { if (d.contains(mark)) d.open = true; });
+            }
+          } catch (e) { /* skip malformed ranges */ }
+        }
+      });
+    });
+
+    searchCount.textContent = count + (count === 1 ? ' match' : ' matches');
+    const first = document.querySelector('mark.search-hit');
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+</script>
+
+</body>
+</html>
