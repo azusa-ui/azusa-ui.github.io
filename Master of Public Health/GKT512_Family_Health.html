@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 512 Family Health</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 512</h2>
+      <div style="font-size:11px;color:var(--text3)">Family Health</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Maternal Health & Mortality</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('f1-ant')">Antenatal</a><a onclick="scrollTo('f1-mmr')">MMR</a><a onclick="scrollTo('f1-cemd')">CEMD</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Perinatal Health & Mortality</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('f2-def')">Definitions</a><a onclick="scrollTo('f2-det')">Determinants</a><a onclick="scrollTo('f2-audit')">Audit</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Child Health</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('f3-imm')">Immunisation</a><a onclick="scrollTo('f3-grow')">Growth/Nutrition</a><a onclick="scrollTo('f3-imci')">IMCI</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Women's, Men's & Adolescent Health</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('f4-w')">Women</a><a onclick="scrollTo('f4-m')">Men</a><a onclick="scrollTo('f4-a')">Adolescent</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Health of Persons with Disabilities & Ageing</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('f5-pwd')">PWD</a><a onclick="scrollTo('f5-age')">Ageing</a><a onclick="scrollTo('f5-pol')">Policy</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1</a><a onclick="scrollTo('pyq-2')">Q2</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 512 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Family Health</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first!
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Maternal Health & Mortality</div><div class="hc-sub">Antenatal, MMR, CEMD</div><div class="hc-badge"><span class="tag tag-red">Maternal</span><span class="tag tag-orange">MMR</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Perinatal Health & Mortality</div><div class="hc-sub">Stillbirth, neonatal, perinatal audit</div><div class="hc-badge"><span class="tag tag-purple">Perinatal</span><span class="tag tag-blue">Neonatal</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Child Health</div><div class="hc-sub">Immunisation, growth, morbidity</div><div class="hc-badge"><span class="tag tag-green">Child</span><span class="tag tag-orange">IMCI</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Women's, Men's & Adolescent Health</div><div class="hc-sub">Life-course, action plans</div><div class="hc-badge"><span class="tag tag-blue">Women</span><span class="tag tag-purple">Adolescent</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Health of Persons with Disabilities & Ageing</div><div class="hc-sub">PWD access, healthy ageing</div><div class="hc-badge"><span class="tag tag-green">Disability</span><span class="tag tag-orange">Ageing</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Maternal Health & Mortality</div>
+  <div class="page-sub">Source: GKT512 Lecture Notes — "Maternal Health and Mortality" (lecturer attribution omitted); WHO "Trends in Maternal Mortality 2000 to 2020" (WHO/UNICEF/UNFPA/World Bank/UNDESA); Lancet 2024 global analysis of determinants of maternal health (Souza et al.); Malaysia CEMD Bulletin 2019 (Family Health Development Division, MOH).</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Definitions</div>
+<p><strong>Maternal health</strong> is the health of women during pregnancy, childbirth and the postpartum period. <strong>Maternal mortality</strong> is the death of a woman while pregnant or within 42 days of termination of pregnancy, irrespective of the duration and site of the pregnancy, from any cause related to or aggravated by the pregnancy or its management — but not from accidental or incidental causes (temporal and causal relationship). Related concepts include <strong>late maternal death</strong>, the <strong>comprehensive maternal death</strong> category introduced in ICD-11, and <strong>pregnancy-related death</strong> (death during pregnancy or within 42 days of its end, irrespective of cause). Ascertainment methods include death certificates, verbal autopsy, and household survey methods.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Indicators of maternal mortality <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p><strong>Maternal Mortality Ratio (MMR)</strong> = (number of maternal deaths in a specific period ÷ number of live births in the same period and area) × 100,000. It measures obstetric risk — the risk of dying once pregnant — and is described as "the tip of the iceberg" and a general indicator of population health, women's social status, and health-system functioning. <strong>Maternal Mortality Rate</strong> = (number of maternal deaths ÷ number of women of reproductive age, 15–49) × 100,000; unlike the ratio, this captures both the likelihood of becoming pregnant and of dying during pregnancy/puerperium (i.e., it reflects fertility as well as obstetric risk). <strong>Lifetime risk of maternal death</strong> is the probability that a woman surviving to age 15 will eventually die of a maternal cause, given current fertility and mortality rates, usually expressed as odds (e.g., 1 in 3,700) and often used for advocacy. <strong>Proportion of maternal deaths among female deaths (PMDF)</strong> is the proportion of all deaths among women of reproductive age attributable to maternal causes.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Global trend (WHO/UNICEF/UNFPA/World Bank, "Trends in Maternal Mortality 2000–2020") <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Globally, MMR fell from 385 (1990) to 216 per 100,000 live births (2015) — a decline of roughly 44%, with lifetime risk falling from 1 in 73 to 1 in 180; developing regions accounted for ~99% of 2015 maternal deaths, sub-Saharan Africa alone for ~66%. Between 2000 and 2020 the global MMR fell 34.3% (about 2.1%/year on average), and the lifetime risk of a 15-year-old girl eventually dying of a maternal cause nearly halved, from 1 in 120 (2000) to 1 in 210 (2020). However, on closer analysis nearly all of that 2000–2020 progress had occurred by 2015 — the MDG-era decline stalled and the global MMR stagnated over 2016–2020. In 2020, an estimated 287,000 women died during and following pregnancy and childbirth (about one maternal death every two minutes); almost 95% occurred in low- and lower-middle-income countries, and sub-Saharan Africa and Southern Asia together accounted for ~87% of deaths. Whether COVID-19 fully explains the stagnation is debated: the pandemic may have contributed via direct maternal-COVID interaction or via disrupted access to antenatal/emergency obstetric care, but stagnation was already evident pre-pandemic, so this should be read as a partial and not complete explanation.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🇲🇾</span> Maternal mortality in Malaysia</div>
+<p>Malaysia's MMR fell steeply from 1080 per 100,000 live births in 1933 to roughly 20–30 per 100,000 by the 2000s–2010s (MMR of 21.1 in 2019), and maternal health is generally regarded as relatively good by regional standards. However, decline has been described as "tidak ketara" (not marked) since 2000 compared with earlier decades, and the MMR has fluctuated in the 20s–30s range: 27.2 (2004), 21.4 (2013), rising to 29.1 (2016), then 25 (2017). <strong>During the COVID-19 pandemic, MMR rose sharply</strong> — from 24.8 per 100,000 live births in 2020 to 68.2 in 2021 (a 175% increase), corresponding to 117 deaths in 2020 versus 300 in 2021, Malaysia's highest maternal mortality figure in decades. The proposed explanatory framework is the <strong>Three Delays Model</strong> (Thaddeus & Maine): (1) delay in the decision to seek care, (2) delay in reaching an adequate health facility, and (3) delay in receiving adequate/quality care at the facility — with the pandemic plausibly worsening all three delays (fear of seeking care, movement restrictions, and health-system strain). A 2023 UNFPA-linked commentary suggested poor quality of maternal health care may now be a more significant barrier to further MMR reduction in Malaysia than insufficient access, since access (antenatal coverage, skilled attendance) is already near-universal.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Causes of maternal death <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Causes are classified as <strong>direct</strong> (complications of pregnancy/delivery/puerperium itself), <strong>indirect</strong> (pre-existing disease aggravated by pregnancy), or <strong>fortuitous</strong> (incidental/unrelated). In Malaysia, five leading causes of maternal death are associated medical conditions, pulmonary embolism, postpartum haemorrhage (PPH), amniotic fluid embolism, and hypertensive disorders of pregnancy (HDP). Over the past ~15 years a transition has been observed from classic obstetric causes (PPH, HDP) toward associated medical conditions such as cardiac and renal disease, though in more recent years PPH has again become the leading cause. Deaths from pulmonary embolism have shown an increasing trend, with obesity identified as the main risk factor for venous thromboembolism — suggesting an association with the rising burden of non-communicable disease in Malaysia. Ectopic pregnancy is flagged as another concerning cause of direct death. DOSM (2021) data on cause-specific proportions show obstetric embolism and postpartum haemorrhage as leading causes in 2020 (18.8% and 16.2% respectively), alongside eclampsia (6.0%) and ectopic pregnancy (6.0%).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Risk factors <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p><strong>Health-service factors</strong>: only 73% of deliveries globally were attended by skilled health personnel (2013); an estimated 15% of pregnant women experience life-threatening complications requiring emergency care, and 40% of pregnancies need some form of special care; distance, lack of information, and inadequate services compound these risks. <strong>Reproductive factors</strong>: teenage motherhood, maternal age over 40, high parity, and unmet need for family planning (in 2015, an estimated 76% of women of reproductive age who were married/in-union had their need for family planning with a modern method met — implying a substantial unmet minority). <strong>Socioeconomic factors</strong>: poverty, illiteracy, malnutrition (stunting, anaemia, severe vitamin A deficiency, iodine deficiency, inadequate dietary calcium), low social status of women, and adverse cultural practices. A 2024 Lancet global-determinants analysis (Souza et al.) organises these into social determinants (gender inequity, low income, racial/ethnic discrimination, low maternal education, rurality, conflict, intimate partner violence), individual/family factors (extremes of maternal age, high parity, unmarried status, low partner involvement/socioeconomic status, poor diet, low physical activity, substance use), and health-service/education factors mapped onto the three-delay framework, converging on a common final pathway to death via multi-organ dysfunction and sepsis.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Prevention: Safe Motherhood and strategies in Malaysia <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Most maternal deaths are preventable: severe bleeding risk is reduced by injecting oxytocin immediately after childbirth; puerperal infection is addressed through hygiene and early recognition/treatment; pre-eclampsia is managed with agents such as magnesium sulfate before eclamptic convulsions develop; and preventing unwanted/too-early pregnancy requires access to contraception, safe abortion services to the full extent of the law, and quality post-abortion care. The global <strong>Safe Motherhood Initiative</strong> was launched following the first Safe Motherhood Conference in Nairobi (1987, World Bank/WHO/UNFPA), producing Ten Safe Motherhood Action Messages spanning human rights, women's empowerment, delaying marriage/first birth, skilled delivery attendance, and partnership. Malaysia-specific strategies include basic antenatal/postpartum care, a home-based maternal health card, a risk-approach colour-coding system, referral-and-feedback systems, skilled attendance at delivery across hospital/low-risk birthing centres/alternative birthing centres/transit ("half-way") houses, staff training, clinical practice guidelines, registration/training of traditional birth attendants (TBA), and contraceptive counselling. Key elements credited with Malaysia's historical MMR decline include expanding access and quality of maternal health services (including family planning) in rural and urban areas, upgrading emergency obstetric care in district hospitals, streamlining referral/feedback systems, upskilling delivery attendants, implementing a periodic-review monitoring system including confidential enquiry reporting, and working with communities to reduce social/cultural barriers to modern maternal services.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">📋</span> Confidential Enquiry into Maternal Deaths (CEMD)</div>
+<p>Introduced in Malaysia in 1991, the CEMD is an audit of every maternal death that compares actual practice against set standards (the "ideal"), identifies shortfalls, and generates remedial recommendations to relevant programmes and agencies — shifting focus from individual blame toward systemic quality improvement. Malaysia's CEMD Bulletin (2019) reported 240 pregnancy-related deaths nationally, a decline from 266 in 2011, comprising direct, indirect, and fortuitous deaths among Malaysian citizens and non-citizens with legal documentation; Malaysian citizens accounted for 65.4% of these deaths in the reported breakdown. The bulletin cautions that provisional figures from the Family Health Development Division, Ministry of Health may differ from the final official statistics published by the Department of Statistics Malaysia (DOSM).</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">MDG 5, SDG 3.1 and maternal near miss <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p><strong>MDG 5</strong> (Improve Maternal Health) set two targets: reduce MMR by three-quarters between 1990 and 2015, and achieve universal access to reproductive health by 2015. Malaysia's baseline MMR of 44/100,000 (1991) against an 11/100,000 target saw only partial progress (25.5/100,000 in 2011), illustrating that most countries — including relatively high-performing ones — fell short of MDG 5A; only Cambodia and Maldives had a greater than 90% likelihood of a true ≥75% MMR reduction. Under the SDGs, <strong>target 3.1</strong> calls for a global MMR below 70 per 100,000 live births by 2030; the global MMR stood at 223 in 2020, meaning an annual reduction rate of 11.6% would be needed to reach target — a pace rarely achieved historically at national level, even though the clinical knowledge to prevent most maternal deaths already exists. This underscores that ending preventable maternal mortality (the WHO "EPMM" strategic framework) is now understood as much as a health-systems and equity problem as a technical one. <strong>Maternal near miss</strong> — a woman who nearly died but survived a pregnancy/childbirth/postpartum complication — is increasingly used as a complementary surveillance indicator: near misses are considerably more common than deaths (for every maternal death, an estimated 30 further women suffer injury, infection or disability, implying roughly 15 million affected women annually) and share similar risk profiles with fatal cases, making near-miss review a statistically richer quality-improvement tool within any single facility, where deaths themselves remain rare events.</p></div>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Perinatal Health & Mortality</div>
+  <div class="page-sub">Source: GKT512 Lecture Notes — "Perinatal Health & Mortality" (lecturer attribution omitted); Duffy et al. 2022, European Journal of Public Health (Ireland perinatal inequalities); Hossain et al., PLOS ONE (Bangladesh perinatal mortality determinants); WHO/UNICEF child mortality reports.</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Definitions</div>
+<p>The <strong>perinatal period</strong> begins at 22 completed weeks (154 days) of gestation and ends 7 completed days after birth. The <strong>neonatal period</strong> spans birth to 28 completed days, subdivided into <strong>early neonatal</strong> (Day 0–6) and <strong>late neonatal</strong> (Day 7–27). A <strong>perinatal death</strong> combines late fetal deaths (stillbirths) and early neonatal deaths. WHO recommends including all fetuses/infants weighing at least 500g at birth (alive or dead) in statistics; a <strong>stillbirth</strong> is defined as birthweight ≥500g, or if unknown, gestational age >22 completed weeks — though the international comparison definition used by WHO for cross-country benchmarking uses a higher threshold (birthweight ≥1,000g or ≥28 completed weeks), which explains why "stillbirth" figures can differ substantially depending on which definition a country or report applies.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Indicators and why they matter <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p><strong>Perinatal mortality rate (PMR)</strong> = (early neonatal deaths + stillbirths) ÷ total births (live births + stillbirths) × 1,000. Related measures include the neonatal mortality rate (neonatal deaths ÷ live births × 1,000) and fetal death rate (fetal deaths ÷ total births × 1,000). The PMR is considered a key outcome indicator for newborn care because it directly reflects the quality of prenatal, intrapartum and newborn care; serves as a proxy for maternal health status and nutrition; is sensitive to socioeconomic development; is a major contributor to infant and under-five mortality; and is closely linked to maternal mortality. As with maternal mortality, perinatal mortality has been described as only the "tip of the iceberg" of adverse perinatal outcomes, since surviving infants may carry lifelong sequelae from the same underlying insults.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Measurement challenges <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Perinatal mortality statistics are affected by underreporting (underestimates in high-mortality settings may reach 5% for stillbirths and 3% for neonatal deaths, with stillbirths especially prone to omission), misclassification (uncertain gestational age/birthweight can lead stillbirths to be recorded as late spontaneous abortions, and "heaping" of reported age-at-death onto day 7 can misclassify early as late neonatal deaths), missing data requiring modelled estimates, recall bias and cultural sensitivity in survey-based ascertainment, and inconsistent cut-off definitions across countries. Facility-based PMR estimates should be interpreted cautiously, since they are highly sensitive to the case-mix/complexity of deliveries at that facility and are statistically unstable in small facilities. Because retrospective surveys are usually based on a preceding 5-year window, evaluators are advised not to repeat survey-based PMR estimates more often than every 3–5 years.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🌍</span> Global and Malaysian trends</div>
+<p>Perinatal death is roughly 100 times more common than maternal death. Globally, the under-five mortality rate fell 53% between 1990 and 2015 (91 to 43 deaths per 1,000 live births) — short of the two-thirds reduction targeted under MDG 4 — and about 16,000 children still died daily as of the mid-2010s. The neonatal share of under-five deaths has been rising (an estimated 45% in 2015, projected toward 52% by 2030), and almost 1 million neonatal deaths occur on the day of birth, with close to 2 million within the first week — underscoring that neonatal survival requires interventions distinct from, though linked to, those addressing older-child mortality. <strong>In Malaysia</strong>, the under-five mortality rate fell about 50% from 1990 to 2015 (16.8 to 8.4 per 1,000 live births) but has plateaued since roughly 2000, with persistently higher mortality among vulnerable groups such as the Orang Asli. In 2016, 54% of under-five deaths occurred within the first month of life, and 75.5% of neonatal deaths occurred within the first week (DOSM data); the national stillbirth rate was reported at 5.2 per 1,000 births, and stillbirths account for roughly two-thirds of perinatal deaths in Malaysia, while the fall in overall PMR since the 1980s has been driven mainly by declining early neonatal deaths (better hospital-based neonatal care) rather than by falling stillbirth rates.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Inequalities: Ireland (Duffy et al. 2022) and Bangladesh <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>A 2022 European Journal of Public Health study using Ireland's National Perinatal Reporting System (2004–2019, ~995,000 births) found that although perinatal mortality decreased for most groups over time, inequalities persisted: relative to Irish-born mothers, the risk for African-born mothers actually <em>increased</em> over the study period (relative risk rising from 1.63 to 2.00), and adjustment for socioeconomic status reduced but did not eliminate this elevated relative risk. Mothers classified as unemployed or engaged in home duties had a higher risk of perinatal death relative to mothers in higher professional occupations. This illustrates that aggregate national-level improvement in perinatal mortality can mask — and in some subgroups even coexist with worsening — inequality by country of birth and socioeconomic position, a caution relevant when interpreting Malaysia's own national PMR trend against its more disadvantaged or geographically remote subpopulations. Separately, research on perinatal mortality in Bangladesh has similarly found that despite overall reduction in the perinatal mortality rate over time, the rate remains high and unevenly distributed, reinforcing that a falling national average does not by itself indicate equitable progress.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Causes and risk factors <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Stillbirths account for over half of all perinatal deaths; leading causes include normally-formed macerated stillbirths, asphyxial conditions, and lethal congenital malformations (most commonly neural tube defects), which are more frequent in developing countries, partly reflecting untreated maternal infection (e.g., syphilis) and nutrient deficiency. About one-third of stillbirths occur intrapartum (during labour) and are considered largely avoidable, being closely tied to place of and quality of care at delivery, whereas many antepartum (before labour) intrauterine deaths have no identifiable cause. Risk factors are grouped by timing: pre-pregnancy (low socioeconomic/educational status of women, poor nutritional status); during pregnancy (prior adverse pregnancy outcome, uncontrolled hypertension/diabetes, lack of antenatal care, multiple pregnancy, assisted reproductive technologies, obesity, smoking/alcohol/drug use, psychosocial stress, nulliparity, extreme maternal age, closely spaced pregnancies, maternal HIV/syphilis); and during/after delivery (obstructed labour, malpresentation, birth trauma, lack of timely access to caesarean delivery, preterm birth, premature rupture of membranes, prolonged labour, harmful newborn-care practices such as inadequate cord care or discarding colostrum). Most neonatal deaths have been attributed to failure to address socioeconomic/cultural/logistical barriers to care-seeking, failure to implement basic preventive measures (e.g., tetanus toxoid immunisation, early exclusive breastfeeding), and failure to promptly identify and manage sick newborns (Moss et al., 2002). Preterm birth complications are estimated to directly cause about 35% of all neonatal deaths and are also an indirect risk factor for death from neonatal infection.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Prevention across the continuum of care <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Preventive strategies are organised into three phases. <strong>Pre-pregnancy</strong>: preconception care (identifying and modifying biomedical, behavioural and social risks before or early in pregnancy) targeted at prospective couples and women planning pregnancy generally, and more specifically at those with medical illness, prior stillbirth/neonatal death, or inherited/structural anomalies; entry points in Malaysia include wellness clinics, premarital HIV/thalassemia screening, adolescent clinics, family planning and postnatal clinics. <strong>Antenatal and intrapartum</strong>: universal antenatal care, screening/treatment of infections including HIV (PMTCT/PPTCT) and syphilis, nutritional support, risk-based screening, tetanus toxoid immunisation, skilled birth attendance, antenatal corticosteroids for threatened preterm labour, and reducing non-medically-indicated induction of labour or caesarean section. <strong>Newborn care</strong>: essential newborn care for all babies (thermal care, hygienic cord care, exclusive breastfeeding support, infection prevention, neonatal resuscitation, Kangaroo Mother Care for preterm infants). These map onto the broader "continuum of care" principle — continuity across the life course (adolescence, pre-pregnancy, pregnancy, birth, newborn period) and continuity across care settings (home/community, health centre, hospital, with referral and follow-up back to community) — which underpins SDG target 3.2 (end all preventable deaths of children under 5 by 2030).</p></div>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Child Health</div>
+  <div class="page-sub">Source: GKT512 Lecture Notes — "Child Health" (lecturer attribution omitted); UN IGME "Levels & Trends in Child Mortality" Report 2022; MOH Malaysia "Under-5 Mortality Review 2016: Looking into the Preventable Deaths" (Sept 2022); MOH "Child Health 2021–2030" national framework; Convention on the Rights of the Child, 1989.</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Definitions</div>
+<p>A <strong>child</strong> is defined as every human being below the age of 18 years, unless majority is attained earlier under applicable law (Convention on the Rights of the Child, 1989; mirrored in Malaysia's Child Act 2001, Act 611). The Convention establishes that the best interests of the child must be a primary consideration in all actions concerning children, and sets out rights including survival and development, expression of views, the highest attainable standard of health, an adequate standard of living, and protection from violence, abuse, neglect and economic exploitation. <strong>Holistic child development</strong> refers to a child's development across all domains — physical, social, emotional, intellectual and moral/spiritual — occurring within a supportive family, community and societal environment.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Determinants of child health and development <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Determinants operate at nested levels: <strong>family factors</strong> (household structure and single parenting, household size, family resources/socioeconomic status, poverty and low birth weight, feeding practices, reproductive factors such as marital age and birth spacing, gender preference, violence against children including abuse and trafficking); <strong>social determinants</strong> (community capacity and social cohesion, child security/protection under the Child Act 2001, social policy on poverty eradication and food/child-care/education policy, equitable access to child and maternal health services, housing and slum conditions, child labour and institutionalisation, environmental hazards such as global warming and pollution/chemical exposure); and individual/biological factors. An estimated 1 in 3 children globally (about 200 million) fails to reach their full physical, cognitive, psychological and/or socioemotional potential due to poverty, poor health and nutrition, insufficient care, and insufficient stimulation, alongside other risk factors to early childhood development.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Evolution of global and Malaysian child health policy <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>UNICEF was established in 1946 to assist children affected by World War II, expanding its mandate over subsequent decades: the 1959 UN Declaration on the Rights of the Child; the 1978 Alma Ata Conference establishing holistic, community-based primary health care; the 1982 GOBI strategy (Growth monitoring, Oral rehydration therapy, Breastfeeding, Immunisation); the 1990 World Summit for Children and the Convention on the Rights of the Child (from which Malaysia's Child Act 2001 derives); the 2000 Millennium Development Goals; and the 2015 Sustainable Development Goals. In Malaysia, maternal and child health services began in the 1950s with a three-tier service system, followed by successive introductions of BCG/DPT vaccination (1960s), oral polio and tetanus toxoid vaccination (1970s, alongside the Child Health Card and NCHS growth chart), measles/rubella/hepatitis B vaccination (1980s), the Rapid Reporting System for Stillbirths and Neonatal Deaths and Neonatal Resuscitation Programme (1990s), and IMCI rollout, Hib/MMR vaccination, pre-pregnancy care for high-risk women, and the "1000 Hari Pertama Kehidupan" (First 1,000 Days of Life) initiative in the 2000s–2010s.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🌍</span> Global child mortality status (UN IGME 2022)</div>
+<p>In 2021, an estimated 5 million children died before turning 5, occurring because children were deprived of basic rights to quality health care, vaccination, proper food, clean water and sanitation, and because efforts against preventable communicable/infectious disease remain inadequate. Globally in 2021, neonatal deaths (33%) and deaths of children aged 1–11 months (20%) together accounted for over half of all under-five deaths; children born in poorer countries, and those in fragile/conflict-affected situations, are markedly more likely to die before age 5, with Sub-Saharan Africa and Southern Asia together accounting for more than 80% of all under-five deaths worldwide. Leading causes of preventable under-5 deaths globally include preterm birth/birth complications (including asphyxia/trauma), acute respiratory infections, diarrhoea and malaria; the specific cause-of-death profile differs by age, since neonatal deaths relate mainly to antenatal care and the birth process while deaths beyond the first month are more driven by communicable disease, with injuries becoming the dominant cause of preventable mortality among older children and youth (ages 5–24). Concerningly, more than 1 million children still died of vaccine-preventable diseases in the years leading up to 2020, with global measles cases rising roughly 300% in early 2019 versus 2018, over 200,000 measles deaths worldwide, and reintroduction of polio causing paralysis in an estimated 1,100 children in several countries — attributed partly to vaccine hesitancy and misinformation reducing routine immunisation uptake. If current trends continue, an estimated 54 countries will not meet the SDG target on under-five mortality by 2030.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Malaysia's under-5 mortality status <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Malaysia's under-5 mortality rate (U5MR) fell from 16.8 per 1,000 live births in 1990 but has plateaued since around year 2000, at roughly 6–9 per 1,000 live births over the past decade — meaning the MDG 4 target of 5.6 per 1,000 by 2015 was not achieved, even though Malaysia has separately met the lower SDG threshold of below 25 per 1,000. In 2020, 56% of under-5 deaths occurred among neonates (first month of life), and U5MR varies meaningfully by state (Sabah 10.73 and Perlis 10.49 per 1,000 versus Kuala Lumpur 4.55, against a national average of 6.9 per 1,000 in 2020). MOH's 2016 Under-5 Mortality Review found that only about 20–35% of Malaysian under-5 deaths were classified as preventable — a lower proportion than the roughly 60% reported in the Western Pacific region generally — with the preventable proportion rising with age (about 22% among early neonatal deaths versus roughly 55% among deaths in the 1–5 year toddler age group), and with substantial variation across states (from 5% to 30% in a 2014 review). Leading causes of preventable death differ by age band: conditions from the perinatal period and congenital malformation dominate the neonatal periods, respiratory causes (chiefly pneumonia) dominate the post-neonatal infant period, and injuries/external causes (motor vehicle accidents, drowning, asphyxia/suffocation/choking) dominate the toddler period. Contributing factors identified include, on the medical side, shortfalls in quality of care, and lack of critical-care beds, resuscitation equipment, ambulance and retrieval services; on the non-medical/family side, delay in seeking treatment, poverty, malnutrition, teenage pregnancy, and failure to appreciate illness severity or comply with medical advice.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Preventive strategies and MOH programmes <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>MOH's 2016 review recommended strengthening programmes for vulnerable children (malnutrition, low socioeconomic status); improving national immunisation coverage through application-based records/reminders, addressing vaccine hesitancy, and expanding coverage to include rotavirus, varicella zoster, influenza and RSV for high-risk groups; reducing teenage pregnancy and single motherhood through comprehensive sexuality education and legal reform to end child marriage; revising the child health record book as a parent-education tool; strengthening childhood-injury prevention (child car-restraint subsidies, childcare facility monitoring, workplace child-minding services); implementing mandatory folic acid fortification; strengthening early-detection programmes (detailed fetal ultrasound for congenital malformation, pulse oximetry screening for critical congenital heart disease, PCR-based rapid pathogen detection for respiratory infection); and strengthening neonatal/paediatric quality of care through resuscitation and life-support training programmes (including the Malaysian "Approach to Unwell Child Under 5 Years", ATUCU5) plus a clinical practice guideline for paediatric sepsis. These recommendations fed into Malaysia's <strong>National Plan of Action for Child Health (2021–2030)</strong>, approved by MOH's Policy and Development Committee in February 2021, with three goals: reduce preventable deaths among children under 5, promote a supportive environment for optimal child growth and development, and provide accessible, affordable, comprehensive and integrated quality child health services. MOH's routine services span the stillbirth/newborn period (stillbirth surveillance, G6PD and congenital hypothyroidism screening, neonatal jaundice quality-assurance monitoring, breastfeeding/nutrition support), infancy (immunisation, growth and development assessment, nutrition, infant mortality surveillance) and toddlerhood (immunisation, growth/development assessment, M-CHAT autism screening, under-5 mortality surveillance), underpinned by IMCI (Integrated Management of Childhood Illness) and the ATUCU5 approach.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">The 2016–2030 global life-course strategy <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The Global Strategy for Women's, Children's and Adolescents' Health (2016–2030, "Survive, Thrive, Transform") succeeded the MDG-era approach, motivated by the observation that maternal, under-five and adolescent mortality remained high at the end of the MDG period, that most such deaths were preventable, and that access to health services, nutrition, education, sanitation and clean water/air remained inequitably distributed within and between countries (e.g., poorly educated mothers have both higher under-five mortality and higher child stunting; rural teenagers have more pregnancies). What is new in this strategy relative to the MDG era: a stronger equity focus including marginalised groups, explicit acknowledgement of adolescents as a distinct group with unique needs, and a life-course approach recognising that health at one life stage cumulatively affects subsequent stages and even the next generation. Aligned SDG targets include target 3.2 (end preventable deaths of newborns and children under 5 by 2030, with country-level targets of neonatal mortality ≤12/1,000 and under-5 mortality ≤25/1,000 live births) and target 3.1 (reduce global MMR to below 70/100,000 live births).</p></div>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Women's, Men's & Adolescent Health</div>
+  <div class="page-sub">Source: GKT512 Course Notes — "Women's Health: Definition, Importance, and Determinants" (seminar synthesis document); National Men's Health Plan of Action Malaysia 2018–2023 (MOH Family Health Development Division); GKT512 Lecture Notes — "Adolescent Health: an Overview" (lecturer attribution omitted).</div>
+<div class="card">
+<div class="card-title"><span class="icon">♀️</span> Women's Health: definition and importance</div>
+<p>Women's health is a multifaceted concept encompassing the physical, mental and social well-being of women throughout their lifespan — not merely the absence of disease or infirmity, but a holistic approach to maintaining wellness and preventing disease (Ritter, 2013; Palla et al., 2021). Its importance rests on three grounds: <strong>population health</strong> (healthier women lead to healthier babies and communities, Pettiford 2016); <strong>economic impact</strong> (improved women's health contributes to local economies and public welfare, Thangaraj & Loganathan 2020); and <strong>equity and rights</strong> (preserving and improving women's health is a basic human right essential to the health of all nations, Baheiraei et al. 2014).</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Determinants of women's health — innate traits <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Sex and biology: chromosomal (XX) and hormonal differences shape susceptibility to mood disorders, reproductive conditions and certain cancers (Ordovas 2017; Çalıyurt 2018; Helgeson & Mascatelli 2020); polygenic risk scores are increasingly used to predict breast/ovarian cancer and uterine fibroids, modulated by BMI and lifestyle (Guare et al. 2025); pregnancy and breastfeeding create distinct vulnerabilities such as polycystic ovarian syndrome, worsened by obesity (Dumesic et al. 2023). Age affects both age at diagnosis (higher-risk groups diagnosed earlier) and health-promoting behaviour (older women face more barriers to a healthy lifestyle due to physical/socioeconomic constraints; Hamzeh Gardeshi et al. 2024). Race and ancestry correlate with genetic and environmental exposures that can exacerbate disparities; risk models that ignore race/ancestry risk producing inaccurate predictions, reinforcing the need to integrate genetic and social-determinant data into precision-medicine approaches (Guare et al. 2025).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Determinants of women's health — individual behaviour <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Sexual risk behaviour (early debut, unprotected sex, multiple partners) raises risk of STI/HIV and unwanted pregnancy; sexual victimisation and intimate partner violence (IPV) further compound risk, being associated with contraceptive non-use and repeat abortion (Davis et al. 2018; Laanpere et al. 2013). Alcohol affects women differently from men — lower dehydrogenase enzyme levels and higher fat-to-water ratio mean alcohol levels rise faster and produce stronger adverse effects (earlier-onset organ damage) at similar consumption levels (Milic et al. 2018); risks include reduced fertility, pregnancy complications and fetal alcohol syndrome (Gorn et al. 2007). Smoking among Malaysian women, while less prevalent than among men, is a growing concern (18.6% among female students in private higher-learning institutions in Kuala Lumpur/Selangor in one study), with adverse effects on fertility, pregnancy outcomes and cardiovascular/cancer risk. Women's health-seeking behaviour is shaped by socio-cultural factors, economic status and gender roles, with limited autonomy, cultural taboos and financial constraints commonly cited as barriers (Sen 2012; Shaikh et al. 2008).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Determinants of women's health — social, living/working conditions and policy <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Social/family/community networks provide support that shapes health behaviours (e.g., breastfeeding uptake, cancer survival via larger social networks) and buffer stress, while violence against women and girls — physical, sexual, domestic, FGM, child marriage, trafficking — remains a pervasive determinant rooted in gender inequality, with physical, mental (depression, PTSD) and reproductive health consequences (García-Moreno & Riecher-Rössler 2013). Living and working conditions matter: high job demands with low control and poor social support are linked to fatigue and musculoskeletal/emotional problems, more pronounced in lower socioeconomic groups (Niedhammer et al. 2008); female-dominated occupations (nursing, cleaning) carry specific psychosocial and physical risks. At the macro level, economic inequality, urbanisation, cultural discrimination and health policy jointly shape outcomes — for instance, financial crises disproportionately worsen women's mental health (Blanton et al. 2018), and gender-equity-oriented policy is associated with better outcomes (Wisdom et al. 2005).</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">♂️</span> Men's Health: rationale and situational analysis</div>
+<p>Malaysia's <strong>National Men's Health Plan of Action 2018–2023</strong> (MOH Family Health Development Division) was developed because men's health has historically lagged behind women's: a Malaysian male born in 2017 could expect to live to 72.7 years versus 77.4 for a female (a gap that has persisted globally at around 4.5–4.6 years since 1990), and the death rate among men aged 15–65 is roughly twice that of women the same age. Contributors include chronic cardiovascular illness, road traffic accidents, chronic respiratory disease, and cancer (colorectal, lung, prostate). Socio-cultural gender roles — men as household decision-makers and "leaders of their own health" — are identified as a barrier to preventive health-seeking, reflected in low screening uptake (only 3.3% of men screened at health clinics in 2015 versus 4.1% of women). Only Australia, Brazil, Ireland and Iran had, at the time of the plan's writing, adopted comparable nationwide male-centred health strategies.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Men's health: NCD and risk-behaviour burden <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Malaysian men are more likely than women to die prematurely (before age 70) from non-communicable disease. National Health and Morbidity Survey (NHMS) 2015 data show prevalence in men of diabetes 16.7%, hypertension 30.8%, and hypercholesterolaemia 43.5% — more than half of each condition undiagnosed (diabetes 7.6%, hypertension 12.2%, hypercholesterolaemia 8.5% undiagnosed). Risk-factor prevalence is high: 31.6% of adult men overweight and 15.0% obese, 41.4% smoke, and only 5.6% eat five or more servings of fruit/vegetables daily. Global Burden of Disease 2010 data attribute 55% of dietary-risk deaths, 72% of tobacco-attributable deaths and 65% of alcohol-attributable deaths to males. Age at first myocardial infarction is trending younger in men, linked partly to risk-taking behaviour and underuse of preventive health services.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Men's health: mental health, ED/LUTS and screening <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>NHMS 2015 found GHQ-12-measured mental health problems in 27.6% of men versus 30.8% of women (both roughly triple the 2006 figures of 10.4%/12.1%), yet men with mental health problems carry higher mortality: the 2000 Malaysian Burden of Disease and Injury Study attributed 8% of male DALYs to mental disorders (4th after cardiovascular disease, accidents, and infectious disease), with major depression the largest single contributor (45% of the mental-disorder burden in men), and alcohol/drug dependence, suicide and violence occurring predominantly in men (versus anxiety/depression predominating in women). Men's mental illness is compounded by atypical presentation (more aggression/agitation than classic depressive symptoms) and reluctance to seek care tied to masculine identity norms, prompting calls for gender-sensitive rather than illness-response-only approaches. Separately, the age-adjusted prevalence of moderate-to-complete erectile dysfunction is reported at 22% in Malaysia (compared with 34% Japan, 17% Italy, 15% Brazil in cross-national data), and moderate-to-severe lower urinary tract symptoms affect up to 42.7% of Malaysian men in a local study, rising with age alongside benign prostatic hyperplasia.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🧑</span> Adolescent Health: definition and rationale</div>
+<p>Adolescent health is a state of complete physical, social, mental and spiritual well-being of adolescents enabling them to live a healthy, harmonious life within a supportive environment, in preparation for optimal health in adulthood (MOH definition). Adolescence — the transition from childhood to adulthood — is a period of dramatic psychosocial, physical, cognitive and sexual change during which behaviour patterns affecting current and future health become established; WHO estimates that 70% of premature adult deaths are largely attributable to behaviours initiated during adolescence. Despite this long-term significance, adolescents have a lower immediate mortality rate than older or younger age groups, which has historically made the group a lower priority for health intervention — a mismatch the field aims to correct.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Adolescent development <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Development spans physical (growth spurt), sexual (puberty — development of sexual organs/secondary sexual characteristics, hormonally driven), cognitive (transition from concrete to abstract thinking, reasoning about implications and possibilities), emotional (emotional literacy — understanding one's own emotions, listening to and empathising with others, and expressing emotion appropriately; Steiner & Perry, 1999), social, and behavioural domains — the last shaped by the interplay of cognitive and emotional maturation (relevant to adolescent neurodevelopment, e.g. amygdala-driven emotional reactivity outpacing prefrontal regulation). These domains mature at different rates across three developmental stages: early adolescence (10–14 years), middle adolescence (15–17 years), and late adolescence (>17 years).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Adolescent health problems and root causes <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Problems cluster into five domains: physical health; nutritional health; mental health (major depression, anxiety disorder — the most common yet most undertreated, eating disorders, substance abuse disorder as a leading cause of psychosis-related admission, and self-harm behaviours such as cutting for tension release, seen in borderline personality presentations); sexual and reproductive health; and risk-taking behaviours. WHO (10 August 2022) reports over 1.5 million adolescent/young-adult deaths (ages 10–24) in 2020 — nearly 5,000 daily — with the lowest death risk in early adolescents (10–14); leading causes of death are injuries (including road traffic injuries and drowning), violence, self-harm, and maternal conditions. Half of all adult mental health disorders begin by age 14, though most go undetected and untreated, and early substance-use onset is associated with higher lifetime dependence risk. Globally there were 41 births per 1,000 girls aged 15–19 in 2020. Root causes are organised as internal risk factors (younger age at initiation, poor knowledge, male sex — higher risk, lower religiosity, lower education) and external risk factors (unstable family, peer pressure, social media/internet exposure, legislative gaps) — with local Malaysian studies documenting, for example, 49% of surveyed adolescents in Kelantan showing poor knowledge of sexual and reproductive health (Rahman et al. 2011) and factors linked to teenage pregnancy including young age and unstable family background.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Adolescent-friendly health services in Malaysia <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>MOH (2018) assessed current adolescent health services in Malaysia as not youth-friendly enough — less visible than other primary-care scopes and under-utilised by adolescent clients. A Selangor secondary-school study (Othman et al., 2019) found barriers to health-service utilisation among Malaysian youths including inconvenient clinic hours, long waiting times, transport difficulty, lack of awareness of adolescent-friendly services, negative provider attitudes, limited privacy and fear of family discovering the visit; knowledge of sexual and reproductive health services was strongly associated with utilisation (aware adolescents were eight times more likely to use services than unaware ones). Characteristics of adolescent-friendly health services include friendly/affordable policies, confidential and easy procedures, non-judgmental and competent providers, private and accessible facilities, comprehensive guideline-based services, youth involvement (youth clubs), and community outreach/peer-to-peer models; significant predictors of service quality were availability of trained staff, a dedicated adolescent-clinic team, and a private consultation area (number of staff and family-medicine-specialist availability were not significant predictors). Malaysian programmes addressing these gaps include PEARL (Program Ekspresi Anak Remaja Lestari, MOH) and Form One school-based health screening, alongside calls for continued strategic alliances across agencies, community empowerment, and "nurturing the boys" given the documented higher risk profile in male adolescents.</p></div>
+</div>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Health of Persons with Disabilities & Ageing Population</div>
+  <div class="page-sub">Source: Ahmad et al. 2017, BMC Public Health (NHMS 2015 disability module); Ibrahim et al., "Unmet Needs Among Parents of Disabled Children at Support Institutions in Kelantan, Malaysia"; MOH "Pelan Tindakan OKU/Health Care for Persons with Disabilities Plan of Action 2011–2020"; MOH "Pelan Tindakan Perkhidmatan Kesihatan Warga Emas 2023–2030".</div>
+<div class="card">
+<div class="card-title"><span class="icon">♿</span> Defining and measuring disability</div>
+<p>The WHO International Classification of Functioning, Disability and Health (ICF) frames disability as an umbrella term covering impairment, activity limitation, and participation restriction, while the UN Convention on the Rights of Persons with Disabilities affirms that all persons with disabilities should enjoy every human right and fundamental freedom. Because disability measurement approaches vary widely by country and instrument (global WHO estimate ~15% of the world's population; national estimates from 0.7% in Kenya to 20.0% in Australia), Malaysia adopted the Washington Group (WG) short-set questionnaire, built on the ICF framework, to generate internationally comparable data via the disability module of the National Health and Morbidity Survey (NHMS) 2015 — succeeding earlier, narrower Malaysian estimates (NHMS 1996: 1.7% using a mobility/senses definition; NHMS 2006: 0.6% using a physical-disability-only definition; 2004 World Health Survey analysis: 3.1% among adults).</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Prevalence and determinants (NHMS 2015, Ahmad et al. 2017) <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Using the WG six-domain questionnaire (seeing, hearing, walking, cognition, self-care, communication) among 19,959 Malaysian adults, the prevalence of disability — defined as at least one domain scored "a lot of difficulty/unable to do at all," or "some difficulty" in at least two domains — was 11.8% (95% CI 11.15–12.53), broadly comparable to WHO estimates and to most developing countries; a broader definition (at least one domain with "some difficulty") yielded a considerably higher 25.9% (95% CI 24.78–27.13), illustrating how sensitive disability prevalence estimates are to threshold choice. Logistic regression identified higher disability risk among older adults, ethnic minorities, those with low education, single individuals, those who are obese, physically inactive, or living with mental health problems; among older adults specifically, disability was significantly higher among those with no formal education, mental health problems, and physical inactivity. The authors conclude that health-service planning should prioritise at-risk subgroups — particularly older people and disadvantaged populations — to ensure equitable healthcare access.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Unmet needs of families of children with disabilities (Kelantan) <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Malaysian Journal of Medicine and Health Sciences research among parents of children with disabilities attending support institutions in Kelantan documents substantial unmet needs spanning information (about the child's condition, available services, and future planning), financial support (cost of therapy, assistive devices, and transport), and community/social support (respite care, peer support groups) — with communication barriers a recurring theme, since children with intellectual disability may have limited capacity to understand instructions, requiring caregivers and providers to allocate more time and adapt communication style. These findings reinforce the disability plan's own emphasis on family-centred and community-based rehabilitation rather than facility-based care alone.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">📋</span> Malaysia's national disability policy framework</div>
+<p>Malaysia's national disability policy (Dasar Orang Kurang Upaya, OKU) and its accompanying action plans set strategic thrusts (teras strategik) spanning accessibility (aksesibiliti) for persons with disabilities across the built environment, transport, information and communication, together with healthcare, education, employment, and social protection domains. The health-sector component (Health Care for Persons with Disabilities Plan of Action) extends this into primary-care-level disability screening/early intervention, secondary/tertiary rehabilitative and specialist medical services, community-based rehabilitation (CBR), assistive-device provision, and disability registration under the Department of Social Welfare (JKM) as the entry point for benefits and services.</p>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">👴</span> Population ageing in Malaysia</div>
+<p>Malaysia's elderly ("warga emas," defined as age 60 and above, per the 1982 Vienna World Assembly on Ageing definition adopted by the Malaysian government) population share rose from 5.2% in 1990 to 9.3% in 2016, and the country is projected to attain "ageing nation" status by 2030. Department of Statistics Malaysia (DOSM) 2023 data show 7.4% of the population already aged 65 and above. Population ageing reflects both rising life expectancy (from 55.8 years in 1958 to 72.5 years for males and 77.4 years for females by 2015) and sustained declines in fertility and mortality — a demographic transition that, alongside its healthcare implications, is projected to eventually contribute to future workforce shortages and erosion of traditional family-based caregiving structures.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Healthy ageing policy framework <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Malaysia's Pelan Tindakan Perkhidmatan Kesihatan Warga Emas 2023–2030 (a revision of the 2008 plan) is explicitly aligned with WHO's World Report on Ageing and Health / Policy Framework for Healthy Ageing (2015), WHO's Global Strategy and Action Plan on Ageing and Health, the UN Decade of Healthy Ageing: Plan of Action 2021–2030, and the Regional Action Plan on Healthy Ageing in the Western Pacific (2020) — collectively emphasising maximising functional ability across the life course rather than treating ageing purely as a disease-risk period. The plan targets three elderly sub-groups differentiated by functional capacity (broadly: those with stable high capacity, those with declining capacity, and those with significant loss of capacity) under a "Healthy Ageing and Lifecycle" public health framework, and covers services at the primary healthcare level, secondary/tertiary medical and rehabilitative care, health promotion/education, research and development, intersectoral collaboration, and legislation — building on the pre-existing Kelab Warga Emas (Senior Citizens' Club) network established at health clinics under the 2008 plan.</p></div>
+</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 512 past-year papers</div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">Maternal & Perinatal Health</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Define maternal mortality ratio (MMR) and perinatal mortality. Explain why a confidential enquiry (e.g., CEMD) is valuable for reducing maternal deaths.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: MMR 5; perinatal 4; CEMD value 6</div>
+<div class="ans-section"><div class="ans-section-title">Answer — Definitions</div><p><strong>MMR</strong> = maternal deaths per 100,000 live births (deaths during pregnancy/up to 42 days post-partum from pregnancy-related causes). <strong>Perinatal mortality</strong> = stillbirths (≥22/28 wks) + early neonatal deaths per 1,000 total births.</p></div><div class="ans-section"><div class="ans-section-title">Answer — CEMD</div><p>A <strong>Confidential Enquiry into Maternal Deaths</strong> reviews each death to identify <em>avoidable factors</em> in care, informing quality improvement. It shifts focus from blame to <strong>system learning</strong>, driving training, referrals and policy change.</p></div>
+</div>
+</div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Child Health & Disability-Inclusive Family Health</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">Describe the components of a child-survival strategy (immunisation, growth monitoring, IMCI). Explain the importance of including persons with disabilities in family-health services.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: child strategy 12; disability inclusion 8</div>
+<div class="ans-section"><div class="ans-section-title">Answer — Child strategy</div><p>Core components: <strong>immunisation</strong> against vaccine-preventable diseases; <strong>growth monitoring & promotion</strong>; <strong>ORS/zinc</strong> for diarrhoea; <strong>breastfeeding</strong>; and <strong>IMCI</strong> (Integrated Management of Childhood Illness) for case management at first-level facilities.</p></div><div class="ans-section"><div class="ans-section-title">Answer — Disability inclusion</div><p>Persons with disabilities face <strong>barriers to access</strong> (physical, communication, attitudinal) and higher unmet need. Inclusive family-health services require accessibility, reasonable accommodation and community-based rehabilitation, consistent with the national action plan for PWD.</p></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Maternal Health & Mortality", "sec2": "Perinatal Health & Mortality", "sec3": "Child Health", "sec4": "Women's, Men's & Adolescent Health", "sec5": "Health of Persons with Disabilities & Ageing", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt512_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt512_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt512_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>
