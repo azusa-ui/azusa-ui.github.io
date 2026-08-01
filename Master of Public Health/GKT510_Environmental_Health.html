@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 510 Environmental Health</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 510</h2>
+      <div style="font-size:11px;color:var(--text3)">Environmental Health</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Overview of Environmental Health & Exposome</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('e1-scope')">Scope</a><a onclick="scrollTo('e1-expo')">Exposome</a><a onclick="scrollTo('e1-path')">Pathway</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Water, Sanitation & Drinking Water Quality</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('e2-wash')">WASH</a><a onclick="scrollTo('e2-dw')">Drinking Water</a><a onclick="scrollTo('e2-int')">Interventions</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Air Quality & Pollution</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('e3-pol')">Pollutants</a><a onclick="scrollTo('e3-health')">Health Effects</a><a onclick="scrollTo('e3-my')">Malaysia</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Food Safety & HACCP</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('e4-prin')">Principles</a><a onclick="scrollTo('e4-steps')">HACCP Steps</a><a onclick="scrollTo('e4-out')">Outbreaks</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Pesticides, IPM & Chemical Exposures</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('e5-pest')">Pesticides</a><a onclick="scrollTo('e5-ipm')">IPM</a><a onclick="scrollTo('e5-risk')">Risk Assessment</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec6')">
+  <div class="nav-topic-header">
+    <div class="topic-num">6</div>
+    <span>Disaster & Emergency Management</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('e6-phase')">Phases</a><a onclick="scrollTo('e6-prep')">Preparedness</a><a onclick="scrollTo('e6-resp')">Response/Recovery</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1</a><a onclick="scrollTo('pyq-2')">Q2</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 510 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Environmental Health</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first!
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Overview of Environmental Health & Exposome</div><div class="hc-sub">Exposome, health impact pathway</div><div class="hc-badge"><span class="tag tag-blue">Exposome</span><span class="tag tag-green">Impact</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Water, Sanitation & Drinking Water Quality</div><div class="hc-sub">WASH, SDG, waterborne disease</div><div class="hc-badge"><span class="tag tag-blue">WASH</span><span class="tag tag-orange">SDG</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Air Quality & Pollution</div><div class="hc-sub">Criteria pollutants, health effects</div><div class="hc-badge"><span class="tag tag-purple">Air</span><span class="tag tag-red">PM2.5</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Food Safety & HACCP</div><div class="hc-sub">Hazard analysis, critical control points</div><div class="hc-badge"><span class="tag tag-green">HACCP</span><span class="tag tag-orange">Food</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Pesticides, IPM & Chemical Exposures</div><div class="hc-sub">Risk assessment, integrated control</div><div class="hc-badge"><span class="tag tag-red">Pesticide</span><span class="tag tag-blue">IPM</span></div></div>
+<div class="home-card" onclick="showSection('sec6')"><div class="hc-num">06</div><div class="hc-title">Disaster & Emergency Management</div><div class="hc-sub">Preparedness, response, recovery</div><div class="hc-badge"><span class="tag tag-orange">Disaster</span><span class="tag tag-purple">Risk</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Overview of Environmental Health & Exposome</div>
+  <div class="page-sub">Source: GKT510 Lecture Notes — Overview of Environmental Health</div>
+<div id="e1-scope"></div>
+<div id="e1-expo"></div>
+<div id="e1-path"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Overview of Environmental Health & Exposome</div>
+<p>Environmental Health is the study of how the environment affects human health. It encompasses physical, biological, socio-cultural factors that can potentially adversely affect the health of present and future generations (AFI Overview of Environmental Health, p.7). The environment includes all external factors to individual human hosts such as air, soil, water, sunlight, noise, and food. Good health depends on resources while bad health results from inaccessibility to sustainable resources or exposure to hazards (Yassi et al., 2001, p.12).</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">The Exposome <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The exposome refers to the cumulative environmental exposures throughout an individual's lifetime that influence health and disease risk (Kogevinas & Tardif, 2011, p.2). It includes physical, chemical, biological, psychosocial factors from all sources including air, water, food, work environment, housing, and social conditions. The exposome is a key determinant of population health and an important target for public health interventions (AFI Overview of Environmental Health, p.12).</p></div>
+</div>
+<div class="callout callout-green"><p>The concept of environmental health is defined as 'the study of how the environment affects human health, including quality of life aspects determined by physical, biological, social and psychosocial factors in the environment that can potentially affect adversely the health of present and future generations' (WHO, 1993, p.7). The health effects result from specific damage to health caused by environmental hazards (Yassi et al., 2001, p.8).</p></div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Epidemiological Triad</div>
+<p>The epidemiological triad represents the interaction between vector, host, and agent in causing disease (AFI Overview of Environmental Health, p.10). The vector is the source or carrier of an infectious agent. The host is the living organism that can be affected by a pathogen. The agent is the causative microorganism or other biological hazard.</p>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Interdependence</div>
+<p>Health depends on resources while good health results from accessibility to sustainable resources and bad health results from inaccessibility to sustainable resources or exposure to hazards (Yassi et al., 2001, p.12). Sustainable resources and hazards exist in the environment. Therefore, quality of health depends on the environment.</p>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Exposome</div>
+<p>The exposome refers to the cumulative environmental exposures throughout an individual's lifetime that influence health and disease risk (Kogevinas & Tardif, 2011, p.2). It includes physical, chemical, biological, psychosocial factors from all sources including air, water, food, work environment, housing, and social conditions. The exposome is a key determinant of population health and an important target for public health interventions (AFI Overview of Environmental Health, p.12).</p>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Water, Sanitation & Drinking Water Quality</div>
+  <div class="page-sub">Source: GKT510 Lecture Notes — "Water & Sanitation" (lecturer attribution omitted); WHO/UNICEF Joint Monitoring Programme (JMP) data; Fewtrell et al. (2005), <em>Lancet Infectious Diseases</em> 5:42–52; Stein (2000), <em>Water, Air, & Soil Pollution</em> 123:419–436 — "The Great Sydney Water Crisis of 1998."</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> SDG 6 and global water/sanitation coverage</div>
+<p>Sustainable Development Goal 6 ("Clean Water and Sanitation") sets the 2030 target of achieving universal, equitable access to safe and affordable drinking water (target 6.1) and to adequate sanitation and hygiene, ending open defecation (target 6.2). Per WHO/UNICEF JMP 2020 estimates, 74% of the global population used safely managed drinking water services (60% rural, 86% urban), leaving about 2 billion people without safely managed water — including 122 million still drinking directly from surface water. For sanitation, only 54% of the global population used safely managed sanitation services (44% rural, 62% urban) in 2020, with 3.6 billion people lacking safely managed sanitation and 494 million still practising open defecation. Achieving universal safely managed access by 2030 would require roughly a fourfold increase in the current rate of progress globally (up to 10–23-fold in least-developed and fragile settings).</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">The JMP service ladder and Malaysia's position <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The JMP benchmarks water and sanitation access using a 5-level "service ladder": for drinking water, this runs from surface water (lowest) through unimproved, limited, basic, to safely managed (highest — an improved source that is accessible on premises, available when needed, and free from faecal/priority chemical contamination); the sanitation ladder runs analogously from open defecation through unimproved, limited, basic, to safely managed. As of the JMP's national-level estimates, Malaysia recorded 94% of its national population using safely managed drinking water in both 2015 and 2020, essentially unchanged, with negligible use of unimproved or surface-water sources. Within Malaysia, however, notable sub-national disparity exists: state-level water-supply coverage data (Suruhanjaya Perkhidmatan Air Negara [SPAN], 2019) showed Kelantan lagging well behind other states, with overall drinking-water-supply coverage of only about 69% in 2018 (62% urban, 76% rural) compared with coverage exceeding 90% in most other Malaysian states — reflecting quantity shortfalls, low water pressure, inconsistent quality, and distribution inefficiency reported in that state.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🚰</span> Local survey: drinking water sources, preferences and knowledge (n=115)</div>
+<p>A 2011 survey of 115 respondents (course teaching data) found the following current drinking-water sources: municipal water 34 (29.6%), treated water supplied by the Ministry of Health 1 (0.9%), dug well 40 (34.8%), tube well 16 (13.9%), and two combined sources 24 (20.8%). Despite this mix of source types, most respondents (69.6%, n=80) said they preferred unsafe water sources over safe ones (30.4%, n=35) — a preference gap that itself is a risk factor for water-related illness independent of actual water quality. Knowledge regarding drinking water and health was rated poor in 5.2% (<50% correct), moderate in 72.2% (50–<80% correct), and good in only 22.6% (≥80% correct) of respondents, indicating a substantial knowledge gap even where safer sources were technically accessible.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Drinking water quality parameters and monitoring in Malaysia <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Malaysian drinking water quality is assessed against seven parameter groups: physical quality, bacteriological standards, chemical quality, heavy metals, polyaromatic hydrocarbons, pesticides, and radiological parameters. Bacteriological assessment relies on four common indicators — total coliform, faecal (thermotolerant) coliform, hydrogen-sulfide-producing bacteria, and <em>E. coli</em> (the indicator of choice recommended by USEPA, WHO and the EU for assessing human health risk; faecal coliform, while still useful for routine compliance monitoring and treatment-efficiency checks, is disfavoured as a sole indicator because it can also occur naturally in the environment). Monitoring and surveillance are conducted jointly by the Drinking Water Quality Surveillance Unit (Unit KMAM, Engineering Services Division, Ministry of Health) and Unit BAKAS (which focuses on basic water supply and sanitation facilities for rural populations), with testing frequency at treatment plants, service reservoirs and within the distribution system varying by parameter group — from daily/weekly testing for core bacteriological and physical parameters to testing "when necessary" for heavy metals, polyaromatic hydrocarbons, pesticides and radiological parameters. Conventional water treatment follows a standard sequence: screening, aeration, flocculation/coagulation (with alum), secondary sedimentation, filtration, disinfection (typically chlorination, which continues acting downstream to control bacterial/algal regrowth in pipes, though it can react with organic matter to form disinfection by-products such as trihalomethanes), and fluoridation, before distribution via a holding tank and service reservoir.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Water-sanitation-hygiene-health interconnections and the F-diagram <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Water quality/quantity, sanitation and hygiene interact to determine pathogen, chemical and heavy-metal exposure and ultimately community health, conditioned by upstream social determinants (household access to land/education/employment/technology, financial/human/social capital, and sociocultural-economic-political context). The WHO's faecal-oral transmission ("F-diagram") model traces how pathogens in faeces reach a new host via four main pathways — fluids (contaminated water), fingers, flies, and fields/floors — onward to food and finally to the child/host, producing morbidity, mortality, incidence and prevalence of water/sanitation/hygiene-related disease; safe drinking water (collection, transport, storage, treatment), sanitation and clean environment, and handwashing/food hygiene act as barriers that interrupt these pathways. A parallel host-agent-environment-social nested model frames the health determinants of water-related disease: environmental exposure (dose, contact, endemicity), host factors (immunity, pre-existing conditions such as diabetes, malignancy or immunosuppression, malnutrition, behaviour), and social factors (poverty, inadequate environmental controls and health care, lack of social support).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Water problems: main culprits and final outcomes <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The main drivers of water problems are water scarcity, contamination, unsustainable groundwater use, ecological degradation, and the threat of climate change; these culminate in morbidity, mortality, diarrhoeal/water-related illness, lost work days, missed educational opportunities, health-care costs and family costs. A landmark systematic review and meta-analysis (Fewtrell et al., 2005, <em>Lancet Infectious Diseases</em>) quantified the protective effect of WASH interventions against diarrhoeal disease in less-developed countries, expressed as relative risk (lower = more protective): hygiene interventions RR 0.63 (handwashing specifically RR 0.56, hygiene education RR 0.72), sanitation RR 0.68, water supply improvements RR 0.75 (household connection RR 0.90, community-level improvements RR 0.94), water quality interventions RR 0.83 (point-of-use treatment RR 0.65, source-level treatment RR 0.89), and combined multiple interventions (e.g., water + sanitation + hygiene education) RR 0.67. This body of evidence indicates that point-of-use water quality improvement and hygiene/handwashing interventions tend to show the largest relative risk reductions for diarrhoeal disease among single-domain WASH interventions.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">⚠️</span> Case study: the 1998 Sydney water crisis</div>
+<p>Sydney's 1998 water crisis (Stein, 2000) arose when <em>Cryptosporidium</em> and <em>Giardia</em> contamination was detected in the catchment, traced to cattle, residential development, and native/feral animal activity within the water catchment area. A critical systems failure compounded the biological hazard: at the time there was no method allowing constant, real-time monitoring for these parasites, and problems with sampling technique, testing accuracy and consistency of readings generated a series of public health alerts (including advice to over a million residents not to drink tap water without boiling). The crisis produced widespread fear, cynicism and anger in the community, prompted compensation claims from around 12,000 businesses and individuals, disrupted schools, hospitals and other institutions, and cost an estimated A$33 million. The episode illustrates how catchment-level environmental contamination (host-agent-environment-social factors), combined with inadequate monitoring technology and risk communication, can escalate a water-quality problem into a full public health and economic crisis even in a high-income setting.</p>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Air Quality & Pollution</div>
+  <div class="page-sub">Source: Afroz et al. (2003), <em>Environmental Research</em> 92:71–77 — "Review of air pollution and health impacts in Malaysia"; Scott (1953), <em>Public Health Reports</em> 68(5):474–479 — "Fog and Deaths in London, December 1952"; Cao et al. (2009) on ambient air pollution and hospital visits; GKT510 Course Notes reference chapter on criteria air pollutants (lecturer attribution omitted).</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Sources of air pollution in Malaysia</div>
+<p>Three major source categories account for air pollution in Malaysia: mobile sources (motor vehicles), stationary sources (power stations, industrial fuel burning, industrial production processes), and open burning (forest fires, solid-waste disposal sites). Based on 1996 Department of Environment (DOE) emission-load data, motor vehicles alone contributed about 82% of the air emission load, followed by power stations (9%), industrial fuel burning (5%), industrial production processes (3%), domestic/commercial furnaces (0.2%) and open burning (0.8%). Private cars alone contribute roughly 75% of total CO and suspended particulate matter (SPM), and 76–79% of oxides of sulfur and nitrogen. Ambient monitoring across Malaysian cities consistently identifies SPM and NO2 as the predominant pollutants.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">The transboundary haze episodes and their health impact <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Southeast Asian haze episodes in 1983, 1984, 1990, 1991, 1994 and — most severely — 1997 (caused by large-scale forest and plantation fires in southern Sumatra and central Kalimantan, Indonesia) repeatedly imposed serious air-quality threats on Malaysia and drove the establishment of the Malaysian Air Quality Guidelines, the Air Pollution Index (API), and the Haze Action Plan. At its worst, the 1997 haze reduced visibility to under 500m and produced respirable particle concentrations up to 500 µg/m³ — five times the level considered "unhealthy" — and affected an estimated 300 million people region-wide. Malaysian hospital data from the 1997 episode showed marked health impact: in Selangor, asthma cases rose from 912 in June to over 5,000 in September, and acute respiratory infection cases rose from about 6,000 to over 30,000 over the same period; respiratory outpatient visits to Kuala Lumpur General Hospital rose from 250 to 800 per day. One health-damage-cost modelling study (Nasir et al., 2000, using the Ostro model) estimated the 1997 haze caused approximately 285,227 asthma attacks, 118,804 cases of bronchitis in children, 3,889 cases of chronic bronchitis in adults, 2,003 respiratory hospital admissions, 26,864 emergency room visits and over 5 million restricted-activity days nationally, at an estimated total health damage cost of RM 129 million (range RM 36–258 million); restricted activity days alone accounted for about 79% of this cost.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">The Malaysian Air Pollution Index (API) and air quality standards <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The API is derived from measured concentrations of fine particles (PM10) plus carbon monoxide, sulfur dioxide and nitrogen dioxide, and is banded as: 0–50 Good, 51–100 Moderate, 101–200 Unhealthy, 201–300 Very Unhealthy, and 301–500 Hazardous. Malaysian Ambient Air Quality Guidelines are broadly consistent with U.S. National Ambient Air Quality Standards (NAAQS) and WHO guidelines, though thresholds differ somewhat by pollutant (e.g., Malaysia's 1-hour ozone standard of 200 µg/m³ versus the WHO's 150 µg/m³). Ambient monitoring is carried out through a network of continuous air quality monitoring stations operated for the Department of Environment.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🌫️</span> The 1952 Great London Smog: a landmark air pollution case study</div>
+<p>The London fog of 5–8 December 1952 is a foundational case in environmental health epidemiology. A meteorological temperature inversion trapped smoke and sulfur dioxide from coal combustion at ground level for several days; the average smoke concentration reached 4.46 mg/m³ and sulfur dioxide 1.34 ppm — the highest levels on record at the time, roughly 35-fold and 19-fold higher respectively than typical summer levels. Registered deaths in London rose from a baseline of about 850/week to 2,484 in the week ending 13 December 1952 — an excess mortality event exceeding even the worst week of the 1866 London cholera epidemic and comparable to the peak week of the 1918 influenza pandemic. Excess deaths were concentrated almost entirely in respiratory and circulatory causes: bronchitis deaths rose roughly 10-fold, pulmonary tuberculosis deaths 4.5-fold, other respiratory disease deaths nearly 6-fold, and heart/circulatory disease deaths nearly 3-fold over baseline, with the increase disproportionately affecting infants and the elderly. This episode was pivotal in establishing the causal link between particulate/sulfur dioxide air pollution and acute cardiorespiratory mortality, and directly informed the UK's Clean Air Act 1956.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Ambient air pollution and hospital utilisation (Cao et al., 2009) <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Using a natural (nonparametric) spline model to flexibly capture exposure-response relationships, this study found that outdoor air pollution — specifically SO2 and NO2 — was associated with an increased risk of hospital outpatient and emergency room visits in Shanghai, China. Effect estimates varied depending on the lag structure used (i.e., how many days after exposure the health outcome was measured), illustrating that air pollution's health effects can manifest with a delay and that lag selection materially affects the size of estimated associations in time-series air pollution studies.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Criteria air pollutants: sources and health effects <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Regulatory frameworks typically define a set of "criteria" pollutants with established health-based standards. <strong>Particulate matter (PM)</strong> is a generic class of solid/liquid airborne particles categorised by aerodynamic diameter — PM10 (≤10 microns), PM2.5/fine PM (≤2.5 microns) and ultrafine (≤0.1 microns) — with smaller particles penetrating more deeply into the lung and being linked to hospital admissions, respiratory symptoms, exacerbation of chronic respiratory/cardiovascular disease, and premature mortality. <strong>Sulfur dioxide (SO2)</strong>, produced mainly from combustion of sulfur-containing fuels (coal, metal ores), is water-soluble and mostly absorbed in the upper airway, but is linked to reduced lung function, bronchoconstriction and hospitalisation, and contributes to acid deposition; it was the key toxic component of the 1952 London fog. <strong>Nitrogen oxides (NOx)</strong>, produced mainly by combustion (vehicles, power plants), irritate the eyes/nose/throat, reduce lung function, and act as precursors to tropospheric ozone and secondary particulate matter. <strong>Tropospheric ("ground-level") ozone</strong> is a secondary pollutant formed photochemically from NOx and volatile organic compounds (VOCs) in sunlight — distinct from protective stratospheric ozone — and causes decreased lung function, airway inflammation and increased asthma attacks, with children and outdoor workers especially susceptible. <strong>Carbon monoxide (CO)</strong>, from incomplete combustion, binds haemoglobin over 200 times more readily than oxygen, forming carboxyhaemoglobin and reducing tissue oxygen delivery; people with cardiovascular disease are the most sensitive group. <strong>Lead (Pb)</strong>, historically from leaded gasoline (an antiknock additive banned in Malaysia by 2000 and largely phased out worldwide following recognised neurodevelopmental harm), accumulates in organs and tissues and causes cognitive/learning disability and nervous-system damage. <strong>Volatile organic compounds (VOCs)</strong> (benzene, formaldehyde, toluene) are ozone precursors with independent effects including respiratory irritation, headache and carcinogenicity.</p></div>
+</div>
+<div class="callout callout-orange"><p>The 1952 London smog and the 1997 Southeast Asian haze — despite differing in pollutant mix (coal smoke/SO2 versus biomass-burning particulates) and setting four decades and two continents apart — share the same underlying epidemiological signature: a sharp, short-lag rise in respiratory and cardiovascular morbidity/mortality following an acute spike in ambient particulate and gaseous pollution, disproportionately affecting the very young, the elderly, and those with pre-existing cardiorespiratory disease.</p></div>
+<table><tr><th>Malaysian API band</th><th>Range</th></tr><tr><td>Good</td><td>0–50</td></tr><tr><td>Moderate</td><td>51–100</td></tr><tr><td>Unhealthy</td><td>101–200</td></tr><tr><td>Very Unhealthy</td><td>201–300</td></tr><tr><td>Hazardous</td><td>301–500</td></tr></table>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Food Safety & HACCP</div>
+  <div class="page-sub">Source: GKT510 Course Notes — Codex/HACCP application logic sequence; Abdul Rahman et al. (2022), <em>International Food Research Journal</em> 29(4):872–878 — "Investigation on food poisoning outbreak associated with consumption of Laksa Kebok in Baling, Kedah."</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> What HACCP is</div>
+<p>Hazard Analysis Critical Control Point (HACCP) is a systematic, preventive food-safety management approach that identifies, evaluates and controls biological, chemical and physical hazards at specific points in a food production process, rather than relying solely on end-product testing. It is the internationally recognised (Codex Alimentarius) framework underpinning food safety regulation, including in Malaysia.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">The full HACCP application logic sequence <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Before the seven core principles are applied, five preliminary steps establish the foundation: securing management commitment and setting the food safety policy/scope/objective; assembling the HACCP team; describing the product; identifying its intended use; and constructing a process flow diagram, which is then confirmed on-site (walking the actual production line to verify the diagram matches real practice — a step frequently skipped in informal food operations, with serious consequences, as illustrated in the case study below). Only after these preliminary steps does the sequence move into hazard analysis (listing all potential hazards, analysing them, and determining control measures), then determining Critical Control Points (CCPs), establishing critical limits for each CCP, establishing a monitoring system, establishing corrective actions for deviations, establishing verification procedures, establishing record-keeping/documentation, and finally periodically reviewing the HACCP plan.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">The seven HACCP principles <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><ol><li><strong>Conduct a hazard analysis</strong> — identify biological, chemical or physical hazards that could occur at each step of the process.</li><li><strong>Determine Critical Control Points (CCPs)</strong> — points, steps or procedures at which control can be applied and a food safety hazard can be prevented, eliminated or reduced to an acceptable level.</li><li><strong>Establish critical limits</strong> for each CCP (e.g., a minimum cooking temperature or time).</li><li><strong>Establish monitoring procedures</strong> for each CCP.</li><li><strong>Establish corrective actions</strong> to be taken when monitoring indicates a particular CCP is not under control.</li><li><strong>Establish verification procedures</strong> to confirm the HACCP system is working effectively.</li><li><strong>Establish record-keeping and documentation</strong> covering all procedures and records appropriate to these principles and their application.</li></ol></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">⚠️</span> Case study: the 2018 Laksa Kebok Salmonella outbreak (Baling, Kedah)</div>
+<p>This documented Malaysian outbreak illustrates what happens when HACCP-type controls fail at multiple points simultaneously. On 4 October 2018, a home-based stall in Kupang, Baling, Kedah sold "Laksa Kebok" (a rice-noodle laksa) that was later linked to a food poisoning outbreak spanning three states (Kedah, Perak, Selangor). Of 89 people who consumed the product, 83 became ill — an attack rate of 93.2% — with diarrhoea (86.7%), fever (65.1%), vomiting (53.0%) and abdominal pain (50.6%) as the leading symptoms; 8.4% were hospitalised and 2 deaths occurred (case fatality rate 2.4%). The incubation period ranged from 8.5 to 26 hours, consistent with <em>Salmonella</em>. Laboratory and molecular (PFGE) testing confirmed <em>Salmonella enterica</em> serovar Weltevreden — genetically matching (>99% similarity) isolates from patients and from the laksa itself — as the causative agent; this serovar is documented as the most common cause of non-typhoidal <em>Salmonella</em> foodborne outbreaks in Southeast Asia and the Western Pacific.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">HACCP failure points identified in the outbreak investigation <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The outbreak investigation team's on-site HACCP inspection identified concrete failures at multiple control points: (1) <strong>inadequate cooking/boiling temperature</strong> — the burner used to boil the laksa noodles after machine extrusion was not functioning properly, so noodles were not reliably heated to a bacteria-killing temperature (<em>Salmonella</em> is destroyed by cooking above 70°C but can proliferate if refrigeration is not maintained below 4°C); (2) <strong>cross-contamination during storage</strong> — frozen fish (the main gravy ingredient) took roughly 7 hours to thaw and was stored in the same freezer as the raw noodle dough, creating a cross-contamination pathway; (3) <strong>improper washing and storage of lettuce</strong> — lettuce was not thoroughly washed and was kept in an icebox with a single ice bag for 3–4 days, with unsold laksa also stored in the same icebox before resale the next day. The premises also had a tube well (nominally used only for floor-cleaning) alongside chlorinated municipal water pipes, and environmental sampling detected genetic similarity (though only 75%, versus >99% for patient/food isolates) between the tube well water and the outbreak strain, raising it as a possible contributing contamination source. The investigators concluded the outbreak stemmed fundamentally from inadequate food handler knowledge and improper practice — precisely the preventable failure modes that a properly implemented and monitored HACCP plan (with defined critical limits, monitoring, and corrective action at each of these points) is designed to catch before food reaches the consumer.</p></div>
+</div>
+<div class="callout callout-orange"><p>This case demonstrates why HACCP's principles are not merely bureaucratic paperwork: a working thermometer at the cooking CCP, a documented critical limit and monitoring log for thawing/storage temperature, and enforced segregation of raw and ready-to-eat items would each independently have interrupted this specific outbreak pathway.</p></div>
+<table><tr><th>HACCP Principle</th><th>Failure point in the Laksa Kebok outbreak</th></tr><tr><td>1. Hazard analysis</td><td>No systematic identification of cross-contamination and undercooking risks in the noodle/gravy/lettuce process</td></tr><tr><td>2. Determine CCPs</td><td>Boiling step and thawing/storage step not treated as critical control points</td></tr><tr><td>3. Critical limits</td><td>No defined minimum cooking temperature enforced (burner malfunctioning, unnoticed)</td></tr><tr><td>4. Monitoring</td><td>No monitoring of thawing duration (~7h) or icebox storage duration (3–4 days)</td></tr><tr><td>5. Corrective action</td><td>Faulty burner not repaired/replaced before continued use</td></tr><tr><td>6–7. Verification & records</td><td>No documentation trail that would have flagged repeated deviations</td></tr></table>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Pesticides, Integrated Pest Management & Chemical Exposures</div>
+  <div class="page-sub">Source: Barzman et al. (2015), <em>Agronomy for Sustainable Development</em> 35:1199–1215 — "Eight principles of integrated pest management"; BMJ 322:1270 (2001) news report on the DDT/malaria debate; GKT510 Course Notes — Pesticides & IPM.</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> What Integrated Pest Management (IPM) is</div>
+<p>The EU Framework Directive 2009/128/EC defines IPM as "careful consideration of all available plant protection methods and subsequent integration of appropriate measures that discourage the development of populations of harmful organisms and keep the use of plant protection products and other forms of intervention to levels that are economically and ecologically justified and reduce or minimise risks to human health and the environment," emphasising growth of a healthy crop with the least possible disruption to agro-ecosystems. IPM is now legally required of all professional pesticide users in the EU, and its eight general principles follow a logical sequence: Principle 1 (prevention/suppression) applies first, at the cropping-system design stage; Principles 2–3 (monitoring, decision-making) apply once the system is running; Principles 4–7 offer a sequence of intervention options once a control decision is made, moving from least to most reliant on chemicals; and Principle 8 (evaluation) closes the loop.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Principles 1–4: prevention through to non-chemical methods <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p><strong>P1 — Prevention and suppression:</strong> the design of inherently robust cropping systems using a combination of agronomic levers (crop rotation, resistant/tolerant cultivars, balanced fertilisation, hygiene measures such as regular cleaning of machinery, and protection of beneficial organisms) is considered key, since it takes precedence over all other principles even though it often requires the most fundamental changes to current practice. <strong>P2 — Monitoring:</strong> harmful organisms must be monitored using adequate methods — field observation plus, where feasible, scientifically sound warning, forecasting and early-diagnosis systems and professional advisory input. <strong>P3 — Decision-making:</strong> whether and when to intervene should be based on monitoring results and, where available, robust threshold values defined for the region, crop and climatic conditions — though the authors note thresholds are often unavailable or inapplicable for weeds and some pathogens. <strong>P4 — Non-chemical methods:</strong> sustainable biological, physical and other non-chemical methods should be preferred over chemical ones wherever they provide satisfactory control (e.g., pheromone-based mating disruption, which has reduced synthetic pesticide use by roughly two-thirds in Swiss orchards/vineyards where adopted).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Principles 5–8: pesticide selection through to evaluation <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p><strong>P5 — Pesticide selection:</strong> where pesticides are needed, they should be as target-specific as possible with the least side effects on human health, non-target organisms (e.g., pollinators, natural predators) and the environment. <strong>P6 — Reduced pesticide use:</strong> use should be kept to necessary levels via reduced doses, frequency or partial/spot applications, provided this does not raise resistance risk. <strong>P7 — Anti-resistance strategies:</strong> where resistance risk is known, strategies such as rotating pesticide modes of action should be applied — resistance in pests was in fact the original driver behind the development of IPM as a concept in 1959. <strong>P8 — Evaluation:</strong> based on pesticide-use records and monitoring data, users should assess whether the applied measures actually worked, ideally judged over multiple seasons and against criteria broader than simple yield or "clean fields," including cost, human health and environmental impact.</p></div>
+</div>
+<div class="callout callout-green"><p>The eight principles are sequential, not a menu to pick from arbitrarily: prevention (P1) is meant to reduce how often intervention is even needed, monitoring/decision rules (P2–P3) determine whether intervention is warranted, and only once intervention is decided do P4–P7 guide the choice and moderation of control methods — with chemical pesticides positioned as a considered, minimised option rather than a default first response.</p></div>
+<div class="card">
+<div class="card-title"><span class="icon">🦟</span> Chemical exposure trade-offs: the DDT and malaria debate</div>
+<p>Pesticide policy sometimes involves genuine trade-offs between environmental/chronic-health precaution and acute infectious disease control, illustrated by the long-running DDT-and-malaria debate. A 2001 BMJ news report (covering a study published by the Institute of Economic Affairs, a UK think tank, so its funding source and advocacy framing should be weighed when assessing the strength of its claims) documented a surge in malaria cases in KwaZulu-Natal, South Africa, coinciding with the 1996 withdrawal of DDT from the malaria vector-control programme; case counts rose from roughly 4,000 in 1996 to over 27,000 by January–November 2000, after mosquito resistance emerged to the synthetic pyrethroids used as a DDT substitute. The report's authors argued that pressure on low-income countries to abandon DDT spraying (driven by concerns about ecological harm and possible health effects) was not well supported by peer-reviewed evidence of human harm at the time, and that this pressure contributed to a malaria resurgence. This case is commonly cited to illustrate that pesticide risk-benefit judgements in vector control are context-dependent and should weigh acute infectious disease burden alongside environmental/chronic toxicological concerns, rather than treating any single pesticide as categorically acceptable or unacceptable across all use contexts (indoor residual spraying for malaria vector control differs substantially in exposure profile from agricultural DDT application, which is the exposure route most associated with environmental persistence and bioaccumulation).</p>
+</div>
+<table><tr><th>IPM Principle</th><th>Core action</th></tr>
+<tr><td>P1 Prevention & suppression</td><td>Crop rotation, resistant cultivars, hygiene, balanced fertilisation, protect beneficial organisms</td></tr>
+<tr><td>P2 Monitoring</td><td>Field observation, warning/forecasting systems, professional advice</td></tr>
+<tr><td>P3 Decision-making</td><td>Apply plant protection only when monitoring/thresholds justify it</td></tr>
+<tr><td>P4 Non-chemical methods</td><td>Prefer biological/physical/mechanical control where satisfactory</td></tr>
+<tr><td>P5 Pesticide selection</td><td>Most target-specific product with least non-target/environmental impact</td></tr>
+<tr><td>P6 Reduced pesticide use</td><td>Minimum necessary dose, frequency, or spot application</td></tr>
+<tr><td>P7 Anti-resistance strategies</td><td>Rotate modes of action; avoid over-reliance on one product</td></tr>
+<tr><td>P8 Evaluation</td><td>Review records/monitoring to judge success and adjust strategy</td></tr>
+</table>
+</div>
+<div class="section" id="sec6">
+  <div class="page-title">6. Disaster & Emergency Management</div>
+  <div class="page-sub">Source: GKT510 Lecture Notes — "Disaster Management" (lecturer attribution omitted); National Security Council Directive No. 20, "The Policy and Mechanism on National Disaster and Relief Management," Prime Minister's Department Malaysia.</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Definitions</div>
+<p><strong>Hazard</strong> — any phenomenon with the potential to cause disruption or damage to a community (e.g., earthquake, flood, typhoon, cyclone); some hazards cause emergencies, but not all emergencies become disasters (WHO). <strong>Emergency</strong> — a state in which normal procedures are suspended and extraordinary measures are taken to avert the impact of a hazard on a community; if not properly managed, an emergency can escalate into a disaster. <strong>Disaster</strong> — an occurrence where normal conditions of existence are disrupted and the level of suffering exceeds the capacity of the hazard-affected community to respond to it (WHO); alternatively, "the result of a vast ecological breakdown in the relation between humans and their environment, a serious and sudden event (or slow, as in drought) on such a scale that the stricken community needs extraordinary efforts to cope with it, often with outside help or international aid" (Noji, 1996). The Centre for Research on the Epidemiology of Disasters (CRED) defines a disaster more operationally as "a situation or event which overwhelms local capacity, necessitating a request to a national or international level for external assistance." The word "disaster" derives etymologically from astrology (Latin/Italian dis- "bad" + astro "star"), reflecting the old belief that misfortune follows an unfavourable alignment of the stars.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Classification of disasters <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Disasters are classified along three axes: by <strong>cause</strong> (natural vs man-made/human-generated vs mixed natural-human), by <strong>speed of onset</strong> (sudden/acute onset, e.g. earthquakes, tsunamis, tornadoes, floods, tropical storms, volcanic eruptions, landslides, epidemics of water-/food-/vector-borne disease — versus slow/chronic onset, e.g. drought, famine, environmental degradation, desertification, chronic toxic exposure, pest infestation), and by <strong>scale</strong> (major vs minor). Human-generated disasters are further subdivided into industrial/technological (system failures, chemical/radiation releases, explosions, fires, terrorism), transportation (vehicular, air, rail, maritime), deforestation, material shortages, and complex emergencies (war, civil strife, armed conflict producing displaced persons and refugees).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">The disaster management cycle <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The disaster cycle comprises four interlinked phases: <strong>prevention and mitigation</strong> (before) — establishing objectives, risk assessment, and risk prevention/mitigation measures such as eliminating population exposure to hazard zones or reducing (though not eliminating) the impact of future events, e.g. riverbank levees and upstream storage reservoirs to mitigate flood hazard; <strong>preparedness</strong> (before) — emergency access/evacuation routes, response teams, drills and equipment, defined by WHO (1995) as "a program of long-term development activities whose goals are to strengthen the overall capacity and capability of a country to manage efficiently all types of emergency and bring about a transition from relief through recovery, and back to sustained development"; <strong>response</strong> (during) — immediate damage assessment, rescue, relief and salvage, aimed at maintaining life, improving health and supporting the morale of the affected population, with effectiveness conditioned by the degree of preparedness already achieved; and <strong>recovery</strong> (after) — detailed damage assessment followed by rehabilitation, reconstruction and treatments/repairs, ideally starting early within the emergency phase even though it may be a slow process. Appropriate action at every point in the cycle produces greater preparedness, better warnings, and reduced vulnerability going into the next iteration.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Technical/environmental health priorities during response <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Core technical aspects of disaster response include shelter and emergency settlements; water supply (a minimum of 15 litres per person per day should be provided as soon as possible per the Sphere Project 2000 standard, though as little as 7 litres/person/day may be unavoidable immediately post-impact per UNHCR 1992); sanitation; food safety (food may become contaminated by surface water itself contaminated by sewage, and crowding of survivors under poor sanitary conditions aggravates risk); vector and pest control (disasters can increase vector/nuisance species populations, and massive migrations into temporary camps can trigger outbreaks of malaria, epidemic typhus, or dengue); control of communicable diseases and prevention of epidemics (the five most common causes of death in emergencies and disasters are diarrhoea, acute respiratory infection, measles, malnutrition, and — in endemic zones — malaria, and control depends on a healthy environment, immunisation, and health workers trained in early diagnosis/treatment); chemical incidents (an unexpected, uncontrolled release of a chemical from containment; a "public-health chemical incident" specifically involves two or more members of the public being exposed or threatened with exposure, per WHO 1999); radiation emergencies (health effects divided into deterministic/acute effects such as skin burns and radiation sickness, and stochastic/late effects such as cancers and inheritable genetic defects — graded internationally on the 0–7 International Nuclear Event Scale, INES); and mortuary services/handling of the dead (early identification of corpses helps preserve the mental health of the bereaved; burial is not normally itself a public health risk, since dead bodies carry minimal disease transmission risk, but social/religious needs and proper storage/disposal advice from health officials remain important).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Malaysia's disaster management structure <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Following the 1993 Highland Towers condominium collapse, the Malaysian Cabinet decided (18 May 1994) to form a mechanism under the National Security Division (NSD), Prime Minister's Department, for managing on-scene major land disasters — formalised as National Security Council Directive No. 20 (1st edition 1997, 2nd edition 2012), which defines three escalating disaster management levels (Level I: district level, localised and controlled; Level II: state level, spanning more than one district with potential to spread; Level III: central/national level, spanning more than one state, potentially with foreign assistance) and establishes Disaster Management and Relief Committees (DMRC) at district, state and central levels, an On-Scene Command Post (OSCP) to coordinate search-and-rescue, and a Disaster Operations Control Centre (DOCC) set up by NSD. The Special Malaysia Disaster Assistance and Rescue Team (SMART), formed 1 August 1995 with 85 members drawn from the Malaysian Armed Forces, Royal Malaysia Police and Fire and Rescue Department, is mobilised on the order of the Director-General of NSD. Since 1 October 2015, the National Disaster Management Agency (NADMA), under the Prime Minister's Department, has taken over the disaster management function previously held by the National Security Council (MKN).</p></div>
+</div>
+<div class="callout callout-red"><p>A recurring lesson across the Malaysian disaster case record below: the disasters producing the most deaths per incident are often not the highest-profile hazard type but those where a single environmental or structural failure compounds rapidly (e.g. the Sultan Abd Halim Jetty collapse killed 32 but injured 1,674; the Bright Sparklers factory explosion killed 22 with 103 injured) — underscoring why hazard/vulnerability assessment, not just hazard type, drives disaster risk.</p></div>
+<table><tr><th>Event</th><th>Date</th><th>Killed</th><th>Injured</th></tr>
+<tr><td>Collapse of the Sultan Abd Halim Jetty, Butterworth</td><td>31 Jul 1988</td><td>32</td><td>1,674</td></tr>
+<tr><td>Explosion and fire at Bright Sparklers Co factory, Sg Buluh</td><td>7 May 1991</td><td>22</td><td>103</td></tr>
+<tr><td>Collapse of Highland Towers Condominium</td><td>20 Jun 1993</td><td>48</td><td>—</td></tr>
+<tr><td>Mudslide at Pos Dipang aborigines' village, Kampar, Perak</td><td>29 Aug 1996</td><td>44</td><td>—</td></tr>
+<tr><td>Tropical Storm Greg, west coast of Sabah</td><td>26 Dec 1996</td><td>230</td><td>—</td></tr>
+<tr><td>Taman Hillview bungalow collapse</td><td>20 Nov 2002</td><td>8</td><td>—</td></tr>
+<tr><td>Sumatra-Andaman Islands Earthquake and Tsunami (regional death toll, not Malaysia-only)</td><td>26 Dec 2004</td><td>~283,106</td><td>—</td></tr>
+<tr><td>Flood in Johor (Segamat and Kota Tinggi)</td><td>Dec 2006–Jan 2007</td><td>15</td><td>—</td></tr>
+<tr><td>Bukit Antarabangsa landslide</td><td>6 Dec 2008</td><td>4</td><td>—</td></tr>
+<tr><td>Hulu Langat, Selangor landslides</td><td>21 May 2011</td><td>16</td><td>—</td></tr>
+<tr><td>Flood in Kelantan</td><td>Dec 2014</td><td>not specified in source</td><td>not specified</td></tr>
+<tr><td>Earthquake in Ranau (Mt Kinabalu)</td><td>5 Jun 2015</td><td>18</td><td>—</td></tr>
+<tr><td>Putra Heights gas pipeline fire</td><td>1 Apr 2025</td><td>—</td><td>&gt;100</td></tr>
+</table>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Air disasters in Malaysia <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><table><tr><th>Event</th><th>Date</th><th>Killed</th><th>Injured</th></tr>
+<tr><td>MAS Boeing 737 crash, Tanjung Kupang, Johor</td><td>1977</td><td>93 passengers/crew + 7 on ground</td><td>—</td></tr>
+<tr><td>Fokker 50-MAS crash, Kg Meranti, Tawau</td><td>1995</td><td>34</td><td>9</td></tr>
+<tr><td>Twin Otter (MASWings) crash, Kudat</td><td>2013</td><td>2</td><td>—</td></tr>
+<tr><td>CN-235 crash, Kuala Selangor</td><td>2016</td><td>1</td><td>8</td></tr>
+<tr><td>Beechcraft 390 Premier I crash, Elmina</td><td>2023</td><td>8</td><td>—</td></tr>
+</table></div>
+</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 510 past-year papers</div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">Water, Sanitation & Food Safety</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Explain the pathway by which unsafe water and poor sanitation contribute to diarrhoeal disease. Outline the HACCP principle of identifying Critical Control Points (CCPs).</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: pathway 7; HACCP/CCP 8</div>
+<div class="ans-section"><div class="ans-section-title">Answer — Pathway</div><p>Faecal contamination of water → ingestion (waterborne) or contaminated food/hands (foodborne, feco-oral) → pathogen colonisation → diarrhoea. <strong>WASH interventions</strong> (safe water, sanitation, hygiene) interrupt this pathway and are among the most cost-effective public-health measures.</p></div><div class="ans-section"><div class="ans-section-title">Answer — HACCP CCP</div><p>HACCP identifies points in a food process where loss of control would cause unacceptable risk. A <strong>CCP</strong> is a step at which a control measure can be applied and is <em>essential</em> to prevent/eliminate/reduce a hazard (e.g., cooking temperature to kill pathogens).</p></div>
+</div>
+</div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Air Pollution & Disaster Management</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">Describe the main health effects of ambient fine particulate matter (PM2.5). Outline the phases of disaster management and where environmental health sits in each.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: PM2.5 effects 10; phases 10</div>
+<div class="ans-section"><div class="ans-section-title">Answer — PM2.5</div><p>PM2.5 penetrates deep into alveoli; short-term exposure worsens <strong>asthma, COPD and cardiovascular events</strong>, while long-term exposure is linked to reduced lung function, cardiovascular mortality and (evidence suggests) all-cause mortality. Vulnerable groups: children, elderly, those with cardiopulmonary disease.</p></div><div class="ans-section"><div class="ans-section-title">Answer — Phases</div><ol><li><strong>Mitigation/prevention</strong> — reduce hazard (e.g., emissions control).</li><li><strong>Preparedness</strong> — plans, stockpiles, drills.</li><li><strong>Response</strong> — immediate relief, EOC activation.</li><li><strong>Recovery</strong> — rebuild, restore environment & services, 'build back better'.</li></ol></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Overview of Environmental Health & Exposome", "sec2": "Water, Sanitation & Drinking Water Quality", "sec3": "Air Quality & Pollution", "sec4": "Food Safety & HACCP", "sec5": "Pesticides, IPM & Chemical Exposures", "sec6": "Disaster & Emergency Management", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt510_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 7;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 7;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt510_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt510_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>
