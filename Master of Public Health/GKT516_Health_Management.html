@@ -214,7 +214,7 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
     <span>Health Economics & Financing</span>
     <span class="chevron">▶</span>
   </div>
-  <div class="nav-sub"><a onclick="scrollTo('ec-cost')">Costs & Evaluation</a><a onclick="scrollTo('ec-eval')">Economic Evaluation</a><a onclick="scrollTo('ec-uhc')">UHC & Financing</a></div>
+  <div class="nav-sub"><a onclick="scrollTo('ec-cost')">Costs & Evaluation</a><a onclick="scrollTo('ec-eee')">Efficacy/Effectiveness/Efficiency</a><a onclick="scrollTo('ec-eval')">Economic Evaluation</a><a onclick="scrollTo('ec-uhc')">UHC & Financing</a></div>
 </div>
 <div class="nav-topic" onclick="toggleNav(this,'sec5')">
   <div class="nav-topic-header">
@@ -482,6 +482,28 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
 <tr><td>Health as a "merit good"</td><td>Society values access beyond what individual demand alone would provide</td><td>Justifies public subsidy for essential/preventive services</td></tr>
 </table>
 <div class="callout callout-blue">Economics informs <em>allocation</em> under scarcity, not just accounting — the central policy question is rarely "can we afford this?" in isolation but "what do we give up to afford this?" (opportunity cost). The equity–efficiency trade-off (maximise total health vs distribute it fairly) runs through almost every financing and priority-setting decision.</div>
+</div><div id="ec-eee"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🎯</span> Efficacy vs Effectiveness vs Efficiency</div>
+<p>These three terms are colloquially used as synonyms but carry distinct technical meanings in health management and health economics — a favourite short-answer/MCQ trap.</p>
+<table><tr><th>Term</th><th>Definition</th><th>Study setting</th><th>Example</th></tr>
+<tr><td><strong>Efficacy</strong></td><td>The capacity of an intervention to produce benefit under <strong>ideal / controlled conditions</strong></td><td>Randomised controlled trial (RCT) — strict eligibility criteria, protocol-driven adherence, close monitoring</td><td>A malaria vaccine reduces clinical episodes by 60% in a tightly monitored RCT cohort</td></tr>
+<tr><td><strong>Effectiveness</strong></td><td>The extent to which an intervention achieves its intended effect under <strong>real-world / routine practice conditions</strong></td><td>Observational studies, pragmatic trials, programme/field evaluation — patients with comorbidities, variable adherence, resource constraints</td><td>The same vaccine reduces clinical episodes by only 35% once rolled out nationally, because of cold-chain lapses and missed second doses</td></tr>
+<tr><td><strong>Efficiency</strong></td><td>The ratio of <strong>output/outcome achieved to input/resources consumed</strong> — "doing things in the most economical way"</td><td>Cost analysis, economic evaluation</td><td>Programme A achieves the same coverage as Programme B at 70% of the unit cost per child immunised</td></tr>
+</table>
+<p>A simple way to remember the distinction (adapted from health-economics teaching): <strong>efficacy = "can it work?"</strong> (best-case, ideal conditions), <strong>effectiveness = "does it work?"</strong> (usual conditions, real patients), <strong>efficiency = "is it worth it?"</strong> (value for money, given scarce resources). Evidence hierarchies traditionally rank RCTs (efficacy evidence) above observational/pragmatic studies, yet effectiveness studies are what decision-makers actually need to predict programme performance at scale — the "efficacy–effectiveness gap" is a recognised limitation of relying on trial data alone to plan roll-out.</p>
+<div class="callout callout-purple">A drug can be highly <strong>efficacious</strong> in a trial but poorly <strong>effective</strong> in the field (adherence, access, comorbidity), and even an effective drug can be <strong>inefficient</strong> if a cheaper alternative achieves a similar outcome — all three lenses are needed before a programme decision is sound.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: efficacy vs effectiveness vs efficiency for the same intervention <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Intervention:</strong> a new antihypertensive drug.</p>
+<ul>
+<li><strong>Efficacy finding:</strong> in an RCT with strict inclusion criteria and pill counts confirming ≥95% adherence, the drug lowers systolic BP by 15 mmHg vs placebo.</li>
+<li><strong>Effectiveness finding:</strong> once prescribed in routine primary care (patients with polypharmacy, variable adherence, no research-nurse follow-up), average population-level SBP reduction is only 8 mmHg.</li>
+<li><strong>Efficiency finding:</strong> the drug costs RM 45/month; an older generic achieves a 6 mmHg reduction at RM 8/month. Cost per mmHg reduced: new drug ≈ RM 5.6/mmHg; generic ≈ RM 1.3/mmHg — the generic is more <em>efficient</em> even though the new drug is more <em>effective</em> in absolute terms. The final funding decision requires weighing the extra effectiveness against the extra cost (i.e., an ICER), not efficacy or effectiveness alone.</li>
+</ul>
+</div>
+</div>
 </div><div id="ec-eval"></div>
 <div class="card">
 <div class="card-title"><span class="icon">⚖️</span> Economic Evaluation</div>
@@ -494,6 +516,16 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
 <p><strong>Data:</strong> new drug A costs RM 5,000/patient/year and yields 6.2 QALYs. Standard drug B costs RM 3,000/patient/year and yields 5.8 QALYs.</p>
 <p><strong>ICER</strong> = (5,000 − 3,000) ÷ (6.2 − 5.8) = 2,000 ÷ 0.4 = <strong>RM 5,000 per additional QALY</strong>.</p>
 <p><strong>Interpretation:</strong> if the decision-maker's WTP threshold is, say, RM 30,000/QALY (an illustrative benchmark only), drug A is <strong>cost-effective</strong> and worth funding at the margin. If A had cost more <em>and</em> produced fewer QALYs than B (dominated), it would be rejected outright regardless of threshold — this is the "cost-effectiveness plane" logic (four quadrants: dominant, dominated, and two trade-off quadrants).</p>
+</div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Applied example: economic evaluation of HIV PrEP and PEP <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Pre-exposure prophylaxis (PrEP)</strong> — daily oral antiretroviral medication taken by an HIV-negative person before potential exposure, to prevent acquisition. <strong>Post-exposure prophylaxis (PEP)</strong> — a short antiretroviral course started within 72 hours after a known or suspected exposure (occupational, e.g., needle-stick, or non-occupational, e.g., unprotected sex/assault) to prevent seroconversion.</p>
+<p>Health-technology-assessment reviews of PrEP economic evaluations consistently report that <strong>cost-effectiveness (and sometimes cost-savings) is highly context-dependent</strong> on three drivers: (1) the <strong>baseline HIV incidence</strong> in the population targeted, (2) <strong>adherence</strong> to the daily regimen (efficacy in trials assumed near-perfect adherence; real-world effectiveness is lower), and (3) the <strong>drug price</strong> (generic tenofovir/emtricitabine substantially improves the cost-effectiveness ratio versus branded product). Targeting PrEP at those with the <em>highest</em> risk of HIV exposure (rather than the general population) markedly improves cost per infection averted, because fewer person-years of prophylaxis are "spent" per infection prevented.</p>
+<p>Non-occupational PEP shows a similar pattern: it can be cost-effective or even cost-saving depending on the type/source of exposure (e.g., PEP after exposure to a known HIV-positive source with high viral load is far more favourable than "blanket" PEP for very-low-risk exposures), because the denominator of exposures needing treatment to avert one infection is smaller when risk-targeted.</p>
+<p><strong>Illustrative worked logic:</strong> suppose targeted PrEP in a high-incidence key population costs RM 2,000/person/year and prevents 1 HIV infection per 40 person-years of use (a plausible order of magnitude in high-incidence settings). Cost per infection averted ≈ RM 2,000 × 40 = <strong>RM 80,000</strong>. If the lifetime discounted cost of treating one HIV infection (lifelong antiretroviral therapy, monitoring, complications) exceeds RM 80,000 — which it typically does over a patient's lifetime — the intervention can be <strong>cost-saving</strong>, not merely cost-effective, illustrating why risk-targeting (rather than universal provision) is repeatedly highlighted as the single biggest lever on PrEP's economic case.</p>
+<p><strong>Key gap noted in the literature:</strong> evidence on how best to identify high-risk individuals for targeting, and the costs of that identification process itself (risk-screening, counselling), remains limited — a reminder that the numerator/denominator of any CEA depends on real-world implementation costs, not just drug price.</p>
 </div>
 </div>
 </div><div id="ec-uhc"></div>
@@ -522,15 +554,83 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
 <div id="sm-sp"></div>
 <div class="card">
 <div class="card-title"><span class="icon">🗺️</span> Strategic Planning</div>
-<p>Defining direction and allocating resources to achieve the organisation's mission.</p><ul><li>SWOT / PESTEL analysis; vision–mission–objectives–strategy–action.</li><li>Monitoring via indicators and review cycles.</li></ul><div class="callout callout-purple">Strategy is about <em>choices</em> under uncertainty — what NOT to do is as important as what to do.</div>
+<p>Strategic management is commonly modelled (Wheelen & Hunger) as a continuous four-stage cycle: <strong>environmental scanning → strategy formulation → strategy implementation → evaluation & control</strong>, feeding back into the next scanning cycle.</p>
+<ul>
+<li><strong>Environmental scanning</strong> — external (opportunities/threats in the wider environment) and internal (organisational strengths/weaknesses) analysis, done <em>before</em> committing to a direction.</li>
+<li><strong>Strategy formulation</strong> — clarifying <strong>mission</strong> (why we exist, our core purpose), <strong>vision</strong> (what we aspire to become), <strong>objectives</strong> (specific measurable targets), and selecting a <strong>strategy</strong> (the broad approach chosen to achieve objectives) and supporting <strong>tactics/action plans</strong> (concrete short-term steps).</li>
+<li><strong>Strategy implementation</strong> — translating strategy into programmes, budgets, and procedures; requires structure, resources, and culture aligned to the chosen direction.</li>
+<li><strong>Evaluation & control</strong> — monitoring performance indicators against targets and feeding deviations back to revise strategy — strategic planning is iterative, not a one-off document.</li>
+</ul>
+<p><strong>Levels of strategy:</strong> <em>corporate</em> (which businesses/services should we be in — e.g., should a hospital open a new dialysis centre or expand maternity services?), <em>business/competitive</em> (how do we compete/position within a chosen service — e.g., differentiate on quality vs cost leadership), and <em>functional</em> (how do departments — HR, finance, clinical operations — support the chosen strategy day to day).</p>
+<div class="callout callout-purple">Strategy is about <em>choices</em> under uncertainty — deciding what <strong>not</strong> to do (which services, populations, or investments to forgo) is as strategically important as deciding what to pursue, because resources committed to one direction are opportunity costs against every other direction.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">SWOT and PESTEL analysis — frameworks and worked example <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>SWOT</strong> audits the organisation itself and its immediate environment:</p>
+<table><tr><th></th><th>Helpful</th><th>Harmful</th></tr>
+<tr><td><strong>Internal</strong> (organisation)</td><td><strong>Strengths</strong> — resources/capabilities that give an advantage (e.g., an experienced specialist team, strong reputation, modern equipment)</td><td><strong>Weaknesses</strong> — internal limitations (e.g., outdated IT systems, high staff turnover, limited bed capacity)</td></tr>
+<tr><td><strong>External</strong> (environment)</td><td><strong>Opportunities</strong> — favourable external trends to exploit (e.g., new government UHC funding stream, rising demand for a service)</td><td><strong>Threats</strong> — external risks (e.g., new competing private hospital, tightening reimbursement rates, workforce migration)</td></tr>
+</table>
+<p><strong>PESTEL</strong> scans the wider macro-environment feeding into Opportunities/Threats: <strong>P</strong>olitical (health policy priorities, election cycles), <strong>E</strong>conomic (funding levels, currency/inflation affecting drug costs), <strong>S</strong>ocial (demographic ageing, health-seeking behaviour), <strong>T</strong>echnological (telemedicine, AI diagnostics), <strong>E</strong>nvironmental (climate-related disease patterns, sustainability pressure), <strong>L</strong>egal/regulatory (licensing, data-protection law, accreditation standards).</p>
+<p><strong>Worked example — a public hospital considering a new outpatient dialysis unit:</strong></p>
+<ul>
+<li><strong>Strength:</strong> existing nephrology specialists on staff.</li>
+<li><strong>Weakness:</strong> current facility has no spare floor space for new machines.</li>
+<li><strong>Opportunity:</strong> national UHC benefit package now covers renal replacement therapy more generously (per the financing discussion above).</li>
+<li><strong>Threat:</strong> a private provider nearby is already expanding dialysis capacity and may capture referrals first.</li>
+</ul>
+<p>A <strong>TOWS matrix</strong> then converts each SWOT cell into an action: <em>SO strategy</em> (use strength to seize opportunity) — deploy existing nephrology expertise to fast-track a funding proposal under the expanded UHC package; <em>WT strategy</em> (minimise weakness and avoid threat) — if space cannot be found quickly, negotiate a shared-service/referral partnership with the private provider rather than competing head-on.</p>
+</div>
+</div>
 </div><div id="sm-bsc"></div>
 <div class="card">
 <div class="card-title"><span class="icon">📊</span> Balanced Scorecard</div>
-<p>Kaplan & Norton: measure performance across four perspectives:</p><table><tr><th>Perspective</th><th>Question</th></tr><tr><td>Financial</td><td>Are we sustainable?</td></tr><tr><td>Customer/Patient</td><td>Do we meet stakeholder needs?</td></tr><tr><td>Internal process</td><td>Where must we excel?</td></tr><tr><td>Learning & growth</td><td>Can we improve & innovate?</td></tr></table><div class="callout callout-blue">Prevents over-focus on finance at the expense of quality and learning.</div>
+<p>Kaplan & Norton's Balanced Scorecard (BSC) was designed to correct the historical over-reliance on lagging financial indicators alone, by measuring performance across <strong>four linked perspectives</strong>, each answering a different strategic question:</p>
+<table><tr><th>Perspective</th><th>Question</th><th>Example measure (hospital)</th></tr>
+<tr><td><strong>Financial</strong></td><td>Are we financially sustainable / creating value for funders?</td><td>Cost per case-mix-adjusted admission; budget variance</td></tr>
+<tr><td><strong>Customer/Patient</strong></td><td>Do we meet the needs of patients & other key stakeholders?</td><td>Patient satisfaction score; waiting-time targets met</td></tr>
+<tr><td><strong>Internal process</strong></td><td>Which internal processes must we excel at to satisfy patients & funders?</td><td>Hand-hygiene compliance rate; readmission rate; theatre utilisation</td></tr>
+<tr><td><strong>Learning & growth</strong></td><td>Can we continue to improve, innovate, and build capacity?</td><td>Staff training hours completed; staff turnover rate; number of QI projects active</td></tr>
+</table>
+<p>The four perspectives are <strong>causally linked</strong> in a "strategy map": investment in <strong>learning & growth</strong> (staff skills, systems) improves <strong>internal processes</strong> (safer, faster care), which improves <strong>customer/patient</strong> outcomes and satisfaction, which in turn secures <strong>financial</strong> sustainability (funding, reputation, referrals) — financial results are the lagging outcome of the other three, not the sole starting point.</p>
+<div class="callout callout-blue">The BSC deliberately prevents over-focus on finance at the expense of quality, patient experience, and staff development — a hospital that hits its budget target while hand-hygiene compliance and staff morale collapse has only appeared to succeed on one of four perspectives.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: building a mini BSC for a primary care clinic <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<table><tr><th>Perspective</th><th>Objective</th><th>Measure</th><th>Target</th><th>Initiative</th></tr>
+<tr><td>Financial</td><td>Control unit cost</td><td>Cost per patient visit</td><td>≤ RM 40</td><td>Streamline supply procurement</td></tr>
+<tr><td>Patient</td><td>Reduce waiting time</td><td>Average wait time</td><td>≤ 30 min</td><td>Appointment triage system</td></tr>
+<tr><td>Internal process</td><td>Improve chronic-disease control</td><td>% diabetics at HbA1c target</td><td>≥ 60%</td><td>Nurse-led titration protocol</td></tr>
+<tr><td>Learning & growth</td><td>Build staff capability</td><td>Staff completing annual CME</td><td>100%</td><td>Protected CME time</td></tr>
+</table>
+<p>Note how each row's target is <strong>specific and measurable</strong> and the "initiative" column names the concrete action management will take — a BSC without initiatives is just a scorecard, not a management tool.</p>
+</div>
+</div>
 </div><div id="sm-risk"></div>
 <div class="card">
 <div class="card-title"><span class="icon">🛡️</span> Clinical / Organisational Risk Management</div>
-<ul><li>Identify, assess, mitigate, monitor risks (clinical, financial, legal, reputation).</li><li>Clinical risk = risk of harm from clinical care; managed via protocols, checklists, incident reporting.</li><li>Risk matrices (likelihood × severity); just culture for reporting.</li></ul><div class="callout callout-red">Risk management is proactive (prevention) + reactive (learning from incidents).</div>
+<p>Enterprise Risk Management (ERM) frameworks (e.g., ISO 31000, COSO) describe risk management as a continuous, integrated cycle rather than a one-off checklist, applied across clinical, financial, legal, reputational, and strategic risk categories simultaneously — a weakness treated in isolation in one category (e.g., financial) can still expose the organisation through another (e.g., clinical/reputational) if risks are managed in silos.</p>
+<ul>
+<li><strong>Risk identification</strong> — scanning for emerging hazards (incident reports, complaints, audits, near-miss data, environmental scanning of external risks).</li>
+<li><strong>Risk analysis</strong> — estimating <strong>likelihood</strong> and <strong>severity/impact</strong> of each identified risk.</li>
+<li><strong>Risk evaluation</strong> — ranking risks (e.g., via a risk matrix/heat map) against the organisation's risk appetite to decide which need action first.</li>
+<li><strong>Risk response/treatment</strong> — four classic options: <strong>avoid</strong> (stop the risky activity altogether), <strong>reduce/mitigate</strong> (controls that lower likelihood or severity — e.g., checklists, double-checks), <strong>transfer</strong> (insurance, outsourcing, contractual indemnity), or <strong>accept</strong> (retain the residual risk consciously, usually when it is low-likelihood/low-impact or treatment cost exceeds the benefit).</li>
+<li><strong>Monitoring & review</strong> — tracking whether treatments actually reduced the risk, and re-scanning as the environment changes; <strong>communication & consultation</strong> with stakeholders runs throughout every stage of the cycle, not just at the end.</li>
+</ul>
+<p><strong>Clinical risk</strong> specifically refers to the risk of harm arising from clinical care itself (see also Section 2's Swiss-cheese model and root-cause analysis) and is managed through protocols/guidelines, checklists (e.g., WHO Surgical Safety Checklist), credentialing, and confidential incident-reporting systems feeding a <strong>just culture</strong>. Clinical errors are also a source of <strong>medico-legal risk</strong>: reviews of malpractice literature suggest only a minority of adverse events (roughly 1 in 7 by some estimates) ever result in a litigation claim, and the strongest predictors of a patient pursuing litigation are often relational — a poor prior patient–clinician relationship and a feeling of not being kept informed — rather than the objective severity of harm alone, which is why open disclosure and communication after an adverse event are core risk-management strategies, not just an ethical nicety.</p>
+<div class="callout callout-red">Risk management is both <strong>proactive</strong> (preventing harm before it occurs — hazard identification, checklists, training) and <strong>reactive</strong> (learning from incidents that already happened — RCA, incident reporting, re-audit) — an organisation that only reacts after harm occurs is perpetually one step behind; a mature system runs both loops continuously and feeds lessons from the reactive loop back into proactive controls.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked example: scoring and treating risks on a 5×5 risk matrix <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Score each risk on <strong>Likelihood</strong> (1 = rare … 5 = almost certain) × <strong>Severity</strong> (1 = negligible … 5 = catastrophic); Risk score = Likelihood × Severity (range 1–25).</p>
+<table><tr><th>Risk</th><th>Likelihood</th><th>Severity</th><th>Score</th><th>Response</th></tr>
+<tr><td>Look-alike drug vials stored together (see Section 2 "5 Whys" case)</td><td>4</td><td>5</td><td>20 (extreme)</td><td>Reduce/mitigate immediately — separate storage, independent double-check</td></tr>
+<tr><td>Single point of failure in backup generator for OT power</td><td>2</td><td>5</td><td>10 (high)</td><td>Reduce — install redundant backup, scheduled testing</td></tr>
+<tr><td>Minor stationery stock-outs in admin office</td><td>3</td><td>1</td><td>3 (low)</td><td>Accept — monitor only, cost of full mitigation exceeds benefit</td></tr>
+</table>
+<p>Risk-matrix scoring makes prioritisation transparent and defensible: management attention and budget go first to the "extreme" cell (20), not to whichever risk was most recently reported or most visible to leadership.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="section" id="sec-pyq">
