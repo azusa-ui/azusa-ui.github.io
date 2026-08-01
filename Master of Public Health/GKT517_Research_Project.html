@@ -206,7 +206,7 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
     <span>Study Design & Sampling</span>
     <span class="chevron">▶</span>
   </div>
-  <div class="nav-sub"><a onclick="scrollTo('sd-cho')">Design Choice</a><a onclick="scrollTo('sd-samp')">Sampling</a><a onclick="scrollTo('sd-size')">Sample Size</a></div>
+  <div class="nav-sub"><a onclick="scrollTo('sd-cho')">Design Choice</a><a onclick="scrollTo('sd-samp')">Sampling</a><a onclick="scrollTo('sd-size')">Sample Size</a><a onclick="scrollTo('sd-bias')">Bias, Confounding & Interaction</a></div>
 </div>
 <div class="nav-topic" onclick="toggleNav(this,'sec4')">
   <div class="nav-topic-header">
@@ -222,7 +222,7 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
     <span>Analysis, Writing & Ethics</span>
     <span class="chevron">▶</span>
   </div>
-  <div class="nav-sub"><a onclick="scrollTo('an-plan')">Analysis Plan</a><a onclick="scrollTo('an-write')">Thesis Writing</a><a onclick="scrollTo('an-eth')">Research Ethics</a></div>
+  <div class="nav-sub"><a onclick="scrollTo('an-plan')">Analysis Plan</a><a onclick="scrollTo('an-write')">Thesis Writing & Referencing</a><a onclick="scrollTo('an-eth')">Research Ethics</a></div>
 </div>
 <div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
   <div class="nav-topic-header">
@@ -336,15 +336,75 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
 <div id="lt-search"></div>
 <div class="card">
 <div class="card-title"><span class="icon">🔎</span> Literature Search & Management</div>
-<p>Systematic, reproducible searching using a defined strategy.</p><ul><li>Databases: PubMed, Scopus, Web of Science, Cochrane, MyJurnal, Google Scholar (supplementary).</li><li>Build a search with MeSH / keywords, Boolean (AND/OR/NOT), limits.</li><li>Manage references with EndNote / Mendeley / Zotero; use a PRISMA flow if systematic.</li></ul><div class="callout callout-blue">Document the search (databases, dates, terms) for reproducibility.</div>
+<p>A literature search is <strong>"a systematic, explicit, and reproducible method for identifying, evaluating and interpreting the existing body of recorded works"</strong> on a topic (Fink, 1998) — not simply a list of what you have read, but an analysis of what has been done.</p><ul><li>Databases: PubMed, Scopus, Web of Science, Cochrane Library, CINAHL, MyJurnal, Google Scholar (supplementary), plus grey literature (theses, conference proceedings) and organisation sites (WHO, MOH, CDC).</li><li>Build a search with MeSH / keywords, Boolean (AND/OR/NOT), truncation and wildcards, limits.</li><li>Manage references with EndNote / Mendeley / Zotero; use a PRISMA flow if systematic.</li></ul><div class="callout callout-blue">Document the search (databases, dates, terms, number of hits) for reproducibility — an examiner should be able to repeat your search and get the same papers.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Six-step literature-search workflow, purposes & search techniques <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<h4>Purposes of a literature search</h4>
+<p>Beyond "reading around the topic," a good search: provides an academic basis for the study; feeds the problem statement; supports choice of tools/methods/data-collection approach; identifies gaps and potential pitfalls; and demonstrates the researcher's skill at finding and critically appraising relevant work.</p>
+<h4>The six steps</h4>
+<ol>
+<li><strong>Choose a topic / define the RQ.</strong> Check the question is neither too broad ("What is the prevalence of hypertension in patients with diabetes?") nor too narrow ("What are the attitudes of the general population in [town] to healthy meal preparation during sahur for glycaemic control in T2DM patients?") — aim for a workable middle ground, and write down candidate keywords as you go.</li>
+<li><strong>Identify scope & focus.</strong> Decide how many years to cover (5–10 years is a common rule of thumb, extended further back for foundational theory or validated tools) and which concepts from the RQ will structure the search (e.g. for "KAP and effect of Ramadan fasting on glycaemic control in T2DM," the concepts are Ramadan fasting, KAP, DM, glycaemic control).</li>
+<li><strong>Select databases.</strong> Bibliographic (PubMed, EMBASE, Cochrane Library for medicine; Scopus/Web of Science for multidisciplinary coverage; CINAHL for nursing/allied health), organisational websites, and grey literature (dissertations, conference proceedings) each have different strengths — no single database is complete.</li>
+<li><strong>Conduct & track the search.</strong> Review abstracts carefully before retrieving full text; log the exact search string used per database; follow up reference lists of key papers ("citation chasing"); use EndNote/Mendeley to store results as you go.</li>
+<li><strong>Critically review what you found.</strong> For each paper ask: is it relevant, is the study significant, what are its strengths/weaknesses, what methods/theories were used, could bias (emotional, funding, publication) affect the conclusions, who is the intended reader?</li>
+<li><strong>Record & synthesise.</strong> Export to a reference manager, remove duplicates, then write the review as an argument — not a string of "X reported... Y reported..." descriptive sentences with no linkage. Plot a logical structure (sections/sub-headings) before drafting; write first, edit later.</li>
+</ol>
+<h4>Search techniques</h4>
+<table><tr><th>Technique</th><th>How it works</th><th>Example</th></tr>
+<tr><td>Boolean AND</td><td>Combines concepts — narrows results to items containing both terms</td><td>diabetes AND Ramadan</td></tr>
+<tr><td>Boolean OR</td><td>Combines synonyms/related terms — broadens results</td><td>adolescent OR teenager OR youth</td></tr>
+<tr><td>Boolean NOT</td><td>Excludes a term — narrows/refines results</td><td>cancer NOT breast</td></tr>
+<tr><td>Truncation (*)</td><td>Finds word variants sharing a root</td><td>adolescen* → adolescent, adolescents, adolescence</td></tr>
+<tr><td>Wildcard (?/#)</td><td>Substitutes a single character within a word</td><td>wom?n → woman, women; colo#r → color, colour</td></tr>
+<tr><td>Phrase searching</td><td>Quotation marks keep words together as an exact phrase</td><td>"head and neck cancer"</td></tr>
+<tr><td>MeSH terms</td><td>PubMed's controlled vocabulary — gives uniform indexing regardless of the author's own wording</td><td>"Diabetes Mellitus, Type 2"[Mesh]</td></tr>
+</table>
+<h4>Theoretical vs conceptual framework</h4>
+<p>A <strong>theoretical framework</strong> is an existing theory the researcher adopts to guide the study (e.g. the Theory of Planned Behaviour). A <strong>conceptual framework</strong> is something the researcher <em>constructs</em> — synthesising theoretical and empirical literature into a diagram of the variables/concepts specific to this study and how they relate. It is sometimes called "the soul of the research project": without one, a study lacks direction for the literature review, and lacks a basis for interpreting findings afterward. A typical conceptual framework diagram groups independent variables (e.g. socio-demographic factors, occupational factors, behavioural factors) feeding into the outcome of interest, with arrows showing hypothesised relationships — this becomes the map for both the literature review headings and later the analysis (which variables to adjust for).</p>
+</div>
+</div>
 </div><div id="lt-rev"></div>
 <div class="card">
 <div class="card-title"><span class="icon">📚</span> Types of Review</div>
 <table><tr><th>Type</th><th>Synthesis</th></tr><tr><td>Narrative review</td><td>Thematic, non-systematic</td></tr><tr><td>Systematic review</td><td>Explicit, reproducible, low bias</td></tr><tr><td>Meta-analysis</td><td>Statistical pooling of effect sizes</td></tr><tr><td>Scoping review</td><td>Map breadth of evidence</td></tr></table><div class="callout callout-purple">A protocol (PROSPERO) pre-registers a systematic review to reduce bias.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Choosing which literature is "good" evidence <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Not all literature carries equal weight. Guideline articles from a known author in the field or from a relevant organisation/committee (e.g. WHO, NHLBI, a national ministry of health) usually carry stronger authority than a single small primary study. Journal articles are the most common and up-to-date source and typically undergo peer review (a quality guarantee); books are less current but useful for orienting overviews; conference proceedings may reveal work not yet published and who the leading practitioners are; government/international-agency reports can be valuable original sources but are often harder to obtain.</p>
+<p>Whatever the source, apply <strong>critical appraisal</strong>: check study design appropriateness, sample and comparison group selection, potential confounders considered, and coherence of the reported findings with other literature — this is the same skill examined in the GET502/GET503 critical-appraisal (CASP) module, applied here to build your own literature review rather than to grade someone else's paper.</p>
+</div>
+</div>
 </div><div id="lt-prot"></div>
 <div class="card">
 <div class="card-title"><span class="icon">📝</span> Protocol & Research Proposal</div>
-<p>The <strong>protocol</strong> is the detailed plan of the study (the 'rulebook'). The <strong>proposal</strong> justifies and seeks approval for it.</p><ul><li>Proposal sections: title, background, problem, RQ/objectives, significance, methods, ethics, timeline, budget, references.</li><li>A strong proposal shows feasibility, rigour and relevance.</li></ul><div class="callout callout-green">Write the protocol before data collection — it is your quality guarantee and ethics-submission backbone.</div>
+<p>The <strong>protocol</strong> is the detailed plan of the study (the 'rulebook'). The <strong>proposal</strong> justifies and seeks approval for it, and serves three purposes: it convinces others of the value of the research, it functions as a contract between student and supervisor/committee, and it is a planning tool that forces the student to think through feasibility before fieldwork begins.</p><ul><li>Proposal sections: title, background/introduction, rationale, objectives, literature review, conceptual framework, methodology, flow chart, expected (dummy) results, Gantt chart & milestones, references.</li><li>A strong proposal shows feasibility, rigour and relevance.</li></ul><div class="callout callout-green">Write the protocol before data collection — it is your quality guarantee and ethics-submission backbone.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Proposal sections in detail, methodology checklist, good vs poor proposals <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<h4>Title</h4>
+<p>Should attract attention in the fewest possible words while adequately describing the study. Avoid opening with "The study of...", avoid a question mark, and generally avoid naming the study design in the title (an RCT is a common exception).</p>
+<h4>Introduction vs Rationale vs Literature Review</h4>
+<p>These three are often confused but serve different purposes and lengths:</p>
+<table><tr><th>Section</th><th>Length</th><th>Purpose</th></tr>
+<tr><td>Introduction</td><td>Brief, 3–6 pages</td><td>States what question the project answers and why; overview of the problem and its burden; not in-depth — points made here may be repeated in the literature review but in more depth later.</td></tr>
+<tr><td>Rationale</td><td>Short paragraph(s)</td><td>States the study in context, in the researcher's own words: what is known, why the RQ matters, what answers the study will provide.</td></tr>
+<tr><td>Literature Review</td><td>In-depth</td><td>Critically comments on and discusses findings for the selected project: depth on the disease/problem, its burden, gaps in knowledge, relevant methodological aspects (design, tools, statistical tests used elsewhere), and ends in a conceptual framework.</td></tr>
+</table>
+<h4>Methodology checklist (what examiners look for)</h4>
+<p>A complete methodology section addresses, in order: study design; reference/source/study population; sampling frame; inclusion & exclusion criteria; sample-size determination (with formula, values used, and reference for each parameter); sampling method; study area, time & duration; research tools/materials (with validity/reliability/pre-testing plan); operational definitions of key variables; data-collection procedure; intended statistical tests; ethical considerations.</p>
+<div class="callout callout-orange"><strong>Inclusion vs exclusion criteria:</strong> inclusion criteria are not simply "the opposite" of exclusion criteria. Inclusion defines who is eligible (demographic/clinical characteristics, accessible population); exclusion is applied parsimoniously to remove specific subsets likely to be lost to follow-up, unable to provide good data, or barred by ethics (e.g. a 5-year vitamin-D trial might exclude those planning to move away, those with language barriers preventing consent, or those with a history of kidney stones).</div>
+<h4>Expected results (dummy tables)</h4>
+<p>A proposal should include blank "dummy tables" showing exactly how results will be presented — e.g. Table 1: socio-demographic characteristics with columns for n(%) and Mean(SD); Table 2: factors associated with the outcome, showing columns for crude OR (95% CI), adjusted OR (95% CI) and p-value. Building these in advance forces the student to think through the analysis plan before data collection, and is one of the clearest signals to a supervisor that the design is internally consistent.</p>
+<h4>Good vs poor proposal</h4>
+<div class="two-col">
+<div class="subpart"><div class="subpart-label">Good proposal</div><ul><li>Clearly defined, FINER-checked research question</li><li>Objectives clearly specified and traceable to the RQ</li><li>Literature review that provides real background, not just a list</li><li>Conceptual framework & theoretical assumptions clearly stated</li><li>Appropriate design & methodology; preliminary/pilot data shown</li><li>Necessary resources realistically available</li></ul></div>
+<div class="subpart"><div class="subpart-label">Poor proposal</div><ul><li>Repeats an existing project with no novelty</li><li>Weak structure, poor language, no clear argument</li><li>Research too ambitious for the timeline/resources</li><li>Inadequate or copied literature review, no theoretical foundation</li><li>Methods unclear or inappropriate to the RQ</li><li>Missing or inconsistent references</li></ul></div>
+</div>
+<p>The typical process after writing: protocol presentation → departmental approval → conduct study → write report → supervisor review & correction → submission → examined by (usually two) internal examiners → correction → award of degree. A realistic <strong>Gantt chart</strong> with milestones (e.g. fieldwork preparation, data collection, analysis, report writing/presentation) should accompany the proposal.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="section" id="sec3">
@@ -358,10 +418,140 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
 <div class="card">
 <div class="card-title"><span class="icon">🎲</span> Sampling Methods</div>
 <table><tr><th>Probability</th><th>Non-probability</th></tr><tr><td>Simple random</td><td>Convenience</td></tr><tr><td>Systematic</td><td>Purposive</td></tr><tr><td>Stratified</td><td>Quota</td></tr><tr><td>Cluster / multi-stage</td><td>Snowball</td></tr></table><ul><li>Probability sampling → generalisable inference.</li><li>Sample frame must cover the target population.</li></ul><div class="callout callout-blue">The unit of sampling, unit of analysis and unit of inference must be explicit and aligned.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Population hierarchy, and each sampling method worked through step-by-step <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<h4>The population hierarchy (define before you sample anything)</h4>
+<p>Every sampling plan should explicitly name five nested layers, narrowing from broadest to the actual data-collection list:</p>
+<table><tr><th>Layer</th><th>Meaning</th><th>Worked example</th></tr>
+<tr><td>Reference / target population</td><td>To whom the study results will be generalised/inferred</td><td>Adults in Kota Bharu with diabetes mellitus</td></tr>
+<tr><td>Source population</td><td>From where the sample will actually be drawn</td><td>Adults with DM who received treatment at any health clinic in Kota Bharu</td></tr>
+<tr><td>Study population</td><td>Who will actually be studied (feasibility-limited subset)</td><td>Adults with DM treated at Klinik Kesihatan Bandar KB</td></tr>
+<tr><td>Sampling frame</td><td>The concrete list of eligible people from the study population</td><td>Register of patients fulfilling the study's inclusion/exclusion criteria at that clinic</td></tr>
+<tr><td>Sample</td><td>The persons actually included and measured</td><td>The n patients selected from the frame</td></tr>
+</table>
+<h4>Probability sampling — a known, non-zero chance of selection for every unit</h4>
+<div class="subpart"><div class="subpart-label">1. Simple random sampling (SRS)</div><p>Every unit in the frame has an equal probability of selection. Best suited to a relatively small, homogeneous population with a sampling frame already available. <strong>Procedure:</strong> (1) identify the population layers & frame, (2) determine sample size, (3) assign a consecutive number to every unit in the frame, (4) generate the required number of unique random numbers (lottery, random-number table, or software), (5) select those units. <em>Worked example:</em> frame of 30 people, need 10 — number them 1–30, draw 10 unique random numbers (e.g. 5, 12, 13, 14, 17, 19, 20, 21, 26, 27), and those 10 numbered individuals become the sample. <strong>Advantage:</strong> minimal sampling bias if applied correctly. <strong>Disadvantage:</strong> requires the full frame in advance — infeasible for large or geographically spread populations.</p></div>
+<div class="subpart"><div class="subpart-label">2. Systematic sampling</div><p>Used when a complete frame cannot be listed in advance (e.g. patients who will attend an out-patient clinic over the next few weeks) — an anticipated frame size is used instead. Sampling interval <code>k = population size ÷ sample size</code>. <strong>Procedure:</strong> anticipate the frame size, determine sample size, calculate k, pick ONE random start number between 1 and k, then take every k-th unit onward. <em>Worked example:</em> anticipated frame = 30, sample needed = 10 → k = 30/10 = 3. Random start = patient #2 → select patients #2, #5, #8, #11, #14, #17, #20, #23, #26, #29. <strong>Advantage:</strong> cheap, fast, spreads the sample evenly, approximates SRS when done correctly. <strong>Disadvantage:</strong> biased if there is a periodic pattern in the list that coincides with the interval (e.g. every 7th patient always attends on a quiet Monday clinic).</p></div>
+<div class="subpart"><div class="subpart-label">3. Stratified sampling</div><p>The frame is divided into mutually-exclusive strata (e.g. ethnicity, sex, disease severity) and each stratum is sampled independently, guaranteeing that every sub-group is represented. Compare with plain SRS on a heterogeneous population (e.g. 15 blue-marked, 15 orange-marked people): by chance, SRS of 10 might draw 7 blue and only 3 orange — a sample that does not reflect the true 50:50 population split. Stratifying and sampling proportionately within each colour would guarantee representation. <strong>Two types:</strong> proportionate (sample size per stratum proportional to that stratum's share of the population) or disproportionate (deliberately over- or under-sampling a stratum, e.g. to ensure enough of a rare sub-group for stable estimates). <strong>Advantage:</strong> superior representativeness. <strong>Disadvantage:</strong> a separate frame is needed per stratum, more effort, potentially larger sample size and cost.</p></div>
+<div class="subpart"><div class="subpart-label">4. Cluster sampling</div><p>Naturally occurring groups ("clusters" — villages, schools, clinics) are identified, a sample of clusters is randomly selected, and <strong>everyone within a selected cluster</strong> is included (one-stage cluster sampling). <strong>Advantage:</strong> avoids the need for an individual-level sampling frame, cuts travel/administrative cost, easy to obtain a large sample. <strong>Disadvantage:</strong> higher sampling error than SRS (people within a cluster tend to be similar — the "design effect"), requires group-level information, and may under-represent diversity present in the wider frame.</p></div>
+<div class="subpart"><div class="subpart-label">5. Multistage sampling</div><p>Combines two or more of the above methods across sequential stages. <em>Worked example:</em> Stage 1 — randomly select 5 of 10 districts in a state using SRS; Stage 2 — randomly select 10 secondary schools within each selected district using SRS; Stage 3 — randomly select 2 classes within each selected school using cluster sampling. This is the standard approach for large national surveys where a full individual-level frame is never available.</p></div>
+<h4>Non-probability sampling — element inclusion probability cannot be calculated</h4>
+<table><tr><th>Method</th><th>Description</th><th>Typical use</th></tr>
+<tr><td>Convenience (grab / accidental / haphazard)</td><td>Whoever is readily available is sampled</td><td>Pilot studies, quick exploratory work</td></tr>
+<tr><td>Purposive (judgemental)</td><td>Researcher deliberately selects participants believed to be information-rich</td><td>Qualitative studies, key-informant interviews</td></tr>
+<tr><td>Quota</td><td>Like stratified sampling but selection within each sub-group is non-random and based on convenience/judgement up to a target quota</td><td>Market-research style surveys</td></tr>
+<tr><td>Snowball</td><td>Existing participants refer further participants</td><td>Hidden/hard-to-reach or stigmatised populations (e.g. people who inject drugs)</td></tr>
+</table>
+<p>Snowball sampling has three variants: <strong>linear</strong> (each participant gives exactly one referral, continued in a chain), <strong>exponential non-discriminative</strong> (each participant gives multiple referrals and all are recruited, so the sample grows exponentially), and <strong>exponential discriminative</strong> (each participant gives multiple referrals but only one is chosen to continue the chain). Non-probability methods are quick, inexpensive and convenient, but representativeness is unknown and bias risk is higher — appropriate for qualitative or exploratory work, not for prevalence estimates intended to generalise to a population.</p>
+</div>
+</div>
 </div><div id="sd-size"></div>
 <div class="card">
 <div class="card-title"><span class="icon">📐</span> Sample Size & Power</div>
 <ul><li>Determined by: expected effect size, α, power (1−β, ≥0.80), variability, design.</li><li>Use formulas or software (OpenEpi, G*Power, PASS).</li><li>For proportions/means, precision (margin of error) may drive size when no hypothesis test.</li></ul><div class="callout callout-red">Under-powered studies risk type II error; over-sized waste resources. Justify every assumption.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Why size matters, the 8 driving factors, and Type I/II error <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Sample size must be calculated <strong>for every objective</strong>, using values quoted from a cited literature source, and several plausible scenarios should be calculated before settling on the largest logical one. If too few subjects are recruited: findings cannot be generalised, real (clinically important) effects may fail to reach statistical significance (type II error), and the study becomes arguably unethical (participants exposed to research burden with no realistic chance of a useful answer). If too many: unnecessary participants are put at risk/burden, resources are wasted, and trivial, clinically unimportant differences may become "statistically significant" — also an ethical problem.</p>
+<table><tr><th></th><th>H0 True (no real effect)</th><th>H0 False (real effect exists)</th></tr>
+<tr><td><strong>Reject H0 (+)</strong></td><td>Type I error, α (false positive)</td><td>Power, 1−β (correct detection)</td></tr>
+<tr><td><strong>Do not reject H0 (−)</strong></td><td>Confidence level, 1−α (correct)</td><td>Type II error, β (false negative)</td></tr>
+</table>
+<p>Eight factors that generally increase required sample size: smaller α; higher desired power; smaller expected effect size (harder-to-detect differences need more subjects); population proportion closer to 50% (variance is maximal there); larger population standard deviation; smaller (tighter) precision/margin of error; higher anticipated dropout; and certain complex designs (e.g. cluster designs need a "design effect" multiplier).</p>
+</div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Worked formulas: single mean, single proportion, two means, two proportions <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<h4>1. Estimating a single mean</h4>
+<p>Formula: <code>n = (Z₁₋α/2 · σ / Δ)²</code>, where Z₁₋α/2 is the reliability coefficient (1.96 for 95% confidence, 2.58 for 99%), σ is the population SD from a previous study, and Δ is the desired precision (margin of error, one-sided).</p>
+<div class="subpart"><div class="subpart-label">Worked example</div><p>A researcher wants to estimate the population's systolic blood pressure with precision ±5 mmHg. A previous study reported SD = 15 mmHg. At 95% confidence: n = (1.96 × 15 / 5)² = (5.88)² ≈ 34.6 → <strong>35 participants</strong>.</p></div>
+<h4>2. Estimating a single proportion</h4>
+<p>Formula: <code>n = (Z₁₋α/2 / Δ)² · P(1−P)</code>, where P is the expected population proportion/prevalence from previous literature (use P = 0.5 if truly unknown, since this maximises P(1−P) and gives the most conservative/largest n).</p>
+<div class="subpart"><div class="subpart-label">Worked example</div><p>Estimating prevalence of hypertension, expected P = 30%, desired precision ±5%, 95% confidence: n = (1.96/0.05)² × 0.3 × 0.7 = 1536.64 × 0.21 ≈ 322.7 → <strong>323 participants</strong>. If a 10% anticipated dropout is added: adjusted n = 323 / (1 − 0.10) ≈ <strong>359 participants</strong>.</p></div>
+<h4>3. Comparing two independent means</h4>
+<p>Formula (equal or m:1 allocation ratio): <code>n = [(m+1)/m] × (σ/Δ)² × (Z₁₋α/2 + Z₁₋β)²</code>, where m is the allocation ratio between groups, σ the pooled/previous SD, Δ the minimum detectable difference between groups, and Z₁₋β the power term (0.84 for 80% power, 1.28 for 90% power).</p>
+<div class="subpart"><div class="subpart-label">Worked example</div><p>Comparing resting heart rate between obese and non-obese adults (1:1 ratio), previous SD = 30 bpm, desired detectable difference = 10 bpm, α = 5% (two-tailed, Z=1.96), power = 80% (Z=0.84): n per group = [(1+1)/1] × (30/10)² × (1.96+0.84)² = 2 × 9 × 7.84 ≈ 141 → <strong>≈141 per group (282 total)</strong>, before dropout adjustment.</p></div>
+<h4>4. Comparing two independent proportions</h4>
+<p>Formula: <code>n = [(m+1)/2m] × [P₁(1−P₁) + P₀(1−P₀)] / (P₁−P₀)² × (Z₁₋α/2 + Z₁₋β)²</code>, where P₀ is the proportion among controls/unexposed and P₁ the proportion among cases/exposed (in a cohort: P is disease risk in exposed vs unexposed; in a case-control: P is exposure prevalence in cases vs controls).</p>
+<div class="subpart"><div class="subpart-label">Worked example</div><p>30% of the general adult population has "good fitness level" (P₀ = 0.30); it is anticipated that only 20% of obese adults do (P₁ = 0.20). With 1:1 allocation, α = 5%, power = 80%: numerator = 0.2(0.8) + 0.3(0.7) = 0.16 + 0.21 = 0.37; denominator = (0.20−0.30)² = 0.01; n per group = 1 × (0.37/0.01) × (1.96+0.84)² = 37 × 7.84 ≈ 290 → <strong>≈290 per group</strong>. (Software such as OpenEpi/G*Power/PASS is normally used for the exact figure and to sanity-check hand calculations.)</p></div>
+<h4>Adjusting for dropout</h4>
+<p><code>Adjusted n = calculated n ÷ (1 − anticipated dropout rate)</code>. Always state the assumed dropout rate and cite it or justify it from clinic/attrition data.</p>
+<div class="callout callout-purple"><strong>Animal studies:</strong> where no prior effect-size/SD data exist, the crude "resource equation" method may be used: E = (total animals) − (total groups), with an acceptable range of E between 10 and 20. E &lt; 10 under-powers the study; E &gt; 20 wastes animals with no further gain in power — an ethical (3Rs) as well as statistical consideration.</p></div>
+</div>
+</div>
+</div><div id="sd-bias"></div>
+<div class="card">
+<div class="card-title"><span class="icon">⚠️</span> Bias, Confounding & Interaction</div>
+<p>When analysing epidemiological data, an observed association could be explained by three "alternative explanations" — <strong>chance</strong> (random error), <strong>bias</strong> (systematic error), or <strong>confounding</strong> — the three classic threats to internal validity. <strong>Interaction (effect modification)</strong> is a separate, genuine phenomenon rather than a threat to validity, describing when an effect truly differs across sub-groups.</p>
+<table><tr><th>Random error</th><th>Systematic error (bias)</th></tr><tr><td>Chance divergence of a measurement from the true value; reduced by repeated measurement</td><td>Measurements differ from the truth in a consistent direction; NOT reduced by repeating measurements — only by better design/conduct</td></tr></table>
+<div class="callout callout-red">Confounding can be adjusted for at the analysis stage if measured; selection and information bias generally cannot be fixed after data collection — they must be prevented by design.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Selection bias & Information (measurement) bias — types and prevention <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<h4>1. Selection bias</h4>
+<p>Present when individuals have different probabilities of being included in the study according to characteristics related to exposure and outcome — usually because comparison groups do not arise from the same study base. It arises from procedures used to select subjects, factors influencing participation, and factors influencing attrition (loss to follow-up).</p>
+<h4>2. Information (measurement) bias</h4>
+<p>The method of gathering information yields systematic errors in classifying exposure or outcome status — leading to <strong>misclassification</strong>.</p>
+<table><tr><th>Misclassification type</th><th>Definition</th><th>Effect on association</th></tr>
+<tr><td>Non-differential</td><td>Error occurs equally across comparison groups (e.g. same exposure-recall error rate in cases and controls)</td><td>Typically biases the estimate <strong>toward the null</strong> (underestimates a real association)</td></tr>
+<tr><td>Differential</td><td>Error occurs to a greater extent in one group than the other</td><td>Direction unpredictable — can exaggerate, underestimate, or even reverse the association</td></tr>
+</table>
+<div class="subpart"><div class="subpart-label">Worked numeric example — non-differential misclassification biases toward the null</div><p><strong>True data</strong> (no error): Exposed cases 300, exposed controls 250, unexposed cases 100, unexposed controls 150 → OR = (300×150)/(250×100) = <strong>1.80</strong>.<br><strong>After 10% random (non-differential) misclassification of exposure</strong> in both cases and controls: exposed cases 280, exposed controls 240, unexposed cases 120, unexposed controls 160 → OR = (280×160)/(240×120) = <strong>1.56</strong>. The true OR of 1.80 is diluted toward 1.0 — this is the classic signature of non-differential misclassification.</p></div>
+<h4>Specific named biases</h4>
+<table><tr><th>Bias</th><th>Mechanism</th><th>Prevention</th></tr>
+<tr><td>Recall bias</td><td>Cases (with the outcome) recall past exposure differently/more thoroughly than controls</td><td>Verify against records/objective markers; use cohort or nested case-control design where exposure was recorded before outcome occurred</td></tr>
+<tr><td>Interviewer bias</td><td>Interviewer fails to follow standard probing/skip rules, often unconsciously probing cases more</td><td>Structured questionnaires, quality assurance, mask interviewer to case/control status</td></tr>
+<tr><td>Observer bias</td><td>Outcome ascertainment is not independent of exposure knowledge</td><td>Mask observers to exposure status; use multiple independent observers</td></tr>
+<tr><td>Respondent bias</td><td>Participant's own report of outcome during follow-up is unreliable</td><td>Confirm outcome objectively (e.g. hospital records)</td></tr>
+<tr><td>Medical surveillance / detection bias</td><td>An exposure (e.g. diabetes) triggers closer medical monitoring, so outcomes are detected more often in the exposed simply because they are watched more closely</td><td>Assess outcome systematically regardless of exposure; mask exposure status when ascertaining outcome</td></tr>
+<tr><td>Incidence-prevalence bias</td><td>Using prevalent (survivor) cases instead of incident cases when studying disease determinants — prevalent cases over-represent long-term survivors</td><td>Use incident cases when the goal is to study determinants of disease onset</td></tr>
+<tr><td>Length-time bias</td><td>Screening preferentially detects slow-growing, indolent disease with long detectable pre-clinical phase, making screening look falsely effective</td><td>Compare prognosis using an experimental design across ALL cases (screen-detected + interval), not just screen-detected cases</td></tr>
+<tr><td>Lead-time bias</td><td>Earlier diagnosis (via screening) appears to prolong survival even if it does not change the actual time of death</td><td>Compare mortality rates (the "gold standard" for evaluating screening), not survival time from diagnosis</td></tr>
+</table>
+<h4>General prevention of misclassification</h4>
+<ul><li>Use objective (e.g. biological) markers or diagnostic techniques instead of self-report where feasible.</li><li>Use clear, validated operational definitions for exposure/outcome and any co-factors.</li><li>Quality-control instruments (calibration, structured questionnaires).</li><li>Formally assess accuracy and precision of the measuring instrument/device.</li></ul>
+</div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Confounding: criteria, detection, worked stratified-analysis examples & control <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Confounding</strong> occurs when a non-causal association between an exposure and outcome is observed because of the influence of a third variable. It is more likely in observational than experimental studies.</p>
+<h4>Three criteria for a confounder</h4>
+<ol><li>Associated with the exposure in the source population being studied (causally or non-causally).</li><li>An independent (causal) risk factor for the outcome — not merely correlated with it.</li><li><strong>Not</strong> an intermediate step on the causal pathway between exposure and outcome (if it is, adjusting for it would wrongly remove part of the true effect — "over-adjustment").</li></ol>
+<h4>Worked example 1 — alcohol, smoking and lung cancer</h4>
+<p>Crude case-control data suggest alcohol drinkers have higher odds of lung cancer: OR = 3.0. But smokers may also drink more, and smoking is a strong cause of lung cancer — smoking is a candidate confounder. Stratifying by smoking status:</p>
+<table><tr><th>Stratum</th><th>OR for alcohol–lung cancer</th></tr><tr><td>Among smokers only</td><td>1.0</td></tr><tr><td>Among non-smokers only</td><td>1.0</td></tr><tr><td>Crude (unstratified)</td><td>3.0</td></tr></table>
+<p>Once smoking is held constant within each stratum, the alcohol–lung cancer association disappears (stratum-specific OR = 1.0 in both strata). The crude OR of 3.0 was therefore <strong>entirely confounded by smoking</strong> — the true (adjusted) association between alcohol and lung cancer is null.</p>
+<h4>Worked example 2 — energy intake, physical activity and heart disease</h4>
+<p>Crude OR for high vs low energy intake and heart disease = 0.9 (appears slightly protective). Stratified by physical-activity level, the stratum-specific OR is 1.5 in <em>both</em> the high-activity and low-activity strata. Here confounding by physical activity <strong>masked/underestimated</strong> a true 50% excess risk — the crude estimate (0.9) understated the true association (adjusted OR ≈ 1.5).</p>
+<h4>Rule of thumb & types of confounding effect</h4>
+<p>If the crude and adjusted estimates differ by ≥10%, the crude estimate is considered confounded and the adjusted value should be reported. Confounding can be classified as <strong>positive</strong> (crude estimate pulled away from the null, i.e. exaggerated — as in example 1), <strong>negative</strong> (crude estimate pulled toward the null, i.e. masked — as in example 2), or <strong>qualitative</strong> (confounding is severe enough to reverse the direction of the association across 1.0).</p>
+<h4>Controlling confounding</h4>
+<table><tr><th>Stage</th><th>Method</th><th>Notes</th></tr>
+<tr><td>Design</td><td>Randomisation</td><td>Only for intervention studies; balances known AND unknown confounders on average, though small trials can still show covariate imbalance by chance</td></tr>
+<tr><td>Design</td><td>Restriction</td><td>Only enrol one level of the confounder (e.g. one sex only); simple and cheap, but limits generalisability and eligible sample size</td></tr>
+<tr><td>Design</td><td>Matching</td><td>Comparison group forced to resemble the index group on the confounder (pair or frequency matching); common in case-control studies but requires matched-analysis methods (e.g. conditional logistic regression) and cannot evaluate the matched variable itself as a risk factor</td></tr>
+<tr><td>Analysis</td><td>Stratification</td><td>Compute the exposure–outcome association within strata of the confounder, then pool (e.g. Mantel–Haenszel adjusted OR); works well for 1–2 confounders only</td></tr>
+<tr><td>Analysis</td><td>Multivariable modelling</td><td>Logistic/linear regression etc.; needed when there are many potential confounders simultaneously; always requires the confounder to have been measured</td></tr>
+</table>
+<div class="callout callout-orange"><strong>Residual confounding</strong> can persist even after adjustment — from unmeasured confounders, confounders measured with error (misclassification), or confounder categories that are too crude/improperly defined.</div>
+</div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Interaction (effect modification): definition and how it differs from confounding <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p><strong>Interaction</strong> (also called effect modification) is present when ≥2 risk factors modify each other's effect on the outcome — i.e. the effect of exposure A on outcome Y is <em>not homogeneous</em> across strata of a third variable Z (the "effect modifier"). This can also be framed as: the observed joint effect of A and Z differs from what would be expected if their individual effects simply combined (additively or multiplicatively) — a deviation termed "statistical interaction."</p>
+<table><tr><th></th><th>Confounding</th><th>Interaction</th></tr>
+<tr><td>Nature</td><td>A nuisance/bias to be removed to get the "true" single association</td><td>A real phenomenon to be reported, not removed</td></tr>
+<tr><td>What you report</td><td>A single adjusted estimate (confounder is "controlled away")</td><td>Separate stratum-specific estimates (e.g. effect in men vs women), because a single pooled number would hide real biological/behavioural heterogeneity</td></tr>
+<tr><td>Detection</td><td>Crude vs adjusted estimate differ by ≥10%</td><td>Stratum-specific estimates differ meaningfully from each other (test for statistical interaction, e.g. an interaction term in a regression model)</td></tr>
+</table>
+<p>Interaction can be assessed on an <strong>additive scale</strong> (effect-measure modification using risk difference — relevant to linear/additive models, and to public-health impact) or a <strong>multiplicative scale</strong> (effect-measure modification using risk/odds ratio — relevant to logistic regression). It is possible for two factors to show interaction on one scale but not the other, so the scale used should be stated explicitly when reporting effect modification.</p>
+<div class="callout callout-green"><strong>Exam tip:</strong> if asked to distinguish confounding from interaction, lead with — "confounding is a bias to eliminate via adjustment; interaction is a genuine effect to describe via stratum-specific results" — then support with the homogeneity-of-effects definition and note both are assessed via stratified analysis, but interpreted oppositely.</div>
+</div>
+</div>
 </div>
 </div>
 <div class="section" id="sec4">
@@ -370,15 +560,107 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
 <div id="dm-col"></div>
 <div class="card">
 <div class="card-title"><span class="icon">🗂️</span> Data Collection</div>
-<p>Plan who collects, how, when, and quality control (training, piloting, double-entry, SOPs).</p><ul><li>Quantitative: questionnaire, records, biomarkers, observation.</li><li>Qualitative: interview, focus group, observation, document review.</li><li>Pilot test the instrument before full fieldwork.</li></ul><div class="callout callout-green">Piloting reveals ambiguous items, timing and logistics problems cheaply.</div>
+<p>Plan who collects, how, when, and quality control (training, piloting, double-entry, SOPs). Data-collection techniques let us <strong>systematically</strong> gather information about the objects of study and their settings — haphazard collection makes it impossible to answer the RQ conclusively.</p><ul><li>Quantitative: questionnaire, records, biomarkers, observation.</li><li>Qualitative: interview, focus group, observation, document review.</li><li>Pilot test the instrument before full fieldwork.</li></ul><div class="callout callout-green">Piloting reveals ambiguous items, timing and logistics problems cheaply.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Primary vs secondary data, choice of survey mode, response rate & the CRF <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<h4>Primary vs secondary data</h4>
+<table><tr><th>Type</th><th>Source</th><th>Examples</th></tr>
+<tr><td>Primary — quantitative</td><td>Collected directly from respondents</td><td>Physiological measurements, questionnaires (scored)</td></tr>
+<tr><td>Primary — qualitative</td><td>Collected directly from respondents</td><td>Open-ended interviews, focus group discussions, observation of outcome</td></tr>
+<tr><td>Secondary</td><td>Not from respondents directly</td><td>Medical/clinic records, registries, notification systems, existing reports/databases</td></tr>
+</table>
+<p>Choice of method is driven by the study objective, the definition/operationalisation of each variable, prior literature, and the best available <em>reliable and valid</em> tool. Variables must be clearly operationalised (e.g. "obesity" needs a stated cut-off — WHO vs Asian BMI classification — because different cut-offs give different prevalence).</p>
+<h4>Interviewer-administered vs self-administered</h4>
+<table><tr><th></th><th>Interviewer-administered (face-to-face, telephone)</th><th>Self-administered (mail, drop-off, online)</th></tr>
+<tr><td>Advantages</td><td>Feedback & rapport possible; better quality control; adaptable to respondent</td><td>Lower cost; respondent controls pace; no interviewer-evaluation apprehension; group administration saves time</td></tr>
+<tr><td>Disadvantages</td><td>Interviewer bias; slower; higher cost (travel, honorarium); mall-intercept convenience samples lack representativeness</td><td>Low/variable response rate (mail 3–90%); no one to clarify confusing items; questionnaire must be flawless since no one can explain it</td></tr>
+</table>
+<p>Choice of survey mode also depends on: time horizon and budget available; the outcome's incidence rate in the population (rarer outcomes need cheaper ways to screen large numbers); cultural/infrastructure factors (e.g. willingness to have strangers in the home, phone/internet penetration); and topic sensitivity (a self-administered, anonymous mode is usually preferred for sensitive topics like income or sexual behaviour, over face-to-face).</p>
+<h4>Response rate & selection bias in data collection</h4>
+<p>Non-response is itself a form of selection bias if non-responders differ systematically from responders (e.g. sicker or busier people less likely to reply). Response-rate maximisation strategies include an introductory letter, advance notice, reminder/follow-up postcards or calls, and small incentives.</p>
+<h4>Case Report Form (CRF)</h4>
+<p>A structured data-collection tool (common in clinical trials) designed to capture all protocol-required information, including adverse events. A well-designed CRF simplifies database design, data validation and later statistical analysis — the layout should be logical, unambiguous and pre-coded wherever possible to speed data entry.</p>
+<h4>Ethical issues specific to data collection</h4>
+<p>Potential harms include violating privacy through sensitive questions, accessing records containing personal data, observing behaviour without awareness/consent, and failing to respect cultural values or taboos. Mitigations: obtain informed consent, avoid unnecessary probing into sensitive areas, ensure confidentiality of data obtained, understand the culture of informants beforehand, and use anonymous or coded responses for sensitive items.</p>
+</div>
+</div>
 </div><div id="dm-vr"></div>
 <div class="card">
 <div class="card-title"><span class="icon">✅</span> Validity & Reliability</div>
 <table><tr><th>Concept</th><th>Meaning</th></tr><tr><td>Validity</td><td>Measures what it claims to (accuracy)</td></tr><tr><td>Reliability</td><td>Consistent / reproducible results</td></tr><tr><td>Internal</td><td>Correctly measures the construct in this study</td></tr><tr><td>External</td><td>Generalisable to other settings</td></tr></table><ul><li>A tool can be reliable but invalid (consistently wrong).</li><li>Improve via standardised tools, translation &amp; back-translation, training.</li></ul><div class="callout callout-orange">Use validated, published instruments where possible; cite their psychometrics.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Classical 3Cs, modern unitary validity (5 sources of evidence), and reliability <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Measurement is the process of observing and recording; <strong>validity is accuracy</strong> (are we measuring the right thing) while <strong>reliability is precision/consistency/reproducibility</strong> (would we get the same answer if repeated). A tool can be reliable without being valid — e.g. a weighing scale that consistently reads 2 kg too heavy is highly reliable (consistent) but not valid (inaccurate).</p>
+<h4>Classical "3Cs" view (Fletcher, Fletcher & Wagner; Streiner & Norman)</h4>
+<table><tr><th>Type</th><th>Sub-type</th><th>Meaning</th></tr>
+<tr><td>Content validity</td><td>—</td><td>How well the tool covers the concept — judged on relevance, coverage, and representativeness of items</td></tr>
+<tr><td>Criterion validity</td><td>Concurrent</td><td>Correlates with a gold-standard/criterion measured at the SAME time</td></tr>
+<tr><td>Criterion validity</td><td>Predictive</td><td>Correlates with a gold-standard/criterion measured LATER</td></tr>
+<tr><td>Construct validity</td><td>Convergent</td><td>Correlates with another tool measuring the SAME concept</td></tr>
+<tr><td>Construct validity</td><td>Discriminant</td><td>Does NOT correlate strongly with a tool measuring a DIFFERENT concept</td></tr>
+</table>
+<h4>Modern unified view — validity as one construct with 5 sources of evidence (AERA/APA/NCME Standards)</h4>
+<p>Contemporary psychometrics treats validity as a single unitary concept (sometimes just called "construct validity") — the degree of evidence supporting the intended interpretation/use of a tool, drawn from five possible sources:</p>
+<ol>
+<li><strong>Content</strong> — relevance, coverage and representativeness of items relative to the concept.</li>
+<li><strong>Internal structure</strong> — correlatedness and dimensionality among items, examined via factor analysis (exploratory/confirmatory) and reliability statistics.</li>
+<li><strong>Relations to other variables</strong> — convergent/discriminant evidence (vs other tools) and test-criterion relationships (concurrent/predictive, as in the classical view).</li>
+<li><strong>Response process</strong> — evidence about how respondents actually interpret and answer the items, gathered via cognitive debriefing (asking respondents to explain how they arrived at their answer).</li>
+<li><strong>Consequences</strong> — evidence about the intended and unintended consequences of using the tool's results (e.g. a person scored as "depressed" may be referred for treatment — intended — or may lose their job if the result is disclosed — unintended).</li>
+</ol>
+<h4>Reliability</h4>
+<p>Reliability is commonly quantified via internal consistency (e.g. Cronbach's alpha), test-retest reliability, and inter-rater reliability (e.g. kappa). Improve reliability through standardised administration, clear operational definitions, rater training, and (for translated tools) rigorous cross-cultural adaptation.</p>
+</div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Questionnaire translation & cross-cultural adaptation (7 stages) <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>When adopting an instrument developed in another language/culture, five aspects of <strong>equivalence</strong> must be established between the original and translated versions (Streiner & Norman, 2008): <strong>conceptual</strong> (do both populations understand the underlying concept similarly — e.g. "spanking" may be understood as discipline in one culture and as abuse in another), <strong>item</strong> (are the specific items relevant/acceptable locally — e.g. "using a furnace" is irrelevant in a tropical country and should be dropped or replaced), <strong>semantic</strong> (does the translated wording carry the same meaning — e.g. "I get butterflies in my stomach" translated too literally becomes meaningless, so it should be adapted to a locally natural phrase for anxiety), <strong>operational</strong> (same format/mode of administration — direct vs indirect question style, self- vs interviewer-administered), and <strong>measurement</strong> (equivalent psychometric properties — factor structure, reliability — in the new population).</p>
+<h4>The 7-stage translation process (adapted from Beaton et al. 2000; Wild et al. 2005)</h4>
+<ol>
+<li><strong>Forward translation</strong> — original language → target language, by two independent translators (one medical, one lay/non-medical), both native speakers of the target language.</li>
+<li><strong>Reconciliation</strong> — a translation panel (study team + both forward translators + a linguist) combines the two forward translations into one version.</li>
+<li><strong>Backward translation</strong> — target language → original language, again by two independent translators, both competent in the original language.</li>
+<li><strong>Harmonization</strong> — compare the back-translated version(s) against the true original; discrepancies flag difficult words/concepts; the panel revises the forward translation accordingly, producing a preliminary version.</li>
+<li><strong>Pre-survey evaluation</strong> — the same steps as for a newly developed questionnaire (expert review, FGD, cognitive debriefing) applied to the translated version, catching mistakes introduced during translation.</li>
+<li><strong>Finalization</strong> — panel reviews pre-survey comments and fine-tunes the final version.</li>
+<li><strong>Full validation survey</strong> — administered to a large sample (a few hundred), generating internal-structure and relations-to-other-variables evidence for the translated tool — this is often reported as a stand-alone validation paper before the translated tool is used in the main study.</li>
+</ol>
+</div>
+</div>
 </div><div id="dm-tools"></div>
 <div class="card">
 <div class="card-title"><span class="icon">📋</span> Questionnaire Design</div>
 <ul><li>Clear, unbiased, single-concept items; logical flow; appropriate response scales.</li><li>Demographics first/last; sensitive items later; randomised where needed.</li><li>Pre-test readability and average completion time.</li></ul><div class="callout callout-purple">Avoid leading/double-barrelled questions; match language to respondents.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Development process, question types, 5 design objectives, and pre-survey evaluation <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<h4>Four development questions</h4>
+<p>Before drafting items, clarify: <strong>why</strong> we want to measure (objectives), <strong>what</strong> we want to measure (outcomes/content — drawn from expert opinion, focus groups, qualitative studies, or literature/theory), <strong>who</strong> we want to measure (target respondents), and <strong>how</strong> we want to measure (questionnaire type, mode of administration, question/response format).</p>
+<h4>Types & modes of administration</h4>
+<table><tr><th>Type</th><th>Modes</th></tr><tr><td>Self-administered</td><td>Pen-and-paper (direct or mail), computerised (Google Forms, online survey)</td></tr><tr><td>Interviewer-administered</td><td>In-person interview, telephone</td></tr></table>
+<h4>Question types</h4>
+<table><tr><th>Category</th><th>Sub-type</th></tr><tr><td>Open</td><td>Fill-in-the-blank (self-administered); short answer/elaboration (interviewer-administered)</td></tr><tr><td>Closed</td><td>Dichotomous (Yes/No), multiple choice, checklist, ranking, rating, Likert scale, visual analogue scale</td></tr></table>
+<h4>Five design objectives for quality responses (McDonald et al., 2003)</h4>
+<ol>
+<li><strong>Consistent meaning</strong> — the item should mean the same thing to the researcher and every respondent: use simple, unambiguous words; avoid "OR" combining two concepts (double-barrelled items); avoid vague frequency terms ("kadang-kadang"/"sometimes" vs "jarang-jarang"/"rarely") — specify exact frequency or timeframe instead, and avoid overlapping categories ("within 1 year" vs "within 2 years").</li>
+<li><strong>Expected response</strong> — be specific about the form of answer wanted; an open "When?" could mean age, date, or duration — restate as a specific, closed item if precision matters.</li>
+<li><strong>Ability to respond</strong> — only ask what the respondent can realistically recall/know, e.g. "how many cigarettes have you smoked in the past 10 years?" is beyond most people's recall ability and should be reframed (e.g. pack-years via simpler sub-questions).</li>
+<li><strong>Willingness to respond</strong> — avoid items inviting socially desirable (dishonest) answers, e.g. "Have you ever robbed anyone?" — use validated, less confrontational item wording, anonymity, or indirect questioning techniques for sensitive topics.</li>
+<li><strong>Same type, mode & method of administration for all respondents</strong> — standardise how interviewers ask and how respondents answer (all self-administered vs all interviewer-administered; consistent format/layout) so responses are comparable.</li>
+</ol>
+<h4>Pre-survey evaluation (before full fieldwork)</h4>
+<ol>
+<li><strong>Expert/researcher review</strong> — covers the bulk of content-validity evidence.</li>
+<li><strong>Focus group discussion (FGD)</strong> — representative sample of the target population gives general feedback on comprehension of key/problematic items.</li>
+<li><strong>Cognitive debriefing</strong> — individual interviews probing how respondents understand and arrive at answers; more intensive than an FGD.</li>
+<li><strong>Field pretest / pilot study</strong> — tests the complete instrument on a representative sample, evaluating the form (wording, formatting, logical flow), the administration process (length, timing, interviewer training/reliability, logistics), and data-entry preparation (coding scheme, item non-response rate).</li>
+</ol>
+<div class="callout callout-blue">Demographics are typically placed first or last, sensitive items placed later once rapport is established, and item order may be randomised where response-order effects are a concern.</div>
+</div>
+</div>
 </div>
 </div>
 <div class="section" id="sec5">
@@ -387,15 +669,115 @@ code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px
 <div id="an-plan"></div>
 <div class="card">
 <div class="card-title"><span class="icon">📊</span> Analysis Plan</div>
-<p>Pre-specify analysis to avoid data dredging.</p><ul><li>Descriptive then inferential; choose tests by data type &amp; distribution (see GKT 515).</li><li>Handle missing data (complete-case, imputation) &amp; confounders (regression).</li><li>Qualitative: thematic / content analysis, with coding framework &amp; triangulation.</li></ul><div class="callout callout-blue">State the software (SPSS/R/STATA), significance level, and how you'll report effect sizes &amp; CIs.</div>
+<p>Pre-specify analysis to avoid data dredging. Sample size, study design and level of measurement of each variable together dictate the statistical test — deciding the test after seeing the data invites bias.</p><ul><li>Descriptive then inferential; choose tests by data type &amp; distribution (see GKT 515).</li><li>Handle missing data (complete-case, imputation) &amp; confounders (regression).</li><li>Qualitative: thematic / content analysis, with coding framework &amp; triangulation.</li></ul><div class="callout callout-blue">State the software (SPSS/R/STATA), significance level, and how you'll report effect sizes &amp; CIs.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Choosing the right test — full univariable & multivariable reference tables <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>The choice of statistical test flows from the research question, study design, level of measurement of each variable, and whether the samples/groups being compared are <strong>independent</strong> or <strong>dependent</strong> (paired/repeated). Analyses generally address either a <em>relationship</em> (association, correlation, regression, agreement) or a <em>difference</em> (effect of an intervention/exposure on an outcome).</p>
+<h4>Univariable analysis — independent groups</h4>
+<table><tr><th># groups</th><th>Independent var.</th><th>Dependent (outcome)</th><th>Parametric test</th><th>Non-parametric test</th></tr>
+<tr><td>2</td><td>Categorical</td><td>Categorical</td><td>—</td><td>Chi-square test / Fisher's exact test</td></tr>
+<tr><td>2 (stratified)</td><td>Categorical</td><td>Categorical</td><td>—</td><td>Mantel–Haenszel test</td></tr>
+<tr><td>2</td><td>Categorical</td><td>Numerical</td><td>Independent t-test</td><td>Mann-Whitney U (Wilcoxon rank-sum) test</td></tr>
+<tr><td>2</td><td>Numerical</td><td>Numerical</td><td>Pearson correlation & simple linear regression</td><td>Spearman correlation</td></tr>
+<tr><td>&gt;2</td><td>Categorical</td><td>Categorical</td><td>—</td><td>Chi-square test</td></tr>
+<tr><td>&gt;2</td><td>Categorical</td><td>Numerical</td><td>One-way ANOVA</td><td>Kruskal-Wallis test</td></tr>
+</table>
+<h4>Univariable analysis — dependent (paired/repeated) groups</h4>
+<table><tr><th># groups</th><th>Independent var.</th><th>Dependent (outcome)</th><th>Parametric test</th><th>Non-parametric test</th></tr>
+<tr><td>2 (pre/post)</td><td>Categorical</td><td>Categorical</td><td>—</td><td>McNemar test</td></tr>
+<tr><td>2 (pre/post)</td><td>Categorical</td><td>Numerical</td><td>Paired t-test</td><td>Wilcoxon signed-rank test</td></tr>
+</table>
+<h4>Multivariable analysis — one dependent variable</h4>
+<table><tr><th>Independent variables</th><th>Dependent (outcome)</th><th>Statistical test</th></tr>
+<tr><td>Numerical & categorical</td><td>Numerical</td><td>Multiple linear regression</td></tr>
+<tr><td>Numerical & categorical</td><td>Categorical (binary)</td><td>Multiple logistic regression</td></tr>
+<tr><td>Numerical & categorical</td><td>Categorical (>2 unordered levels)</td><td>Multinomial logistic regression</td></tr>
+<tr><td>Numerical & categorical</td><td>Time-to-event</td><td>Cox proportional hazards regression</td></tr>
+<tr><td>1 factor</td><td>Numerical</td><td>One-way ANOVA</td></tr>
+<tr><td>2 factors</td><td>Numerical</td><td>Two-way ANOVA</td></tr>
+<tr><td>≥3 factors</td><td>Numerical</td><td>Multi-factorial ANOVA</td></tr>
+<tr><td>Factors + controlled covariates</td><td>Numerical</td><td>ANCOVA</td></tr>
+<tr><td>Factors (repeated measures)</td><td>Numerical</td><td>Repeated-measures ANOVA (± ANCOVA with covariates)</td></tr>
+<tr><td>Factors + covariates (repeated measures)</td><td>Categorical</td><td>Cross-sectional time series</td></tr>
+<tr><td>Factors + covariates</td><td>Count</td><td>Log-linear regression</td></tr>
+<tr><td>Factors (± controlled covariates)</td><td>Numerical (>1 outcome)</td><td>MANOVA / MANCOVA</td></tr>
+</table>
+<h4>Writing the statistical-analysis section of a proposal</h4>
+<p>Cover, in order: (1) <strong>data entry</strong> — software name, purpose, version; data validation (check, clean, explore); how missing data will be managed; listing of independent/dependent variables; data-coding scheme (e.g. 0/1); (2) <strong>descriptive statistics</strong> — how the data/variables will be described, how normality will be checked, and the reporting convention (categorical: n (%); numerical: mean (SD) if normal, median (IQR) if skewed); (3) <strong>inferential statistics</strong> — name the specific test, name independent & dependent variables with their type (numerical/categorical, parametric/non-parametric), briefly explain the analytical steps, and state how results will be interpreted (significance level, e.g. p&lt;0.05) and reported (percentages to 1 decimal place, p-values to 3 decimal places, means/SD/95% CI to 2 decimal places).</p>
+<div class="callout callout-purple">Dummy tables (three-line format: title above the table, footnotes below) should be prepared in advance for both descriptive statistics (e.g. socio-demography) and inferential results (e.g. crude OR, adjusted OR, 95% CI, p-value columns) — this operationalises the whole analysis plan before a single data point is collected.</div>
+</div>
+</div>
 </div><div id="an-write"></div>
 <div class="card">
 <div class="card-title"><span class="icon">✍️</span> Thesis & Report Writing</div>
 <p>Standard thesis/report structure (IMRaD + appendices): title, abstract, intro, lit review, methods, results, discussion, conclusion, references, appendices.</p><ul><li>Results report findings; Discussion interprets vs literature, limits, implications.</li><li>Use a consistent referencing style (Harvard/APA/ Vancouver per faculty).</li><li>Write for clarity; figures/tables self-explanatory.</li></ul><div class="callout callout-green">A good discussion addresses limitations honestly and situates findings in context.</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Referencing (Harvard style) — full citation rules and worked examples <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>A <strong>reference</strong> is an acknowledgement that ideas, data or wording were drawn from another (usually published) source. Cite whenever you: state a theory/argument/viewpoint that is not your own; cite statistics, examples or case studies; describe a method directly based on another author's work; closely paraphrase a passage; or use a direct quotation (sparingly).</p>
+<table><tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Reference</td><td>The full bibliographic detail of a cited source, listed at the end of the document</td></tr>
+<tr><td>In-text citation</td><td>The short marker in the body text pointing to a reference, e.g. (Zahir, 2022) or superscript/numbered (1)</td></tr>
+</table>
+<h4>Two generic referencing families</h4>
+<table><tr><th>System</th><th>Description</th></tr>
+<tr><td>Harvard (author–date)</td><td>Parenthetical author-date citations in text; reference list ordered alphabetically by author surname. The style used for research proposals/theses here is the <strong>Harvard referencing style</strong>, based on APA format.</td></tr>
+<tr><td>Vancouver (numbered)</td><td>Numbered citations (in parentheses or superscript) in text; reference list ordered by citation number — common in health-science journals.</td></tr>
+</table>
+<h4>In-text citation rules</h4>
+<ul>
+<li><strong>Two authors:</strong> if part of the sentence, use "and" — "Zahiruddin and Naing (2002) described..."; if not part of the sentence, use "&" in brackets — "(Zahiruddin & Naing, 2002)".</li>
+<li><strong>More than two authors (APA format):</strong> name only the first author followed by <em>et al.</em> (italicised) — "(Wilson et al., 1997)".</li>
+<li><strong>More than 20 authors (APA 7th):</strong> list the first 19 authors, insert an ellipsis (…), then the last author's name. (Note: EndNote cannot automate this — edit manually.)</li>
+<li><strong>Multiple references cited together:</strong> order chronologically, separated by semicolons — "(Smith, 1999; Jones et al., 2001; Turner & William, 2006)".</li>
+<li><strong>Same author, same year, multiple works:</strong> distinguish with lower-case letters — "Johnson (1994a)" is listed before "Johnson (1994b)".</li>
+<li><strong>No individual author:</strong> attribute to the organisation, e.g. "WHO (2013)"; never use "Anonymous". If truly no author exists, use the first few words of the title in quotes, e.g. ("New Child Vaccine," 2001).</li>
+<li><strong>Personal communications</strong> (letters, emails, interviews, lectures): cite in text only, never in the reference list — "(J. D. Black, personal communication, May 30, 2013)".</li>
+<li><strong>Indirect/secondary citation</strong> (you read author B citing author A, but never read A directly): cite both — "Miller (1953, as cited in Agrios, 2005) found…" — and list only the source you actually read (Agrios) in the reference list.</li>
+<li><strong>Placement:</strong> cite at the point the idea appears in the text — before the full stop if not grammatically part of the sentence, e.g. "…higher risk of infection (Zahiruddin & Naing, 2002)."</li>
+</ul>
+<h4>Worked reference-list examples (Harvard/APA-based format)</h4>
+<table><tr><th>Source type</th><th>Format example</th></tr>
+<tr><td>Journal article</td><td>Anita, S., Zahiruddin, W. M., Sa'iah, A., Rahimah, M. A. & Sha'ari, B. N. (2007). HIV/AIDS knowledge, attitudes and risk behaviours among Orang Asli in Peninsular Malaysia. <em>Med J Malaysia</em>, 62(3), 227–233.</td></tr>
+<tr><td>Book</td><td>Fletcher, R., Fletcher, S. & Wagner, E. (1998). <em>Clinical epidemiology, the essentials</em> (2nd ed.). Baltimore, USA: Williams and Wilkins.</td></tr>
+<tr><td>Book chapter</td><td>Norsa'adah, B. & Nik Rosmawati, N. H. (2011). Non-parametric tests. In N. H. Nik Rosmawati, I. Mohd Ismail & A. J. Rohana (Eds.), <em>Statistics Made Easy: Basic Statistical Steps in Medical & Health Research</em> (pp. 95–116). Kota Bharu: Department of Community Medicine.</td></tr>
+<tr><td>Webpage</td><td>Loney, P. L., Chambers, L. W., Bennett, K. J., Roberts, J. G. & Stratford, P. W. (2004). <em>Critical Appraisal of the Health Research Literature: Prevalence or Incidence of a Health Problem</em>. Retrieved from [URL] [Accessed 17 March 2009].</td></tr>
+<tr><td>Online article with DOI</td><td>Ismail, T. A., Sulaiman, Z., Jalil, R., Muda, W. M. & Man, N. N. (2012). Breast milk expression among formally employed women in urban and rural Malaysia: a qualitative study. <em>Int Breastfeed J</em>, 7(1), 11. doi:10.1186/1746-4358-7-11</td></tr>
+</table>
+<div class="callout callout-blue">A candidate may use any consistent, faculty-approved style, but for university theses the Harvard (author-date, APA-based) style is standard — refer to the institution's official referencing manual for edge cases, and above all keep the style <strong>consistent throughout</strong> the thesis.</div>
+</div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">EndNote basics: building a library, Cite While You Write, and common workflows <span class="acc-icon">▼</span></div>
+<div class="accordion-body">
+<p>Reference-management software (EndNote, Mendeley, Zotero) removes the manual burden of tracking, formatting, and reformatting hundreds/thousands of citations to match each journal or thesis style — formatting is otherwise "time-consuming" and error-prone as the reference list grows. EndNote in particular ships with 4,000+ predefined bibliographic output styles.</p>
+<h4>Getting references into an EndNote library</h4>
+<ul>
+<li><strong>Search & import from PubMed</strong> — search with keywords/Boolean logic, tick the desired records, use "Citation manager" to send them to an open EndNote library (or save as a <code>.nbib</code> file and import).</li>
+<li><strong>Export from subscribed databases</strong> — Scopus, Web of Science, ProQuest, Ovid etc. usually offer an "Export to EndNote/RIS" option.</li>
+<li><strong>Export directly from Google Scholar</strong> — set Scholar Preferences to show "Import into EndNote" links (imported references often need manual formatting clean-up).</li>
+<li><strong>Import PDF files</strong> — EndNote can extract reference metadata automatically via the PDF's DOI; without a DOI, the reference still imports but needs manual field editing.</li>
+<li><strong>Online search directly from EndNote</strong> — connect to a source (e.g. PubMed/NLM) and search without leaving the program.</li>
+<li><strong>Manual entry</strong> — required for sources with no online record (unpublished theses, internal reports); choose the correct reference type first (journal, book, report, etc.) so the output style formats it correctly.</li>
+</ul>
+<h4>Cite While You Write (CWYW)</h4>
+<p>CWYW is EndNote's Word plug-in: position the cursor exactly where the citation belongs (before the full stop if not part of the sentence), select the reference(s) in EndNote, and insert — the in-text citation and the full end-of-document bibliography update automatically. Switching the "Output style" (e.g. APA 6th vs the Harvard university version) instantly reformats every citation and the whole reference list. Use "Edit Citation" to convert a default "(Author, Year)" citation into a sentence-integrated "Author (Year)" form, or to add page numbers/suppress author names for a paraphrase-in-narrative style.</p>
+<h4>Useful maintenance workflows</h4>
+<table><tr><th>Task</th><th>How</th></tr>
+<tr><td>Remove duplicate references</td><td>References → Find Duplicates, then move duplicates to trash</td></tr>
+<tr><td>Organise references</td><td>Create Groups/Group Sets; drag references into a group, or use Smart Groups that auto-file new references matching a search rule</td></tr>
+<tr><td>Share a library</td><td>Compress the <code>.enl</code> + <code>.Data</code> folder together into a single <code>.enlx</code> file for emailing</td></tr>
+<tr><td>Remove field codes before submission</td><td>Convert Citations and Bibliography → Convert to Plain Text, to avoid field-code conflicts with a publisher's layout software</td></tr>
+<tr><td>Merge multi-chapter documents</td><td>Convert each chapter's citations to "Unformatted" first, paste all text into one document, then reformat/update the combined citations and bibliography once, drawing from a single shared library</td></tr>
+</table>
+<div class="callout callout-purple">An EndNote library consists of two linked parts — a <code>.enl</code> database file and a same-named <code>.Data</code> folder (which stores attached PDFs) — both must be kept together and moved/copied as a pair.</div>
+</div>
+</div>
 </div><div id="an-eth"></div>
 <div class="card">
 <div class="card-title"><span class="icon">⚖️</span> Research Ethics</div>
-<ul><li>Respect for persons (informed consent, autonomy), beneficence, justice (Belmont).</li><li>Minimise harm; confidentiality &amp; anonymisation; secure data.</li><li>Submit to the relevant <strong>ethics committee / IRB</strong> (e.g., JEPeM) before data collection.</li><li>Special populations: children, vulnerable groups need extra safeguards.</li></ul><div class="callout callout-red">No data collection without approved ethics clearance. De-identify and keep raw data out of shared/synced spaces per PDPA governance.</div>
+<ul><li>Respect for persons (informed consent, autonomy), beneficence, justice (Belmont).</li><li>Minimise harm; confidentiality &amp; anonymisation; secure data.</li><li>Submit to the relevant <strong>ethics committee / IRB</strong> before data collection.</li><li>Special populations: children, vulnerable groups need extra safeguards.</li></ul><div class="callout callout-red">No data collection without approved ethics clearance. De-identify and keep raw data out of shared/synced spaces per data-protection governance.</div>
 </div>
 </div>
 <div class="section" id="sec-pyq">
