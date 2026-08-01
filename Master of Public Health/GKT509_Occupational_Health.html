@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 509 Occupational Health</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 509</h2>
+      <div style="font-size:11px;color:var(--text3)">Occupational Health</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Occupational Health Services & Legislation</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('o1-svc')">OH Services</a><a onclick="scrollTo('o1-osha')">OSHA 2022</a><a onclick="scrollTo('o1-duty')">Duties</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>Hazard Identification, Risk Assessment & Control</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('o2-hirarc')">HIRARC</a><a onclick="scrollTo('o2-hier')">Hierarchy</a><a onclick="scrollTo('o2-haz')">Workplace Hazards</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Occupational Toxicology</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('o3-prin')">Principles</a><a onclick="scrollTo('o3-dose')">Dose-Response</a><a onclick="scrollTo('o3-op')">OP & Metals</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Occupational Health Management System & CHRA</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('o4-ms')">OSH-MS</a><a onclick="scrollTo('o4-chra')">CHRA</a><a onclick="scrollTo('o4-nado')">NADOPOD</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Specific Occupational Health Issues</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('o5-ergo')">Ergonomics</a><a onclick="scrollTo('o5-phys')">Heat/Noise</a><a onclick="scrollTo('o5-prog')">Programmes</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1</a><a onclick="scrollTo('pyq-2')">Q2</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 509 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Occupational Health</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first!
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Occupational Health Services & Legislation</div><div class="hc-sub">OH services, OSHA 2022, duties</div><div class="hc-badge"><span class="tag tag-blue">Legislation</span><span class="tag tag-orange">OSHA</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">Hazard Identification, Risk Assessment & Control</div><div class="hc-sub">HIRARC, hierarchy of control</div><div class="hc-badge"><span class="tag tag-red">HIRARC</span><span class="tag tag-green">Control</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Occupational Toxicology</div><div class="hc-sub">Dose-response, OP poisoning, metals</div><div class="hc-badge"><span class="tag tag-purple">Toxicology</span><span class="tag tag-blue">Dose</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Occupational Health Management System & CHRA</div><div class="hc-sub">OSH-MS, chemical health, NADOPOD</div><div class="hc-badge"><span class="tag tag-green">OSH-MS</span><span class="tag tag-orange">CHRA</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Specific Occupational Health Issues</div><div class="hc-sub">Ergonomics, heat, noise, programmes</div><div class="hc-badge"><span class="tag tag-purple">Ergo</span><span class="tag tag-blue">Programmes</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Occupational Health Services & Legislation</div>
+  <div class="page-sub">Source: GKT509 Lecture "Occupational Health Services" — compiled directly from the lecture deck.</div>
+<div id="o1-svc"></div>
+<div id="o1-osha"></div>
+<div id="o1-duty"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🧩</span> Definition and rationale of Occupational Health Services (OHS)</div>
+<p>OHS are services entrusted with essentially preventive functions, responsible for advising and assisting the employer, workers and their representatives on: the requirements for establishing and maintaining a safe and healthy working environment that facilitates optimal physical and mental health in relation to work; and the adaptation of work to the capabilities of workers in light of their physical and mental health state. The rationale for providing OH services is threefold: to ensure the workforce is medically fit and available for work; to conserve the workforce through evaluation, protection, promotion and restoration of workers' health; and to ensure collaboration with other OH practitioners and safety management teams so the workforce remains medically capable of working productively. The lecture frames comprehensive OH service delivery as requiring an integrated, multidisciplinary team — OH physicians and nurses working alongside management, operations, law, human resources, organised labour, production, employee relations, safety, industrial hygiene, engineering and risk-management functions, centred around the worker.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">History of OHS in Malaysia <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Pre-independence OHS activity in Malaysia was largely communicable-disease and migrant-labour focused: medical examination for migrant labour, control of communicable diseases, immunisation, water supply/sanitary/refuse disposal, anti-malarial measures, and periodic examination of pesticide sprayers. Post-independence, the OHS landscape shifted toward addressing the consequences of rapid industrialisation: mega projects with tight deadlines, rural-urban migration, migrant labour, poor workplace OSH practices, lack of enforcement, a young and inexperienced workforce, too few OSH-trained/competent personnel, and increased reporting for Social Security (SOCSO) claims — a shift from infectious-disease control toward industrial injury/hazard control as the dominant OHS concern.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Guidelines on OHS in Malaysia (DOSH/Ministry of Human Resources, 2005) <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The purpose of these guidelines is to guide and assist employers and Occupational Health Practitioners (OHPs) in implementing appropriate levels of OSH in their respective organisations, with the twin functions of protecting/promoting worker health and improving working conditions/environment, while maintaining the health of the organisation itself. These functions are carried out through direct OHS provision to workers and expert advice to employers on achieving the highest possible standards of health and safety for their working community.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Comprehensive Occupational Health Services: the five pillars <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The lecture organises comprehensive OHS into five components: (1) management of workplace occupational health risks (hazard identification/assessment, recommending controls, risk communication); (2) management of workers' health; (3) participation in emergency response and disaster management; (4) provision of clinical services; and (5) record keeping.</p>
+<p><strong>Management of workers' health</strong> is itself a 10-step activity chain across the employment lifecycle: (1) <em>pre-employment medical examination</em> — assessing prospective employees' fitness before employment begins; (2) <em>pre-placement medical examination</em> — performed for new/transferred employees moving into jobs with special requirements, evaluating fitness to perform the job and/or wear required PPE, establishing a baseline record (important later for determining whether an impairment predates or was caused by the job), and detecting treatable conditions early; (3) <em>health surveillance</em> — examinations and investigations to detect exposure levels and early biological effects, comprising history/physical examination, biological monitoring, biological effect monitoring, and record review; (4) <em>medical removal</em> — workers with definite/suspected occupational poisoning, disease or excessive absorption must be removed from the work area and not return until signs/symptoms and abnormal cytology/biochemistry have resolved and an Occupational Health doctor certifies fitness; (5) <em>rehabilitation</em> — typically externally provided (hospital-based rehabilitation specialists, occupational therapists, vocational counsellors), with OHS playing a role in referring recovering workers, exploring job modification (changed work assignment, limited hours, rest periods), and following up progress; (6) <em>return to work</em> — an occupational medical examination performed before resuming duties after disease/injury, to assist the employee in returning to and remaining effective at work; (7) <em>follow-up of vulnerable groups</em> (pregnant employees, or those with chronic illness such as ischaemic heart disease, diabetes, epilepsy) — observing potential work effects on their condition and reassigning/rehabilitating early to prevent deterioration, with adaptation of work/environment particularly crucial for this group; (8) <em>investigation of occupational poisoning/disease</em> — to identify causes and prevent recurrence; (9) <em>health promotion</em> — informing workers and employers about workplace hazards so both can collaborate on minimising them, plus supporting lifestyle modification (smoking cessation, healthy eating, exercise, weight control); and (10) <em>post-employment medical examination</em> — performed at the end of service to detect health changes potentially related to employment, with compensation implications.</p>
+<p><strong>Emergency response and disaster management</strong> covers arrangements for handling emergencies (fire, explosion, spill) and provision of first-aid facilities/services/personnel, per the Guidelines on First Aid in the Workplace (DOSH, 2004). First-aider staffing ratios are specified by workplace risk level: low-risk workplaces (e.g., offices) require 1 first-aider for under 20 workers, 2 for 21–150 workers, and 2 per 150 workers above that; high-risk workplaces (chemical plants, shipyards, construction sites) require 1 first-aider per shift for under 20 workers and 1 per 20 workers above that; workplaces with over 400 workers additionally require 2 first-aiders per 150 workers plus an on-site registered nurse or medical assistant; and logging operations require 1 first-aider per tree-felling gang (comprising a tree-feller, tractor driver, wireman and supervisor). <strong>Provision of clinical services</strong> covers treatment of treatable conditions/diseases arising at or related to work. <strong>Record keeping</strong> covers the number of work-related injury/poisoning/disease cases in a specified period, data on workers' personal exposures, and biological monitoring data — all analysed for trends while maintaining confidentiality.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🔧</span> OSHA (Amendment) Act 2022: rationale and key changes</div>
+<p>The Occupational Safety and Health Act (Amendment) Act 2022 was formulated to integrate the Occupational Safety and Health Act 1994 with the Factories and Machinery Act 1967, with the stated rationale of widening scope, strengthening employee protection, increasing penalties, and imposing additional duties on employers. Key changes include widening coverage to all workplaces throughout Malaysia (rather than only factory/prescribed premises previously covered), and a new statutory right for employees to remove themselves from imminent danger at work, together with protection from adverse consequences for exercising that right.</p>
+</div>
+<div class="callout callout-red"><strong>Core issue:</strong> The OSHA (Amendment) Act 2022's expansion in scope (all workplaces, including settings and work arrangements not envisaged under the 1994 Act/1967 Factories and Machinery Act) raises practical enforcement questions — extending statutory coverage on paper does not by itself solve the historical Malaysian OHS challenges already identified in this section (too few OSH-trained personnel, enforcement gaps), so a dissertation evaluating the amendment's real-world impact should examine implementation capacity alongside the legal text itself.</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. Hazard Identification, Risk Assessment & Control (HIRARC)</div>
+  <div class="page-sub">Source: "Guidelines for Hazard Identification, Risk Assessment and Risk Control (HIRARC)", Department of Occupational Safety and Health (DOSH), Ministry of Human Resources Malaysia, 2008 — compiled directly from the guideline document.</div>
+<div id="o2-hirarc"></div>
+<div id="o2-hier"></div>
+<div id="o2-haz"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🚫</span> Purpose and key definitions</div>
+<p>HIRARC's purpose is to provide a systematic, objective approach to assessing hazards and their associated risks, giving an objective measure of an identified hazard and a method to control it — fulfilling the employer's general duty under the Occupational Safety and Health Act 1994 (Act 514) to provide a safe workplace. Key definitions: <strong>hazard</strong> — a source or situation with potential for harm (human injury/ill health, property damage, environmental damage, or any combination); <strong>hazard identification</strong> — identifying undesired events that could lead to a hazard materialising, and the mechanism by which they could occur; <strong>risk</strong> — the combination of the likelihood of a hazardous event occurring (within a specified period/circumstances) and the severity of the resulting injury or damage; <strong>risk assessment</strong> — the process of evaluating safety/health risks arising from workplace hazards; <strong>hazard control</strong> — implementing measures to reduce the risk associated with a hazard; and <strong>hierarchy of control</strong> — the established priority order for the types of control measures used. Risk is expressed mathematically as Risk = Likelihood × Severity, on the basis that risk is something people already implicitly weigh in everyday decisions (driving, crossing the road, financial decisions).</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Planning HIRARC activities and the 4-step process <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>HIRARC's purpose, per the guideline, is threefold: to identify all factors that may cause harm to employees and others (the hazards); to consider the chances of that harm actually befalling someone and its possible severity (the risks); and to enable employers to plan, introduce and monitor preventive measures so risks are adequately controlled at all times. HIRARC activities should be planned and conducted where a hazard appears to pose a significant threat, where existing controls are uncertain, before implementing corrective/preventive measures, and by organisations seeking to continuously improve their OSH Management System; it is the employer's duty to assign trained personnel to lead a HIRARC team for each process/activity.</p>
+<p>The process follows a 4-step cycle depicted as: classify work activities → consultation (employer representative and worker representative both involved) → identify hazards → risk assessment → prepare a risk control action plan (if necessary) → implement → review (feeding back into identify hazards). Concretely, the 4 steps are: (a) classify work activities (by geographical/physical area, production/service stage, or defined task — neither too broad, e.g. "building a car," nor too narrow, e.g. "fixing a nut"); (b) identify hazards; (c) conduct risk assessment by estimating likelihood of occurrence and severity of each hazard; and (d) decide whether the risk is tolerable and apply control measures if necessary.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Hazard identification: three categories and identification technique <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The guideline groups workplace hazards into three categories. <strong>Health hazards</strong> are any agent that can cause illness — producing acute (serious, immediate) or chronic (long-term) effects, sometimes affecting only part of the body, and sometimes not immediately recognised by the affected worker (the guideline's example: noise-induced hearing loss is often undetected by the worker until well advanced). Health hazards include chemicals (battery acid, solvents), biological hazards (bacteria, viruses, dust, mould), physical agents (electric currents, heat, light, vibration, noise, radiation), and ergonomic/work-design hazards. <strong>Safety hazards</strong> are any force strong enough to cause injury or property damage, with usually obvious effects (e.g., a bad cut); examples include slipping/tripping hazards, fire hazards, moving machinery parts (pinch/nip points), work at height, ejection of material, pressure systems, vehicles, manual handling, and working alone. <strong>Environmental hazards</strong> are releases to the environment that may cause harm, which may not be obvious to the worker causing them (e.g., draining a glycol system into a storm sewer without realising the environmental effect) and occur when controls/procedures are not followed.</p>
+<p>The employer must develop a hazard identification and assessment methodology drawing on hazardous-occurrence investigation reports, first-aid/minor-injury records, workplace health protection programmes, workplace inspection results, employee complaints, government/employer studies on employee health and safety, OSHA-1994-regulation reports, hazardous-substance records, and other relevant information — specifying who is responsible for identification, how identification reports are processed, and a time frame (with a suggested methodology review cycle of every three years). Identification techniques include workplace inspections, task safety analysis/job hazard analysis, preliminary investigations, potential-accident-factor analysis, failure analysis, and accident/incident investigation.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Risk analysis: likelihood, severity, and the risk matrix <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Risk analysis can be qualitative (using descriptive scales, expert knowledge/experience), semi-quantitative (assigning numerical values to qualitative scales, to produce a more expanded ranking without claiming quantitative-analysis-level precision), or quantitative (using numerical data from past accident experience/scientific research for both likelihood and severity). The guideline demonstrates the qualitative/semi-quantitative approach specifically.</p>
+<p><strong>Likelihood (L)</strong> is rated on a 5-point scale: Most likely (rating 5, "the most likely result of the hazard/event being realised"); Possible (4, "has a good chance of occurring and is not unusual"); Conceivable (3, "might occur at some time in future"); Remote (2, "has not been known to occur after many years"); Inconceivable (1, "practically impossible and has never occurred"). <strong>Severity (S)</strong> is also rated 1–5: Catastrophic (5, numerous fatalities, irrecoverable property damage/productivity loss); Fatal (4, approximately one single fatality plus major property damage); Serious (3, non-fatal injury, permanent disability); Minor (2, disabling but non-permanent injury); Negligible (1, minor abrasions/bruises/cuts, first-aid-type injury). <strong>Relative risk</strong> is calculated as Likelihood × Severity, producing a score from 1–25, which is plotted on a 5×5 risk matrix (colour-coded green/low, yellow/medium, red/high) to visualise the distribution of risk across a workplace.</p>
+<p>Risk scores are banded into three action tiers: <strong>15–25 = HIGH</strong> (requires immediate action per the hierarchy of control, documented on the risk assessment form with a completion date); <strong>5–12 = MEDIUM</strong> (requires a planned approach, with temporary measures applied if needed, also documented with a completion date); and <strong>1–4 = LOW</strong> (may be considered acceptable, though control measures should still be implemented and recorded if they can be resolved quickly/efficiently). High-risk hazards specifically require immediate action to resolve risk to life safety and/or the environment, with clearly identified individuals responsible for the action and its follow-up; a more detailed quantitative risk assessment may be warranted to determine suitable controls in such cases.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Hierarchy of control <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Control is defined as the elimination or inactivation of a hazard such that it no longer poses a risk to workers. The guideline establishes a strict hierarchy: hazards should be controlled at their source first (the closer the control to the source, the better — "engineering controls"); if that fails, hazards can be controlled along the path between source and worker ("administrative controls"); and if neither is possible, hazards must be controlled at the level of the worker via personal protective equipment (PPE) — explicitly the least desirable control, since it protects the individual rather than removing the hazard itself. Selecting a suitable control involves evaluating and selecting both short- and long-term controls, implementing short-term protective measures until permanent controls are in place, and implementing long-term controls when reasonably practicable (the guideline's example: for a noise hazard, short-term control might be hearing protection while long-term control removes/isolates the noise source).</p>
+<p><strong>At-source controls:</strong> elimination (removing the hazardous job/tool/process/machine/substance entirely — the guideline's example: a salvage firm stopping the practice of cutting up scrapped bulk fuel tanks due to explosion hazard) and substitution (replacing a hazardous chemical/process with a less hazardous one, while ensuring no new hazards are introduced). <strong>Engineering controls:</strong> redesign (reworking jobs/processes to be safer, e.g. easier-to-hold containers), isolation (containing a hazard away from workers, e.g. an insulated/air-conditioned control room protecting operators from toxic chemicals), automation (mechanising dangerous processes, e.g. robotic spot-welding, while guarding against new robotic hazards), barriers (blocking a hazard before it reaches workers, e.g. welding curtains, machine guarding), absorption (baffles blocking/absorbing noise; lockout systems isolating energy sources during maintenance), and dilution (e.g. ventilation diluting toxic gases before they reach workers) — generally, the further a control keeps a hazard from workers, the more effective it is. <strong>Administrative controls:</strong> safe work procedures (standardised safety practices, periodically reviewed/updated with workers), supervision and training (initial plus refresher training, appropriate supervision), job rotation (reducing individual exposure time, e.g. rotating workers through repetitive-motion tasks to prevent cumulative trauma injury), housekeeping/repair/maintenance programmes, and hygiene practices (separate lockers for street vs. work clothing, segregated eating areas away from toxic hazards, mandatory showering/changing at shift end where applicable). <strong>PPE</strong> is used only when other controls are infeasible or additional protection is needed, requiring proper training/maintenance and carrying the explicit risk that malfunctioning PPE can endanger workers by providing a false sense of protection.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Monitoring, documentation, consultation and training <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Control effectiveness must be checked regularly (during inspections, routine maintenance, and other activities), asking whether controls solved the problem, whether residual risk is contained, whether new hazards are being identified and appropriately controlled, and whether accident reports are being analysed — with control activities documented and hazards re-evaluated if necessary. <strong>Safe Work Procedures</strong> (step-by-step instructions for conducting work safely when a hazard cannot be eliminated/engineered out) are prepared especially for critical high-risk jobs, frequently-accident-prone hazardous work, new/altered tasks, new equipment, multi-step jobs, jobs requiring simultaneous coordinated action by two or more workers, and infrequently-performed tasks (the guideline's example: confined space entry); they must specify regulatory requirements, required PPE and training, worker responsibilities, the specific safe sequence of steps, required permits, and emergency procedures.</p>
+<p>HIRARC must be fully documented using a standard HIRARC Form (recording work activity, hazard, effect, existing controls, likelihood/severity/risk score, recommended control measures, and the person-in-charge with a due date/status), completed by the HIRARC team and signed by the area's in-charge personnel; departments must retain HIRARC records for at least 3 years (or longer if required by other legislation), with management/employer endorsement and communication of results to employees. Where practicable, employers must consult with relevant health and safety representatives when identifying, assessing and controlling risks, since consulting directly with employees who have first-hand experience of the task is more effective at reducing risk. Managers, supervisors, health and safety representatives, and others performing risk assessments must be trained in hazard identification, risk assessment and control methods, familiar with hazard-relevant regulations, have a practical understanding of the work hazards, and consult with the Health and Safety Representative.</p></div>
+</div>
+<div class="callout callout-orange"><strong>Core issue:</strong> HIRARC is explicitly designed as a continuous cycle (with a built-in "Review" feedback loop back into hazard identification) rather than a one-off compliance exercise — the guideline's own worked examples (Appendix D) show real risk scores dropping only after specific engineering/administrative controls were implemented and then re-assessed, illustrating that the risk matrix score is a living management tool, not a static paperwork exercise. Note also that this 2008 guideline explicitly states its methodology is intended for physical hazards specifically; health-hazard-specific risk assessment (e.g., chemical exposure limits, biological hazard assessment) requires separate specialised guidelines, which is directly relevant to Section 3 (Occupational Toxicology) and Section 4 (CHRA) of this module.</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Occupational Toxicology</div>
+  <div class="page-sub">Source: "Occupational Toxicology (1)" and "Occupational Toxicology 2" — GKT509 Course Notes (lecturer attribution omitted).</div>
+<div id="o3-prin"></div>
+<div id="o3-dose"></div>
+<div id="o3-op"></div>
+<div class="card">
+<div class="card-title"><span class="icon">🩺</span> What is toxicology, and toxicokinetics</div>
+<p>Toxicology is the science of poisons: the study of the harmful effects of physical or chemical agents on living organisms, the assessment of the probability of hazards caused by such effects, and the quantitative study of the effect of chemicals on biological tissues. Paracelsus's founding principle (1493-1541) is quoted directly in the lecture material: "All substances are poisons; there is none which is not a poison. The right dose differentiates a poison and a remedy" — meaning the central toxicological question is always "how much is too much?", not whether a substance is inherently safe or dangerous.</p>
+<p><strong>Toxicokinetics</strong> is the study of a substance's absorption (route of entry: inhalation, ingestion, topical/transdermal, transplacental — the route is itself an indicator for monitoring and control method selection), distribution (transportation within the body, depending on the target organ and whether the substance is retained because it is lipophilic or structurally resistant to metabolism/excretion, e.g. polychlorinated biphenyls), metabolism (biotransformation, with two possible outcomes: bioactivation or detoxification — toxicity occurs specifically when the detoxification pathway fails or becomes saturated), and excretion (via kidneys for polar/water-soluble compounds, or via feces/bile, expired air, milk, tears, sweat and hair). <strong>Toxicodynamics</strong>, by contrast, is the study of the relationship between the dose entering the body and the measured response.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">What influences the toxicity of a substance <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The spectrum of ill-effects a toxic agent can produce includes allergic reactions, idiosyncratic reactions, immediate versus delayed toxicity, reversible versus irreversible effects, local versus systemic effects, interactions between toxins, carcinogenicity, mutagenicity and teratogenicity. Whether any of these actually occurs, and how severely, depends on four groups of factors specified in the course material: factors related to the toxic agent itself (chemical composition such as pH and choice of anion; physical characteristics such as particle size and method of formulation; presence of impurities; stability/storage characteristics; solubility in biologic fluids); factors related to the exposure situation (dose, concentration and volume; route, rate and site of administration; duration and frequency of exposure; time of administration); environmental factors related to the subject (temperature, humidity, atmospheric pressure, light/radiation, housing/caging effects, noise, geographic influences, social factors, chemical factors); and inherent factors related to the subject (species/strain, genetic status, immunologic status, nutritional status, hormonal status, age, sex, body weight, maturity, and presence of disease or organ pathology).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Risk assessment, dose-response, and acceptable risk <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Risk assessment is defined in the course material as the process of describing and quantifying risk, so as to enable decisions about control measures, training, monitoring and health surveillance to protect the health of workers or the community from a hazard. The steps in risk assessment are: hazard identification (defining the population at risk and the adverse health effects); dose-response assessment (drawing on epidemiological and experimental evidence); exposure assessment; and risk characterisation. Two methods of estimating risk are used depending on the toxicant class: the <strong>threshold method</strong>, for all non-carcinogenic responses, where risk is expressed via a safety factor derived from the allowable daily intake for humans and the threshold dose observed in animals (key terms: NOAEL/NOEL — no observed adverse effect level; MOAEL/MOEL — minimum observed adverse effect level); and the <strong>no-threshold method</strong>, used specifically for carcinogens, reflecting the 1976 carcinogen policy position that there is "no detectable exposure level for proven carcinogenic substances" (Fairchild, 1976).</p>
+<p>The dose-response relationship describes how the response to a chemical — expressed either as severity of effect or as percentage of the population affected — changes with dose. The severity-of-effect curve moves through the Effective Dose (ED, the dose producing a desired/measurable effect), the Toxic Dose (TD, the dose producing toxicity), and the Lethal Dose (LD, the dose producing death) as dose rises. When expressed as percentage of population affected, each of these has a corresponding "50" value — ED50, TD50, LD50 (or LC50 for gases, used specifically in chemical and pesticide toxicity rating) — denoting the dose at which 50% of the population responds, becomes toxic, or dies respectively. The margin of safety compares two such doses of the same substance (classically TD50/ED50); NOAEL marks the transition point from "no observed adverse effect" toward a calculated safe human dose and, ultimately, a Permissible Exposure Limit (PEL). Acceptable risk itself is explicitly framed in the course material as a value judgment requiring a balance of risk against benefit, weighing what need the substance meets, whether a safer alternative exists, the extent of public use, economic considerations, environmental effects, and societal attitudes — i.e., acceptable risk is not a purely technical calculation but a normative one.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">☠️</span> Toxic metals</div>
+<p>The course material profiles five metals of principal occupational concern, distinguishing acute toxicity (which typically affects the organs involved in absorption and elimination of the metal) from chronic toxicity (long, repeated exposure to small doses, which can affect organ systems not involved in absorption/elimination at all, such as the haemopoietic or immune systems).</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Lead (inorganic and organic) <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Lead has no useful biological function in humans. Inorganic lead exposure occurs occupationally in battery manufacture, PVC plastics (as stabiliser), paints and printing (as pigment), glass manufacture, pottery enamelling/glazing, and lead alloys (pipe and cable sheathing); non-occupationally via pica, parental take-home contamination on clothing, and paints. The nervous system is the most sensitive target organ: in children this manifests as reduced IQ, cognitive deficit and reduced motor skills, while adults show neurobehavioural changes and motor/sensory neuropathy. Other effects include reduced vitamin D (endocrine), readily crossing the placenta with resulting abortion, stillbirth, low birth weight and prematurity, reduced sperm count/motility in males (reproductive), nephropathy (renal), and classification as IARC Group 2B (possible human carcinogen). A 2002 study cited in the course material found both prenatal and postnatal lead exposure associated with antisocial behaviour in children and adolescents, illustrating lead's behavioural/neurodevelopmental toxicity even at sub-clinical exposure levels. Organic lead (tetraethyl lead, tetramethyl lead) was historically used as an anti-knock agent in gasoline; being fat-soluble and volatile, it is readily absorbed through skin and inhalation. Acute organic lead exposure produces CNS effects only (convulsions, delirium, coma, death from depression of vital brain centres); chronic exposure produces disturbances of thought, hallucinations, memory loss, insomnia and personality deterioration — notably, anaemia and peripheral neuropathy, which are hallmarks of inorganic lead poisoning, do NOT occur with organic lead.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Arsenic, mercury, cadmium and nickel <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p><strong>Arsenic</strong> occurs naturally (fish, shellfish, seaweed) and occupationally in smelting, ceramics, wood preservatives, insecticides/herbicides, textile drying agents, and coloured-glass/semiconductor manufacture (inorganic forms), plus herbicides and animal-feed additives (organic forms) and arsine gas (AsH3, from semiconductor doping or metal refining when arsenic reacts with acid). Acute effects include abdominal pain, diarrhoea, seizures, shock and coma; chronic effects include vascular disorders (Raynaud's phenomenon, peripheral gangrene), dermatological disorders (nonmalignant follicular/eczematous dermatitis and malignant skin change), peripheral neuropathy (motor and sensory, lower limb greater than upper limb), carcinogenic effects (lung cancer, angiosarcoma, skin cancer) and teratogenic effects (fetotoxicity, congenital malformation). Arsine gas specifically causes haemolysis with a classic triad of abdominal pain, haematuria and jaundice, potentially progressing to multi-organ failure (acute renal failure, liver failure, cerebral oedema, coma, death).</p>
+<p><strong>Mercury</strong> exists as elemental mercury (silvery, liquid at room temperature), inorganic mercury (HgS in nature; occupational sources include smelting/treatment of gold and silver ore, dental/jewellery amalgam manufacture, electric bulbs, batteries and x-ray tubes), and organic mercury (seed dressings, pesticides, timber preservatives, antiseptics/germicides/diuretics — historically responsible for Minamata disease). Inorganic mercury's acute effects include chemical pneumonitis, stomatitis, diarrhoea, acute nephritis progressing to renal failure, and CNS effects (tremors, erethism, sensory peripheral neuropathy, mercurialentis, neurobehavioural change); chronic inorganic exposure mainly affects the nervous system plus salivation/gingivitis/dental erosion/blue gum-line, proteinuria/nephrotic syndrome, and reduced spermatogenesis with increased abortion risk. Organic mercury's acute effects are irritant (skin dermatitis, nasal septum perforation, chemical burns) and vascular dermatitis; chronic organic mercury toxicity (Minamata disease) is mainly a CNS syndrome — headache, fatigue, poor memory/concentration, paraesthesias, tremor, ataxia, dysarthria, visual and hearing disturbance, personality/intellect deterioration, in-utero exposure causing cerebral palsy, and death in severe cases.</p>
+<p><strong>Cadmium</strong>, a rare mineral found in zinc/lead/copper ores, is most commonly encountered occupationally via electroplating (corrosion resistance) and welding (cadmium coats welding electrodes/solders, or welding is performed on cadmium-coated materials), plus smelting/refining of zinc, lead and copper, NiCd batteries, paints, PVC, fluorescent lamps, semiconductors, cadmium alloys and phosphate fertiliser. Acute effects include chemical pneumonitis, metallic taste, abdominal colic, diarrhoea and acute renal failure. Chronic effects centre on the kidney (proximal tubule damage causing proteinuria and nephrotoxicity), including the historically significant Itai-itai disease (kidney damage disturbing calcium homeostasis, producing proteinuria, renal osteodystrophy, osteomalacia and bone pain), plus emphysema, lung cancer (IARC Group 1), liver dysfunction, anaemia and osteoporosis.</p>
+<p><strong>Nickel</strong> is refined via the Mond process (treatment with carbon monoxide to form nickel carbonyl, Ni(CO)4, which is itself highly toxic) and is widely used in stainless steel and nickel alloys. Occupational exposure occurs through mining, roasting, sintering and refining of ore, production of stainless steel/nickel alloys, welding of these materials, NiCd battery and computer component manufacture, and electroplating; cigarette smoke is a non-occupational contaminant source. Acute effects include allergic contact dermatitis and respiratory irritation (rhinitis, sinusitis, anosmia, nasal septum perforation, pneumonitis); chronic exposure is associated with nasal and lung cancer (IARC Group 1) and possibly laryngeal cancer.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🧪</span> Organic solvents</div>
+<p>An organic solvent is defined in the course material as a general term for organic chemicals characterised by their ability to dissolve oils, fats, resins, rubber and plastics — spanning aliphatic hydrocarbons (n-hexane, chloroform), aromatic hydrocarbons (benzene, toluene, xylene, styrene), halogenated hydrocarbons (dichloromethane, trichloroethylene), esters, ethers, ketones, alcohols, glycol ethers, and miscellaneous agents (carbon disulfide, dimethyl formamide) plus petroleum distillates. Absorption is predominantly by inhalation (the majority exposure route), supplemented by dermal uptake through contact with the liquid or vapour and skin staining, which then transfers the solvent to the bloodstream.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Health effects of chronic solvent exposure, by organ system <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The course material provides a systems-based table of chronic solvent health effects: central nervous system — unconsciousness, mental disorder, ataxia, brain atrophy (carbon disulfide, toluene, trichloroethylene, dichloromethane); cranial nerves — smell disturbance (toluene), visual disturbance (methanol, toluene, methyl acetate), trigeminal nerve palsy (trichloroethylene), hearing loss (trichloroethylene, styrene); peripheral nerves — polyneuropathy (carbon disulfide, n-hexane, styrene, 1-bromopropane, trichloroethylene, MBK); autonomic nervous system — diencephalosis (toluene); blood — anaemia/aplastic anaemia (benzene); liver and kidney — functional disorder (carbon tetrachloride, trichloroethylene, carbon disulfide); intestinal — pneumatosis cystoides intestinalis (trichloroethylene); reproductive — sterility and menstrual disorder (2-bromopropane, cellosolve, toluene); and immune — scleroderma (trichloroethylene). On carcinogenicity, benzene is IARC Group 1 (confirmed human leukaemogen); trichloroethylene and tetrachloroethylene are Group 2A; styrene, chloroform, carbon tetrachloride, dichloromethane, 1,2-dichloroethane, 1,4-dioxane, N,N'-dimethyl formamide and gasoline are Group 2B. The IARC classification framework itself runs from Group 1 (carcinogenic to humans — sufficient human evidence, e.g. asbestos, arsenic, benzene, chromium VI, cadmium) through Group 2A (probably carcinogenic — limited human but sufficient animal evidence) and Group 2B (possibly carcinogenic — limited human and animal evidence, or inadequate human but sufficient animal evidence) to Group 3 (not classifiable, insufficient evidence) and Group 4 (probably not carcinogenic — several adequate human studies show no evidence).</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🐛</span> Pesticides</div>
+<p>Pesticides are biologically active chemicals designed to control pests, used to protect the food supply and its wholesomeness, safeguard public health, and protect buildings/structures — i.e., chemicals used to destroy or prevent the spread of insects, noxious plants, fungi, viral/bacterial microbes, and rodents. The course material organises them by target: insecticides (organophosphate, organochlorine, carbamate, pyrethrin/pyrethroid, nicotine, rotenone, microbiological agents such as Bacillus thuringiensis), herbicides (trichloro/dichlorophenoxy herbicides, urea derivatives, carbamate, triazine, glyphosate), fungicides (carbamate, organophosphate, captan, captofol, pentachlorophenol, iprodione, sulphur elements), antimicrobials (triazine-s-trione, chlorine-releasing agents, dichloronitrobenzene) and rodenticides (coumadin and derivatives/anticoagulants, strychnine, fluoroacetate).</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Organophosphates and carbamates <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Organophosphates (OPs) act as cholinesterase inhibitors, causing acetylcholine accumulation at synapses. Acute toxicity presents through three symptom clusters: neuromuscular junction/nicotinic effects (twitching, weakness, paralysis, including of the diaphragm and chest wall muscles), autonomic/muscarinic effects (respiratory secretions and spasm, miosis), and CNS effects (tremor, confusion, slurred speech, disequilibrium, convulsions). Chronic OP exposure can cause a delayed neuropathy — axonal damage of central and peripheral nerves, motor greater than sensory, distal greater than proximal, capable of damaging the spinal cord and constricting peripheral visual fields — plus myopathy and psychiatric disturbance (acute psychosis, severe depression). Carbamates (e.g. propoxur/Baygon) produce a similar clinical picture via carbamylation of acetylcholinesterase, but the inhibition is reversible over a shorter period and, unlike most OPs, does not require metabolic bioactivation to become toxic.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Organochlorines and pyrethroids <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Organochlorines (e.g. DDT — dichlorodiphenyltrichloroethane), used historically for vector control and lice, are less acutely toxic than OPs and carbamates but are environmentally persistent, bioaccumulate, and are highly lipid-soluble, concentrating in fatty tissue. They act as CNS depressants or stimulants: acute exposure causes irritability, dizziness, tremor, convulsion and headache; chronic exposure causes tremor, memory loss and personality change; additional concerns include oestrogenic effects, carcinogenicity and teratogenicity. Pyrethrins and pyrethroids, extracted from chrysanthemum (e.g. lambda-cyhalothrin, permethrin), are used in household pest control against mosquitoes, lice, cockroaches and flies; their toxic effects are chiefly allergic dermatitis, rhinitis and asthma — though commercial formulations sometimes have OP or carbamate added to ensure the target insect is killed, meaning apparent "pyrethroid" exposures may in practice carry combined toxicity.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Chemicals specific to healthcare facilities <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The course material separately profiles four chemicals of specific relevance to healthcare occupational health: <strong>formaldehyde</strong> (used as a fixative in laboratories, morgues and dissection facilities) — acute exposure causes eye/respiratory irritation from liquid or vapour contact, and severe abdominal pain, nausea, vomiting and possible loss of consciousness if ingested in quantity; chronic high-concentration vapour inhalation can cause laryngitis, bronchitis or bronchial pneumonia, prolonged exposure may cause conjunctivitis, and formaldehyde is a suspected carcinogen (nasal tumours reported in animal studies). <strong>Ethylene oxide</strong> (used in Central Sterilization and Supply Departments, CSSD, for surgical instrument sterilisation) — acute exposure irritates the eyes, skin and respiratory tract, very high concentrations can cause lung oedema, aqueous solutions can cause skin burns, rapid evaporation of the liquid can cause frostbite, and eye exposure may cause delayed cataract; chronic exposure can cause dermatitis and skin sensitisation from repeated water-solution contact, has effects on the nervous system, is carcinogenic to humans, and may cause heritable genetic damage. <strong>Glutaraldehyde</strong> (used to sterilise instruments such as laparoscopes and enteroscopes in operating theatres/procedure rooms) — acute exposure irritates the eyes, skin and respiratory tract; chronic/repeated exposure can cause dermatitis, skin sensitisation, and occupational asthma from repeated inhalation. <strong>Cytotoxic drug reconstitution</strong> is flagged as a fourth major chemical hazard category in healthcare settings, reflecting the handling risks specific to pharmacy and oncology nursing staff who prepare chemotherapy agents.</p></div>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Occupational Health Management System & Chemical Health Risk</div>
+  <div class="page-sub">Source: DOSH "A Manual of Recommended Practice on Assessment of the Health Risks Arising from the Use of Chemicals Hazardous to Health at the Workplace" (CHRA Manual), 3rd Edition, 2018 — Department of Occupational Safety and Health, Ministry of Human Resources Malaysia.</div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> What CHRA is and why it exists</div>
+<p>Chemical Health Risk Assessment (CHRA) is the standardized method mandated under the Occupational Safety and Health (Use and Standard of Exposure of Chemicals Hazardous to Health) Regulations 2000 (USECHH Regulations 2000) for identifying, evaluating and controlling the health risks arising from the use of chemicals hazardous to health at the workplace. The core assessment concept is expressed as <strong>Risk = Hazard × Exposure</strong> — a chemical's health risk depends jointly on how hazardous the substance intrinsically is and how much workers are actually exposed to it, not on hazard alone. CHRA may be conducted as a <strong>full assessment</strong> (detailed, quantitative where feasible) or a <strong>simple assessment</strong> (for lower-risk situations), and must be carried out by a assessor registered/competent under the Regulations, following a defined 10-step process from information-gathering through to conclusion, control recommendation and reporting.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">The CHRA process: gathering information and dividing into work units <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Before rating hazard or exposure, the assessor gathers existing documentation: the chemical register and safety data sheets, workplace layout plan, process flowchart, list of workers potentially at risk, records of engineering controls in place, accident/incident records, any prior exposure monitoring data, medical surveillance records, training records, PPE programme documentation, and standard operating procedures (SOPs). The workplace is then divided into <strong>work units</strong> — groupings of workers who perform similar jobs (work similarity) and are exposed to similar chemical hazards (hazard similarity); where job rotation occurs, rotation patterns must be accounted for so that no worker's true exposure is under-assessed.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Determining the degree of hazard (Hazard Rating)</div>
+<div class="accordion-body"><p>Each chemical is assigned a <strong>Hazard Rating (HR)</strong> on a 1–5 scale, derived from its classification under the CLASS Regulations 2013 (hazard/H-codes) and its acute toxicity data — more severe classifications (e.g. carcinogens, reproductive toxicants, respiratory sensitisers, acutely highly toxic substances) receive higher HR values. For substances that can be absorbed through the skin, a separate set of <strong>dermal hazardous properties</strong> is considered — irritation, corrosion, sensitisation potential, acute toxicity, and skin-absorption potential — feeding into a parallel dermal risk assessment. Worked examples in the manual illustrate HR determination for substances such as acetic anhydride (corrosive), potassium cyanide (acutely toxic), mixed organic solvents, the herbicide diquat, and scheduled wastes.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Assessing exposure (Exposure Rating)</div>
+<div class="accordion-body"><p>The <strong>Exposure Rating (ER)</strong>, also on a 1–5 scale, can be derived quantitatively or qualitatively. The <strong>quantitative method</strong> compares measured exposure (time-weighted average, TWA, or short-term exposure limit, STEL) against the Permissible Exposure Limit (PEL) for that chemical, with additive-effect calculations (a combined exposure index, CEI) applied when workers are exposed to multiple chemicals with similar target-organ effects simultaneously. Where monitoring data are unavailable, the <strong>qualitative method</strong> estimates exposure from a Frequency Rating × Duration Rating (giving a Frequency-Duration Rating, FDR), combined with a Magnitude Rating derived from the degree of release of the chemical (e.g. open handling vs closed system) and the degree of inhaled/dermal contact — these are combined via a defined table to yield the final ER. A separate extent/duration matrix is used for dermal exposure rating.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Risk determination: Risk Rating and action priority</div>
+<div class="accordion-body"><p>The final <strong>Risk Rating (RR) = Hazard Rating × Exposure Rating</strong>, producing a score from 1 to 25 that is banded as <strong>Low risk (1–4)</strong>, <strong>Moderate risk (5–12)</strong> or <strong>High risk (15–25)</strong>. A parallel dermal risk matrix classifies dermal risk as Low, Moderate-1, Moderate-2, High-1 or High-2 depending on the hazardous property and the extent/duration of skin contact. Each risk level is then translated into an <strong>Action Priority</strong> (AP-1, AP-2 or AP-3), which determines how urgently control measures, exposure monitoring and medical surveillance must be implemented — high-risk (AP-1) situations demand immediate control action, while lower-priority findings may be addressed through routine review cycles.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Control measures: the hierarchy of control for chemical hazards</div>
+<div class="accordion-body"><p>Recommended controls follow the standard hierarchy, from most to least effective: <strong>elimination</strong> (removing the chemical from the process entirely), <strong>substitution</strong> (replacing it with a less hazardous alternative), <strong>total enclosure</strong> of the process, <strong>isolation</strong> of the hazard from workers, <strong>process or work-method modification</strong>, <strong>engineering controls</strong> (local exhaust ventilation, general dilution ventilation), and finally <strong>personal protective equipment (PPE)</strong> as the last line of defence. These are supplemented by organisational/administrative controls (training, SOPs, job rotation, housekeeping) and emergency-response preparedness. The manual specifies additional, more stringent control expectations for carcinogens, respiratory sensitisers, and situations with significant dermal exposure potential, and provides an adequacy checklist for judging whether existing controls are sufficient for the assessed risk level.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Exposure monitoring and medical surveillance programmes</div>
+<div class="accordion-body"><p>Whether an ongoing <strong>exposure monitoring programme</strong> is required, and at what frequency, is determined by the CHRA findings (risk level, chemical hazard class, and whether a PEL exists for the substance). Similarly, whether a <strong>medical surveillance programme</strong> is required — and its frequency — is determined by the assessed risk together with the chemical's health-effect profile (e.g. mandatory surveillance for scheduled chemicals with recognised chronic health effects); where required, this is carried out under the supervision of an Occupational Health Doctor (OHD). CHRA findings are formally documented (via prescribed Forms A–D), reported, and are subject to <strong>reassessment</strong> whenever there is a change in process, chemical substitution, control measures, or at the routinely scheduled review interval — with records retained per the Regulations' control-of-records requirements.</p></div>
+</div>
+<div class="callout callout-purple"><p>The guiding formula to remember: <strong>Risk = Hazard × Exposure</strong>. A highly hazardous chemical used with negligible exposure (e.g. fully enclosed, well-ventilated process) can carry a lower risk rating than a mildly hazardous chemical used with poor controls and high exposure — CHRA exists precisely to quantify this trade-off rather than judging risk from hazard classification alone.</p></div>
+<table><tr><th>Component</th><th>Scale</th><th>Basis</th></tr>
+<tr><td>Hazard Rating (HR)</td><td>1–5</td><td>CLASS Regulations 2013 classification / H-codes, acute toxicity, dermal hazardous properties</td></tr>
+<tr><td>Exposure Rating (ER)</td><td>1–5</td><td>Quantitative: TWA/STEL vs PEL. Qualitative: frequency × duration × magnitude of release/contact</td></tr>
+<tr><td>Risk Rating (RR = HR × ER)</td><td>1–25</td><td>Low 1–4 / Moderate 5–12 / High 15–25</td></tr>
+<tr><td>Action Priority</td><td>AP-1 / AP-2 / AP-3</td><td>Urgency of control, monitoring and surveillance action required</td></tr>
+</table>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Specific Occupational Health Issues</div>
+  <div class="page-sub">Source: "Field Visit: Walk Through Survey" — GKT509 Course Notes (lecturer attribution omitted); "National Occupational Accident and Disease Statistics (NOAS) 2022," Department of Statistics Malaysia / DOSH / SOCSO, released 29 September 2023.</div>
+<div class="card">
+<div class="card-title"><span class="icon">🚶</span> The Walk Through Survey (WTS)</div>
+<p>A Walk Through Survey (WTS) is a preliminary, observational survey — an essential first step in the control of occupational health hazards. It involves a walking tour of the workplace to obtain an overview of the whole operation, identify key hazards in each area, assess the effectiveness of any control measures already in place, and understand the demands of a job well enough to give sound advice on fitness for employment. A WTS may be prompted by routine surveillance, a specific worker complaint, or an accident/incident investigation.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Approaches to conducting a WTS <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>At least three approaches are commonly adopted, and the choice depends on the purpose of the visit: (1) <strong>following a process from start to finish</strong> — from raw materials coming in to finished goods going out, asking what hazards occur at each stage, how they are controlled, and whether the controls actually work, which builds a basic understanding of the work and its requirements; (2) <strong>auditing a single category of activity or hazard</strong> — such as dusty or noisy procedures, or manual handling, wherever it occurs across the organisation, asking whether the control policy works everywhere or whether there are special problems in certain groups/sites — useful for introducing and monitoring new policies; and (3) <strong>detailed inspection site by site</strong> — asking what hazards exist at this particular site and how they are handled, moving on only once a geographical unit has been thoroughly inspected; workers' representatives may accompany this inspection and can reveal problems not apparent to an outside observer.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Preparation and conduct of the survey <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Before the visit, the assessor should review existing health and safety documentation (safety data sheets, risk assessments, safety policy, the accident book), do preliminary research to identify the sorts of hazards likely to be encountered and the legal standards likely to apply, and — if the visit follows an individual complaint — discuss it first with the complainant. During the WTS, the assessor lists hazards, considers who might be exposed and in which jobs, determines how likely exposure is under the prevailing circumstances (including any precautions already followed), and gauges the magnitude of expected exposure and its likely health impact. The overall aim is to judge whether the resulting risk is acceptable — weighing both likelihood and seriousness of an adverse outcome — or whether further control measures are needed and, if so, what these should be.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Determining control measures during a WTS <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Control options should be considered in hierarchical order: can the hazard be avoided altogether, or can a safer alternative be substituted; if not, can the process or materials be modified to minimise the problem at source; can the process be enclosed or operated remotely; can fumes be extracted close to the point of generation (local exhaust ventilation)? Only after these source-level and engineering options have been exhausted should reliance shift to measures like PPE (ear defenders, face masks) that depend on workers' compliance. A realistic control strategy always places more weight on controlling risk at source than on employees' personal behaviour and discipline. Checklists help ensure all major hazard categories are considered and that the full hierarchy of control options has been explored, rather than jumping straight to PPE.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">📊</span> National Occupational Accident and Disease Statistics (NOAS) 2022</div>
+<p>Malaysia's National Occupational Accident and Disease Statistics 2022 (Department of Statistics Malaysia, compiled from DOSH, SOCSO, Ministry of Finance and Royal Malaysia Police data) recorded 34,216 occupational injuries among 15.39 million employed persons — a rate of 2.22 per 1,000 workers, up sharply (58.9%) from 21,534 cases (rate 1.43) in 2021. Of these, 33,899 were non-fatal (rate 2.20 per 1,000 workers) and 317 were fatal occupational injuries (rate 2.06 per 100,000 workers, up from 2.00 in 2021).</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Distribution by demographics, state and sector <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>By gender, the large majority of cases were male (28,801 injuries, 311 fatalities) versus female (5,415 injuries, 6 fatalities). By nationality, Malaysians accounted for 30,325 injuries (213 fatal) and non-Malaysians 3,891 injuries (104 fatal). By age group, the fatal-injury rate rose progressively with age, from 1.01 per 100,000 in the 15–19 group to 3.78 per 100,000 in the 60–64 group, while non-fatal injury rates were highest in the 50–64 age bands. Geographically, Selangor recorded the largest absolute number of injuries (6,563, or 19.2% of the national total), while Johor (3.59), W.P. Kuala Lumpur & Putrajaya (3.53), Pulau Pinang (3.35) and Perak (3.24) had injury rates exceeding the national rate of 2.22 per 1,000 workers; W.P. Kuala Lumpur & Putrajaya also recorded the highest fatal-injury rate (3.69 per 100,000, 33 deaths). By OSHA 1994 sector, Services recorded the highest number of injuries (10,403), followed by Manufacturing (9,906) and Construction (4,324); Mining and Quarrying had the fewest (140). Despite lower case counts, Construction consistently records the highest number of fatal injuries (72), ahead of Services (65) and Manufacturing (62) — reflecting the sector's higher-severity hazard profile (falls from height, struck-by, machinery, excavation collapse) relative to its injury volume.</p></div>
+</div>
+<div class="callout callout-orange"><p>The NOAS pattern — Construction contributing disproportionately more fatalities relative to its injury count than Services or Manufacturing — illustrates why hazard control priorities in occupational health practice must weigh both frequency and severity of harm, exactly as the WTS risk-acceptability framework requires, rather than ranking sectors by injury count alone.</p></div>
+<table><tr><th>Indicator (2022)</th><th>Value</th></tr>
+<tr><td>Total occupational injuries</td><td>34,216 (rate 2.22 / 1,000 workers)</td></tr>
+<tr><td>Non-fatal occupational injuries</td><td>33,899 (rate 2.20 / 1,000 workers)</td></tr>
+<tr><td>Fatal occupational injuries</td><td>317 (rate 2.06 / 100,000 workers)</td></tr>
+<tr><td>Highest injury count by sector</td><td>Services (10,403), then Manufacturing (9,906), Construction (4,324)</td></tr>
+<tr><td>Highest fatality count by sector</td><td>Construction (72), then Services (65), Manufacturing (62)</td></tr>
+<tr><td>Highest state injury rate</td><td>Johor (3.59 per 1,000 workers)</td></tr>
+<tr><td>Highest state fatal-injury rate</td><td>W.P. Kuala Lumpur & Putrajaya (3.69 per 100,000 workers)</td></tr>
+</table>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 509 past-year papers</div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">HIRARC & Hierarchy of Control</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Define HIRARC (Hazard Identification, Risk Assessment and Risk Control). List the hierarchy of control in order and give an example of elimination versus PPE.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: definition 4; hierarchy 7; examples 4</div>
+<div class="ans-section"><div class="ans-section-title">Answer — HIRARC</div><p>HIRARC is a structured OH process: <strong>identify</strong> hazards, <strong>assess</strong> the risk (likelihood × severity), then <strong>control</strong> residual risk. It is a legal expectation under the Occupational Safety and Health Act.</p></div><div class="ans-section"><div class="ans-section-title">Answer — Hierarchy of control</div><ol><li><strong>Elimination</strong> (remove the hazard)</li><li><strong>Substitution</strong> (less hazardous alternative)</li><li><strong>Engineering controls</strong> (isolate/enclose)</li><li><strong>Administrative controls</strong> (procedures, training)</li><li><strong>Personal protective equipment</strong> (last line)</li></ol></div><div class="ans-section"><div class="ans-section-title">Answer — Examples</div><p>Elimination: remove a noisy machine from the process. PPE: supplying hearing-protection earmuffs — effective only if used correctly and is the <em>least</em> reliable tier.</p></div>
+</div>
+</div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Occupational Toxicology & CHRA</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">Explain the dose-response relationship in occupational toxicology. Describe the purpose of a Chemical Health Risk Assessment (CHRA) under the OSH Management System.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: dose-response 10; CHRA 10</div>
+<div class="ans-section"><div class="ans-section-title">Answer — Dose-response</div><p>Toxic effect generally increases with <strong>dose</strong> (amount/concentration × duration). The relationship underpins threshold-limit values and biological monitoring; some agents (e.g., carcinogens) may have <strong>no safe threshold</strong>, requiring ALARA (as low as reasonably achievable) principles.</p></div><div class="ans-section"><div class="ans-section-title">Answer — CHRA</div><p>CHRA systematically identifies chemical hazards, assesses exposure and health risk, and recommends control measures. It is a core element of the <strong>OSH Management System</strong> (DOSH guideline) and supports medical surveillance such as the <em>Periodic Medical Examination</em> for exposed workers.</p></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Occupational Health Services & Legislation", "sec2": "Hazard Identification, Risk Assessment & Control", "sec3": "Occupational Toxicology", "sec4": "Occupational Health Management System & CHRA", "sec5": "Specific Occupational Health Issues", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt509_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 6;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt509_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt509_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>
