@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKT 504 Prevention & Control of Non-Communicable Diseases</title>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c8eff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--red:#f87171;--yellow:#fbbf24;--green:#34d399}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf5;--border:#d0d9e8;--accent:#3b5bdb;--accent2:#7950f2;--accent3:#0ca678;--accent4:#e67700;--text:#1a202c;--text2:#4a5568;--text3:#718096;--red:#e53e3e;--yellow:#d97706;--green:#0ca678}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+#sidebar.collapsed{width:0;min-width:0}
+#sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#sidebar-header h2{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase}
+#sidebar-nav{overflow-y:auto;flex:1;padding:8px 0}
+.nav-topic{cursor:pointer;user-select:none}
+.nav-topic-header{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .2s}
+.nav-topic-header:hover,.nav-topic-header.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.nav-topic-header .badge{margin-left:auto;font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:10px;color:var(--text3)}
+.nav-topic-header.active .badge{background:var(--accent);color:#fff}
+.topic-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.nav-sub{display:none;padding:4px 0 4px 44px}
+.nav-sub.open{display:block}
+.nav-sub a{display:block;padding:5px 8px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.nav-sub a:hover,.nav-sub a.active{color:var(--accent);background:var(--surface2)}
+.chevron{margin-left:auto;transition:transform .25s;font-size:10px}
+.nav-topic-header.open .chevron{transform:rotate(90deg)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+#toggle-sidebar{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+#toggle-sidebar:hover{color:var(--text);border-color:var(--accent)}
+#breadcrumb{font-size:13px;color:var(--text3)}
+#breadcrumb span{color:var(--text2);font-weight:600}
+#search-bar{margin-left:auto;display:flex;align-items:center;gap:8px}
+#search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;width:200px;outline:none}
+#search-bar input:focus{border-color:var(--accent)}
+.progress-pill{margin-left:12px;font-size:12px;color:var(--accent3);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(52,211,153,.3)}
+
+#content{flex:1;overflow-y:auto;padding:28px 32px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.page-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.tag-blue{background:rgba(108,142,255,.15);color:var(--accent)}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--accent2)}
+.tag-green{background:rgba(52,211,153,.15);color:var(--accent3)}
+.tag-orange{background:rgba(251,146,60,.15);color:var(--accent4)}
+.tag-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.accordion-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--text);background:var(--surface2);transition:background .2s;user-select:none}
+.accordion-head:hover{background:#2a2f47}
+.accordion-head .acc-icon{font-size:12px;transition:transform .25s;color:var(--text3)}
+.accordion-head.open .acc-icon{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--surface);font-size:13.5px;line-height:1.75;color:var(--text2)}
+.accordion-body.open{display:block}
+.accordion-body p{margin-bottom:10px}
+.accordion-body ul{padding-left:18px;margin-bottom:10px}
+.accordion-body ul li{margin-bottom:5px}
+.accordion-body ol{padding-left:18px;margin-bottom:10px}
+.accordion-body ol li{margin-bottom:5px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:4px solid;font-size:13.5px}
+.callout-blue{background:rgba(108,142,255,.08);border-color:var(--accent)}
+.callout-green{background:rgba(52,211,153,.08);border-color:var(--accent3)}
+.callout-orange{background:rgba(251,146,60,.08);border-color:var(--accent4)}
+.callout-red{background:rgba(248,113,113,.08);border-color:var(--red)}
+.callout-purple{background:rgba(167,139,250,.08);border-color:var(--accent2)}
+:root.light .callout-blue{background:rgba(59,91,219,.07)}
+:root.light .callout-green{background:rgba(12,166,120,.07)}
+:root.light .callout-orange{background:rgba(230,119,0,.07)}
+:root.light .callout-red{background:rgba(229,62,62,.07)}
+:root.light .callout-purple{background:rgba(121,80,242,.07)}
+:root.light .accordion-head{background:var(--surface2)}
+:root.light .accordion-head:hover{background:#d8e0ef}
+:root.light tr:hover td{background:rgba(0,0,0,.03)}
+.callout strong{color:var(--text)}
+
+/* SAMPLE Q */
+.q-year{font-size:18px;font-weight:700;color:var(--yellow);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.q-head{padding:14px 18px;background:var(--surface2);display:flex;align-items:flex-start;gap:12px}
+.q-num{background:var(--accent);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.q-topic{background:rgba(167,139,250,.2);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;color:var(--yellow);font-size:13px;font-weight:700;white-space:nowrap}
+.q-stem{padding:14px 18px;font-size:14px;color:var(--text);line-height:1.65;border-bottom:1px solid var(--border)}
+.q-ans-toggle{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--accent3);background:none;border:none;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.q-ans-toggle:hover{background:rgba(52,211,153,.05)}
+.q-answer{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.q-answer.open{display:block}
+.marks-guide{background:var(--surface2);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text3)}
+.marks-guide strong{color:var(--yellow)}
+.ans-section{margin-bottom:14px}
+.ans-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ans-section p,.ans-section ul,.ans-section ol{font-size:13.5px;color:var(--text2);line-height:1.7}
+.ans-section ul{padding-left:18px}
+.ans-section ul li{margin-bottom:4px}
+
+/* SUBPART */
+.subpart{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.subpart-label{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* HOME */
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+@media(max-width:1100px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.home-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.home-card .hc-num{font-size:28px;font-weight:700;color:var(--accent);opacity:.4}
+.home-card .hc-title{font-size:14px;font-weight:700;color:var(--text);margin:4px 0}
+.home-card .hc-sub{font-size:12px;color:var(--text3)}
+.home-card .hc-badge{margin-top:8px}
+
+h3{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 8px}
+h4{font-size:13.5px;font-weight:700;color:var(--accent2);margin:10px 0 6px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+strong{color:var(--text)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3)}
+
+/* RESPONSIVE */
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#sidebar-backdrop.visible{display:block}
+@media(max-width:768px){
+  #sidebar{position:fixed!important;left:0;top:0;height:100vh;z-index:1000;width:280px!important;min-width:280px!important;transform:translateX(-100%);transition:transform .3s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  #sidebar.collapsed{width:280px!important;min-width:280px!important}
+  #sidebar.mobile-open{transform:translateX(0)!important}
+  #main{width:100%;flex:1}
+  #topbar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  #search-bar{width:100%;margin-left:0;flex:1 1 100%}
+  #search-bar input{width:100%;flex:1;min-width:0}
+  .progress-pill{font-size:11px;padding:3px 8px;margin-left:0}
+  #breadcrumb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  #content{padding:16px 14px}
+  .card{padding:14px 12px}
+  .accordion-body table,table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  table th,table td{white-space:normal;min-width:120px}
+  .q-head{flex-wrap:wrap;gap:6px}
+  .q-marks{margin-left:0;width:100%}
+  .page-title{font-size:20px}
+  .home-grid{grid-template-columns:1fr!important}
+  .accordion-head{font-size:13px;padding:11px 13px}
+}
+@media(max-width:480px){#content{padding:12px 10px}.card{padding:12px 10px}#topbar{padding:8px 10px}.page-title{font-size:18px}table th,table td{min-width:100px;font-size:12px}}
+
+</style>
+</head>
+<body>
+<div id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div style="font-size:20px">📚</div>
+    <div>
+      <h2>GKT 504</h2>
+      <div style="font-size:11px;color:var(--text3)">Prevention & Control of Non-Communicable Diseases</div>
+    </div>
+  </div>
+  <div id="sidebar-nav">
+<div class="nav-topic" onclick="goHome()">
+  <div class="nav-topic-header" id="nav-home" style="border-left-color:var(--accent)">
+    <span>🏠</span> <span>Overview</span>
+  </div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec1')">
+  <div class="nav-topic-header">
+    <div class="topic-num">1</div>
+    <span>Introduction to NCD Prevention & Control</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('n1-burden')">Burden</a><a onclick="scrollTo('n1-det')">Determinants</a><a onclick="scrollTo('n1-lev')">Levels of Prevention</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec2')">
+  <div class="nav-topic-header">
+    <div class="topic-num">2</div>
+    <span>NCD Surveillance</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('n2-need')">Need</a><a onclick="scrollTo('n2-method')">Methods</a><a onclick="scrollTo('n2-my')">Malaysia</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec3')">
+  <div class="nav-topic-header">
+    <div class="topic-num">3</div>
+    <span>Metabolic Syndrome, Hypertension, Diabetes & CVD</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('n3-mets')">MetS</a><a onclick="scrollTo('n3-htdm')">HTN/DM</a><a onclick="scrollTo('n3-cvd')">CVD Control</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec4')">
+  <div class="nav-topic-header">
+    <div class="topic-num">4</div>
+    <span>Cancer Prevention & Control</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('n4-epi')">Epidemiology</a><a onclick="scrollTo('n4-screen')">Screening</a><a onclick="scrollTo('n4-ctrl')">Control</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec5')">
+  <div class="nav-topic-header">
+    <div class="topic-num">5</div>
+    <span>Tobacco & Substance Use Control</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('n5-tob')">Tobacco/FCTC</a><a onclick="scrollTo('n5-sub')">Substance</a><a onclick="scrollTo('n5-tx')">Treatment</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec6')">
+  <div class="nav-topic-header">
+    <div class="topic-num">6</div>
+    <span>Mental Health, Road Traffic Injury & TCM</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('n6-mh')">Mental Health</a><a onclick="scrollTo('n6-rta')">Road Traffic</a><a onclick="scrollTo('n6-tcm')">TCM/CAM</a></div>
+</div>
+<div class="nav-topic" onclick="toggleNav(this,'sec-pyq')">
+  <div class="nav-topic-header">
+    <div class="topic-num" style="background:var(--yellow);color:#000">PYQ</div>
+    <span>Sample Questions</span>
+    <span class="chevron">▶</span>
+  </div>
+  <div class="nav-sub"><a onclick="scrollTo('pyq-1')">Q1</a><a onclick="scrollTo('pyq-2')">Q2</a></div>
+</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+    <div id="breadcrumb">GKT 504 / <span id="bc-section">Overview</span></div>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search notes..." oninput="doSearch(this.value)">
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme" style="background:none;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s">🌙</button>
+    <div class="progress-pill" onclick="showProgress()">📊 Progress</div>
+  </div>
+
+  <div id="content">
+<div class="section active" id="sec-home">
+  <div class="page-title">Prevention & Control of Non-Communicable Diseases</div>
+  <div class="page-sub">Public Health Notes</div>
+  <div style="text-align:center;font-size:12.5px;color:var(--text3);margin:-6px 0 10px 0;letter-spacing:0.3px">Compiled & authored by Dr Azul · Public Health Notes</div>
+  <div class="callout callout-blue">
+    <strong>How to use these notes:</strong> Click any topic card below or use the sidebar. Accordion sections expand on click. Sample-question model answers are hidden until you click "Show Model Answer" — try answering first!
+  </div>
+  <div class="home-grid">
+<div class="home-card" onclick="showSection('sec1')"><div class="hc-num">01</div><div class="hc-title">Introduction to NCD Prevention & Control</div><div class="hc-sub">Burden, determinants, levels of prevention</div><div class="hc-badge"><span class="tag tag-blue">NCD</span><span class="tag tag-green">Prevention</span></div></div>
+<div class="home-card" onclick="showSection('sec2')"><div class="hc-num">02</div><div class="hc-title">NCD Surveillance</div><div class="hc-sub">STEPwise, risk-factor monitoring</div><div class="hc-badge"><span class="tag tag-blue">Surveillance</span><span class="tag tag-orange">STEPS</span></div></div>
+<div class="home-card" onclick="showSection('sec3')"><div class="hc-num">03</div><div class="hc-title">Metabolic Syndrome, Hypertension, Diabetes & CVD</div><div class="hc-sub">Risk factors, control strategies</div><div class="hc-badge"><span class="tag tag-red">CVD</span><span class="tag tag-purple">Diabetes</span></div></div>
+<div class="home-card" onclick="showSection('sec4')"><div class="hc-num">04</div><div class="hc-title">Cancer Prevention & Control</div><div class="hc-sub">Screening, common cancers, registry</div><div class="hc-badge"><span class="tag tag-red">Cancer</span><span class="tag tag-orange">Screening</span></div></div>
+<div class="home-card" onclick="showSection('sec5')"><div class="hc-num">05</div><div class="hc-title">Tobacco & Substance Use Control</div><div class="hc-sub">FCTC, treatment, harm reduction</div><div class="hc-badge"><span class="tag tag-green">Tobacco</span><span class="tag tag-blue">FCTC</span></div></div>
+<div class="home-card" onclick="showSection('sec6')"><div class="hc-num">06</div><div class="hc-title">Mental Health, Road Traffic Injury & TCM</div><div class="hc-sub">Integration, safe-systems, CAM</div><div class="hc-badge"><span class="tag tag-purple">Mental</span><span class="tag tag-orange">RTA</span></div></div>
+<div class="home-card" onclick="showSection('sec-pyq')" style="border-color:var(--yellow)"><div class="hc-num" style="color:var(--yellow)">PYQ</div><div class="hc-title">Sample Questions</div><div class="hc-sub">Past-year style practice questions</div><div class="hc-badge"><span class="tag tag-orange">Practice</span><span class="tag tag-blue">Answers</span></div></div>
+  </div>
+</div>
+<div class="section" id="sec1">
+  <div class="page-title">1. Introduction to NCD Prevention & Control</div>
+  <div class="page-sub">Source: GKT504 Lecture "NCDs Prevention & Control" — compiled directly from the lecture deck.</div>
+<div id="n1-burden"></div>
+<div id="n1-det"></div>
+<div id="n1-lev"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Terminology: disease, disorder, syndrome, condition</div>
+<p>The lecture distinguishes four related terms that are often used loosely: a <strong>disease</strong> is a particular distinctive process in the body with a specific cause and characteristic symptoms; a <strong>disorder</strong> is an irregularity, disturbance or interruption of normal function; a <strong>syndrome</strong> is a number of symptoms occurring together and characterising a specific disease; and a <strong>condition</strong> is the state of a person or population with regard to health (e.g., being a member of a "high-risk group"). The lecture also interrogates common but imprecise labels applied to NCDs: "non-communicable" is sometimes read as "can't be given to others," but this misses that NCDs reflect learned behaviour and shared environmental exposures; "chronic disease" is often equated with long-term illness, yet some communicable diseases (TB, HIV) are equally long-term; "lifestyle-related disease" is sometimes framed as a "disease of the rich," yet STIs are also lifestyle-related and NCDs affect all socioeconomic strata; and "ageing-related disease" is often assumed to affect only older people, yet premature NCD death in younger adults is a defining public health concern.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Characteristics of NCDs and chronic disease <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>NCDs have several characteristics that distinguish them from communicable diseases: complex pathogenesis, multiple risk factors/determinants, mostly irreversible pathology, long latency period, indefinite/insidious onset, non-infectious nature, prolonged course of illness, need for long-term care, and potential for impairment or disability. As chronic diseases, they are further characterised by permanence, residual disability, causation by non-reversible pathological alteration, the need for rehabilitation, and the possible need for long-term care.</p>
+<p>Because of the long latency period and insidious onset, the natural history of NCDs maps onto all four levels of prevention rather than one: <strong>primordial and primary prevention</strong> act before biological onset (reducing risk in the general/susceptible population); <strong>secondary prevention</strong> (screening and early detection) intervenes during the pre-clinical phase to reduce prevalence or consequences once the first defect/lesion has occurred; and <strong>tertiary prevention</strong> (treatment, rehabilitation and support) intervenes after diagnosis to reduce complications/disability and prevent further disease progression, including the important role of rehabilitation and long-term support in what is often an irreversible pathological process.</p></div>
+</div>
+<div class="callout callout-purple"><p>WHO (2018) data cited in the lecture: in 2021, 43 million deaths (75% of all non-pandemic-related global deaths) were attributable to NCDs, 73% of these in low- and middle-income countries; 18 million were premature deaths (before age 70), 82% of which occurred in low- and middle-income countries. Tobacco use, physical inactivity, harmful alcohol use, unhealthy diets, and air pollution increase the risk of dying from an NCD; the key components of the response are detection, screening, treatment, and palliative care.</p></div>
+<table><tr><th>NCD Type</th><th>Note</th></tr><tr><td>Cardiovascular diseases</td><td>Leading global NCD killer</td></tr><tr><td>Cancers</td><td>Major global NCD category</td></tr><tr><td>Chronic respiratory diseases</td><td>Major global NCD category</td></tr><tr><td>Diabetes (including diabetes-attributable kidney disease deaths)</td><td>Major global NCD category</td></tr></table>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Malaysia-specific mortality data (DOSM, 2022–2023) <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The Department of Statistics Malaysia's Statistics on Causes of Death report is cited directly in the lecture. In 2021, principal causes of death were: COVID-19 infection (19.8%), ischaemic heart disease (13.7%), pneumonia (11.1%), cerebrovascular disease (6.5%), transport accidents (1.9%), diabetes mellitus (1.8%), malignant neoplasm of trachea/bronchus/lung (1.7%), hypertensive disease (1.7%), chronic lower respiratory disease (1.5%), and malignant neoplasm of colon/rectum/anus (1.4%). By 2023, with the pandemic's acute mortality effect receding, ischaemic heart disease had returned to the top position (16.1%), followed by pneumonia (13.3%), cerebrovascular disease (7.2%), and COVID-19 infection (4.2%) — illustrating that once the acute pandemic mortality shock passed, Malaysia's underlying NCD mortality pattern (dominated by ischaemic heart disease) reasserted itself. The lecture frames this using a "4×4" mnemonic: 4 leading NCDs (ischaemic heart disease, cerebrovascular disease, chronic respiratory disease, cancer) driven substantially by 4 shared modifiable risk factors (smoking, alcohol, unhealthy diet, physical inactivity).</p>
+<p>The lecture also directly engages with a live methodological debate: whether NCD mortality was neglected or under-addressed during the COVID-19 pandemic, and whether the disease burden of NCDs actually fell during that period. It cites excess-mortality analysis (using an expected-vs-actual all-cause mortality model) showing Malaysia recorded <em>negative</em> excess mortality (fewer deaths than expected) from March 2020–June 2021 (−19,099), before a large <em>positive</em> excess (+27,013 deaths) during the Delta wave (July–December 2021) — a pattern the lecture links to a public debate (citing a named commentary questioning whether claims of "unprecedented" Malaysian mortality were adequately data-backed) about how excess-mortality figures should be interpreted and whether they should be attributed to COVID-19 itself, to disrupted NCD care, or to both.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Economic and socio-economic burden <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>WHO (2020) estimates cited in the lecture attribute substantial productivity loss to NCDs in Malaysia: loss of productivity due to absenteeism was estimated at RM 2.6 billion and loss of productivity due to presenteeism (reduced on-the-job productivity while unwell) at RM 6.2 billion, in addition to loss of productivity from premature death of working-age people and premature death attributable to specific risk factors. The lecture frames this within a self-reinforcing socio-economic cycle: NCDs cause premature death and reduced productivity, which drive poverty and social disadvantage, which in turn is associated with unhealthy behaviour and limited access to healthcare, which increases NCD risk — closing the loop. The 2030 Agenda for Sustainable Development target cited is a one-third reduction in the probability of death from the four main NCDs between ages 30 and 70 by 2030.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Risk factor framework: modifiable, metabolic, non-modifiable <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The lecture organises NCD risk factors into three overlapping categories: <strong>modifiable through lifestyle change</strong> (tobacco use, physical inactivity, unhealthy diet, harmful alcohol use); <strong>metabolic risk factors modifiable through medical management</strong> (raised blood pressure, hyperglycaemia, overweight/obesity, hyperlipidaemia); and <strong>non-modifiable risk factors</strong> (age, family history, race, sex). Malaysia's 2019 National Health and Morbidity Survey (NHMS) findings cited: roughly two-thirds of the Malaysian population have at least one of three major NCD risk conditions (diabetes, hypertension, or hypercholesterolaemia), more than a quarter have at least two, and almost 10% have all three; specifically, 1.7 million Malaysians live with three major cardiovascular risk factors and 3.4 million with two. The lecture also extends the "5 NCDs" framing beyond the classic four to explicitly include mental health conditions (per a 2018 UN High-Level Meeting), since CVDs, chronic respiratory disease, diabetes, and cancer commonly co-occur with both common mental disorders (depression, anxiety) and severe mental illness (schizophrenia, bipolar disorder); NCD risk factors cluster in people with mental disorders with a plausible multiplicative effect, and comorbidity of physical and mental disorders is associated with greater disability, more unemployment, lower-quality care, and higher medical expenditure — an effect the lecture characterises as synergistic rather than simply additive.</p>
+<p>Air pollution and other environmental exposures are treated as a distinct NCD determinant: exposure causes systemic inflammation, oxidative stress and pro-inflammatory signalling that damage end organs, and pollution-associated lung damage can reduce exercise capacity and thereby indirectly promote obesity. WHO data cited in the lecture attribute nearly two-thirds of the 12.6 million annual deaths caused by "the environment" to NCDs (with stroke, ischaemic heart disease, unintentional injuries, and cancers among the largest single environmentally-attributable causes), and the lecture notes that current burden-of-disease estimates for environmentally-attributable NCDs likely underestimate true impact because of long lag times, multiple concurrent toxic exposures, and methodological difficulty in assessing cumulative exposure.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Global and national action: best buys, 2030 SDG target, NCD Roadmap <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The lecture presents the WHO "NCD best buys" framework — evidence-based, cost-effective public health interventions to prevent and control NCDs, organised around the four main risk factors and diseases: reducing tobacco use (tax/price increases, plain packaging and graphic warnings, advertising bans, smoke-free indoor spaces, mass-media harm campaigns, cessation programmes); reducing harmful alcohol use (excise taxes, advertising restrictions, physical-availability restrictions, drink-driving law enforcement, psychosocial intervention for hazardous/harmful use); promoting a healthy diet (salt-intake reduction via reformulation/labelling/mass media, trans-fat bans, sugar-sweetened beverage taxation); and promoting physical activity (mass-media and community-based campaigns, physical-activity counselling in routine primary care). Disease-specific best buys include glycaemic control, preventive foot care, and diabetic retinopathy screening/laser photocoagulation for diabetes; drug therapy and counselling for high-risk individuals, evidence-based treatment of acute MI and acute ischaemic stroke, and rheumatic-fever/rheumatic-heart-disease prevention via streptococcal pharyngitis treatment for cardiovascular disease; HPV vaccination and cervical screening (Pap smear, HPV test, or visual inspection with acetic acid), breast cancer screening (mammography), and surgery/chemotherapy/radiotherapy/palliative care for cancer; and symptom relief (inhaled salbutamol) and treatment (inhaled beclometasone plus short-acting beta-agonist) for chronic respiratory disease. The lecture cautions that "best buys" are context-dependent: an intervention judged cost-effective in one setting may not be cost-effective in another, so local evaluation of context is essential before adoption ("one size does not fit all").</p>
+<p>At the global policy level, the lecture cites the 2030 Agenda for Sustainable Development target of a one-third reduction in premature NCD mortality, and the WHO NCD Global Action Plan 2013–2030 together with its NCD Roadmap 2023–2030, which sets three strategic directions: accelerating national responses based on understanding of NCD epidemiology, risk factors, and country-specific barriers/enablers; prioritising and scaling up the most impactful and feasible interventions in the national context; and ensuring timely, reliable, sustained national data on NCD risk factors, disease and mortality to drive data-driven action and strengthen accountability. Reported implementation gaps across 194 countries (as of 2020, cited in the lecture) show substantial variation by policy area — national NCD targets, national action plans, and physical-activity mass-media campaigns show relatively high full/partial implementation, while alcohol-sale restrictions, breastmilk-substitute marketing codes, and tobacco/salt taxation show comparatively low full implementation — indicating that fiscal and marketing-restriction measures lag behind awareness-and-planning measures globally. At the national level, Malaysia's own governing documents are the National Strategic Plan for Non-Communicable Disease (NSP-NCD) 2016–2025 and the NCD Malaysia Strategic Plan 2022–2025, alongside barriers to implementation common across countries: lack of political will/leadership/commitment/capacity/action; lack of specific policies and costed plans; difficulty prioritising among competing health programmes with limited resources; countervailing economic/commercial/market forces; insufficient technical/operational capacity and domestic/international financing; and difficulty engaging a highly fragmented, unregulated private sector.</p></div>
+</div>
+</div>
+<div class="section" id="sec2">
+  <div class="page-title">2. NCD Surveillance</div>
+  <div class="page-sub">Source: GKT504 Lecture "NCD Surveillance" — compiled directly from the lecture deck.</div>
+<div id="n2-need"></div>
+<div id="n2-method"></div>
+<div id="n2-my"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Definition and cycle of surveillance</div>
+<p>Following WHO's (Geneva, 2009) definition cited in the lecture, surveillance is the ongoing, systematic collection, analysis and interpretation of health data essential to the planning, implementation and evaluation of public health practice, closely integrated with timely dissemination of that data to those who need it. It provides information on NCD disease burden, at-risk population groups, prevalence estimates of NCD risk factors, and behaviours/determinants, in order to track health outcomes and risk-factor trends over time. The lecture depicts this as a continuous cycle: collection of data → integration of data → analysis and interpretation → surveillance products → dissemination → action → system evaluation → (back to collection), drawing on health facilities (MOH and private), laboratories, established systems, vital statistics and available databases, with timeliness and stakeholder engagement as cross-cutting requirements.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Role of NCD surveillance ("data for action") <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The lecture frames NCD surveillance's core purpose as "data for action," organised into four functions: (1) quantifying disease magnitude — establishing baseline rates, monitoring changes in occurrence, and determining geographic distribution; (2) information advocacy — justifying intervention needs and understanding natural history; (3) forming the basis for evaluating the impact of policy and interventions — evaluating control measures and detecting changes in health practices; and (4) helping to prioritise resources and facilitate planning, while also stimulating research and hypothesis generation.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">WHO Global Monitoring Framework and WHO Stepwise approach <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The WHO Global Monitoring Framework (GMF) for NCD surveillance has three linked domains: monitoring exposure/risk factors (via NHMS, the STEP survey), monitoring of outcomes (via national vital statistics, verbal autopsy), and monitoring healthcare capacity/response, with Universal Health Coverage (UHC) as the key response component spanning detection, screening, treatment, and palliative care.</p>
+<p>Within this framework, the WHO Stepwise Approach to NCD Surveillance organises data collection into three escalating tiers across three domains: for <strong>death</strong> ("the past"), Step 1 is death rate by age and sex, Step 2 adds cause of death via verbal autopsy, and Step 3 uses death-certificate-based cause-specific rates; for <strong>disease</strong> ("the present"), Step 1 is hospital/clinic admission rate by age and sex, Step 2 is rate and principal conditions grouped into communicable/NCD/injury categories, and Step 3 is cause-specific disease incidence and prevalence; for <strong>risk factors</strong> ("the future"), Step 1 is a self-report questionnaire on key risk factors, Step 2 adds physical measurement, and Step 3 adds biochemical measurement. The STEPS instrument itself layers three measurement types (core, expanded core, optional) across the three steps — for example, core Step 1 covers socio-economic/demographic variables, tobacco/alcohol use, physical inactivity and fruit/vegetable intake by questionnaire; core Step 2 covers measured weight, height, waist circumference and blood pressure; and core Step 3 covers fasting blood sugar and total cholesterol.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Types of surveillance and Malaysia's National Health and Morbidity Survey <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The lecture distinguishes passive, active, and sentinel surveillance, and separately distinguishes national population-based surveillance (capturing the health status of the entire population, exemplified in Malaysia by the National Health and Morbidity Survey, NHMS) from specific-group surveillance (disease registries, risk-factor surveys, high-risk-group surveillance such as obstetric/neonatal surveillance, geographic/ethnic-specific surveillance, and occupational surveillance). Malaysian disease registries cited include the National Cancer Registry, National Diabetes Registry, and National Suicide Registry Malaysia — mostly clinician- or disease-society-driven, hospital-based patient registries rather than whole-population systems. Other cited national/global surveillance tools include the STEPS survey, cervical cancer surveillance, physical activity surveys, tobacco surveillance, the Global School-based Student Health Survey, the Global Adult Tobacco Survey, the Global Youth Tobacco Survey (GYTS), and the Global School Health Policies and Practices Survey.</p>
+<p>The National Strategic Plan for NCD (NSP-NCD) 2016–2025's Objective 5 is explicitly "to monitor the trends and determinants of NCDs and evaluate progress in their prevention and control," tracked against WHO global 2025 targets (e.g., projected declines in current tobacco smoking and raised blood pressure, against a projected rise in obesity if trends continue unchecked).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Limitations and barriers specific to Malaysia's NCD surveillance <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The lecture identifies concrete, Malaysia-specific limitations rather than only generic ones. For mortality data (Department of Statistics Malaysia, DoSM): almost half of registered deaths are non-coroner-based, and coroner-based cause of death only applies to suspicious/violent deaths, deaths under the Criminal Procedure Code (Act 593), and deaths under 5 years old — meaning cause-of-death ascertainment for the bulk of adult NCD deaths relies on non-coroner certification of variable quality; a Verbal Autopsy initiative partially addresses this, but is constrained by the socio-cultural preference for rapid burial of the dead, which limits the feasible window for verbal-autopsy data collection. For e-reporting: non-MOH (private) facilities largely still provide only aggregate, manual paper-based data, and integrating electronic medical records (EMR) between MOH and non-MOH facilities remains an unresolved regulatory and technical challenge, with no mandatory data-submission mechanism currently compelling private-sector reporting. For palliative care indicators: the only routinely available proxy is morphine-equivalent consumption of strong opioid analgesics per cancer death, which captures only a narrow slice of palliative need. The lecture also notes that post-pandemic financial capacity for comprehensive electronic health records remains a live constraint.</p>
+<p>Broader barriers spanning data collection, analysis, and dissemination include: identifying adequate data sources and securing willingness/mandatory regulation for private facilities and laboratories to report; the need for standardised variables, socioeconomic/spatial variables (for equity-oriented policy), unique identifiers for record linkage, regularly updated diagnosis algorithms, integrated EMR systems, investment and training, and data security/privacy/confidentiality safeguards; missing variables, invalid denominators, and inadequate/inappropriate variable selection at the analysis stage; and, at the dissemination stage, correctly identifying stakeholders, tailoring information to each stakeholder group, and establishing a working feedback mechanism. More generally, the lecture lists competing priorities for long-term funding, poor recognition of the value of routine NCD surveillance, lack of policy commitment to act on surveillance findings, unsustainable surveillance initiatives, inadequate public health infrastructure, inaccurate cause-of-death coding for chronic disease, limited data availability, weak collaboration from the medical community, and generally low data quality (inconsistent standards, checking procedures, and training of registrars, doctors and coders) as recurring challenges.</p></div>
+</div>
+</div>
+<div class="section" id="sec3">
+  <div class="page-title">3. Metabolic Syndrome, Hypertension, Diabetes & CVD</div>
+  <div class="page-sub">Source: GKT504 Lecture "Prevention & Control of Hypertension, Diabetes, Metabolic Syndrome & Cardiovascular Diseases" — compiled directly from the lecture deck.</div>
+<div id="n3-mets"></div>
+<div id="n3-htdm"></div>
+<div id="n3-cvd"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Metabolic syndrome: concept and criteria</div>
+<p>Metabolic syndrome describes the clustering of cardiovascular risk factors — central adiposity, high blood pressure, high blood sugar (diabetes/pre-diabetes), and dyslipidaemia (hypertriglyceridaemia, low HDL, high non-HDL/hypercholesterolaemia) — that together raise risk of heart and blood-vessel disease beyond what any single factor predicts alone. The concept originates from Gerald Reaven's description of a clustering of cardiovascular risk factors driven by insulin resistance (originally termed "Syndrome X"), in which obesity and hypertension compound cardio-metabolic stress.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Competing diagnostic criteria and why the definition matters <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Multiple diagnostic criteria exist for metabolic syndrome — ATP III, WHO, IDF, EGIR, and AACE — and the lecture stresses that different criteria yield materially different prevalence estimates in the same population, so interpretation and application of any reported MetS prevalence must account for which definition was used. The Joint Interim Statement (JIS) harmonised criteria, using Asian-specific waist-circumference cut-offs (men >90cm, women >80cm), is presented as the internationally accepted compromise. A more recent (2022) alternative proposed by a Polish multi-society group requires the presence of obesity plus two of three criteria (high blood pressure, impaired glucose metabolism, elevated non-HDL/atherogenic dyslipidaemia), and states that any patient diagnosed with metabolic syndrome should at minimum be treated as a high cardiovascular-risk patient; the lecture notes that, to date, the harmonised criteria remain the internationally accepted standard.</p>
+<p>Malaysian prevalence data cited include a 2010 nationwide survey (published in <em>Diabetes Research and Clinical Practice</em>, 2012) and NHMS 2023. A separate Malaysian study on clustering of metabolic syndrome factors found that four components — BMI, fasting blood glucose, systolic/diastolic blood pressure, and fasting triglycerides/HDL-cholesterol — cumulatively explain nearly 70% of metabolic syndrome, information the lecture frames as directly relevant to designing practical community health-screening tools (i.e., which parameters to prioritise for feasible mass screening).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Obesity: evolving definition and management <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Malaysia's Clinical Practice Guidelines on obesity show a shift in how obesity itself is conceptualised: the 1st CPG (2004) described obesity as a complex, multifactorial condition characterised by excess body fat requiring perpetual care and follow-up, while the 2nd CPG (2023) explicitly reclassifies obesity as a disease in its own right — meeting the definition of disease because it decreases life expectancy, impairs normal body function, has characteristic signs/symptoms, increases morbidity, and can be caused by genetic factors — and identifies it as a health threat independently associated with type 2 diabetes, fatty liver disease, cardiovascular disease, obstructive sleep apnoea, stroke, dementia, and cancer.</p>
+<p>Key terminology distinguished in the lecture: anthropometric measurements (height, weight, skinfold and other body-size measures); body composition (ratio of lean body mass to fat mass); abdominal/central/truncal obesity (excess visceral fat concentrated between thorax and pelvis, carrying more health risk than peripheral fat); and morbid obesity (Class III obesity). BMI classification for Asian populations uses lower cut-offs than Western populations because health risk begins to rise at a lower BMI in Asian populations; for children and teenagers (under 18), BMI categories are instead based on sex-specific BMI-for-age percentiles (e.g., using CDC growth charts) rather than fixed cut-offs, since children are still growing and race is not used in the percentile calculation. Obesity management is framed as requiring an integrated, multicomponent approach combining psychological/behavioural therapy, active management of stigmatisation, psychoeducation, treatment of obesity-related medical conditions (hypertension, diabetes, dyslipidaemia), and, where indicated, careful patient selection, dosing and monitoring for anti-obesity medications.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Diabetes mellitus: screening and diagnostic thresholds <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Pre-diabetes is framed as a reversible intermediate stage that can revert to normal blood glucose through healthy lifestyle change. Diagnostic thresholds cited: fasting blood glucose ≥7.0 mmol/L (diabetes) versus 5.6–6.9 mmol/L (impaired fasting glucose/pre-diabetes); 2-hour OGTT ≥11.0 mmol/L (diabetes) versus 7.8–11.1 mmol/L (impaired glucose tolerance); and HbA1c ≥6.3% used as a diagnostic threshold since the 5th CPG (2015) formally introduced HbA1c as a stand-alone diagnostic tool (superseding the 4th CPG's, 2009, four screening categories of asymptomatic adults, symptomatic individuals, pregnant women, and children/adolescents, though these categories are still used to define who should be screened and how).</p>
+<p>Detailed screening criteria are specified by group: asymptomatic adults are screened from age 30 if overweight (BMI >23 kg/m²) or with waist circumference ≥80cm (women)/≥90cm (men) plus any of: dyslipidaemia, history of cardiovascular disease, hypertension, prior impaired glucose tolerance/fasting glucose, first-degree relative with diabetes, other insulin-resistance-associated conditions (e.g., acanthosis nigricans), physical inactivity, polycystic ovarian syndrome, or use of antiretroviral/atypical antipsychotic medication. Children and adolescents are screened if overweight (BMI >85th percentile, or weight >120% of ideal) plus two of: family history of type 2 diabetes, maternal gestational diabetes, Indian ethnicity, or signs of insulin resistance — screened every two years from age 10 or onset of puberty if earlier. Pregnant women are screened if BMI >27 kg/m², prior macrosomic baby (≥4kg), prior gestational diabetes, first-degree relative with diabetes, poor obstetric history, glycosuria at first prenatal visit, current obstetric complications, or age over 25. The standard OGTT uses a 100g glucose load over 2–3 hours, while the modified OGTT (MOGTT) used for pregnancy screening uses a smaller 75g load over a shorter 1–2 hour window.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Hypertension: pre-hypertension concept and evolving guideline thresholds <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Hypertension is clinically defined as persistent systolic BP ≥140mmHg and/or diastolic BP ≥90mmHg, confirmed on at least two separate occasions, with a stated preference for validated electronic BP devices over mercury sphygmomanometers. The concept of "pre-hypertension" was first introduced by the American Society of Hypertension's JNC 7 (2003) guideline, based on the rationale that excess cardiovascular risk exists even at BP levels previously considered "normal" or "high-normal," warranting earlier preventive attention. Pre-hypertension is more prevalent than hypertension itself, commonly clusters with other cardiovascular risk factors (dyslipidaemia, dysglycaemia, overweight/obesity), and progresses to hypertension at roughly 19% over 4 years depending on baseline BP and age; it carries an independently increased cardiovascular risk (relative risk 1.32, 95% CI 1.05–1.65) versus normotensive individuals, mediated through subclinical atherosclerosis, increased carotid/brachial intima-media thickness, elevated inflammatory markers (CRP, TNF-α), elevated homocysteine and oxidised LDL, and microalbuminuria.</p>
+<p>Malaysia's Clinical Practice Guideline definitions evolved between the 4th edition (2013) and 5th edition (2018): both retain the same clinical hypertension threshold (systolic ≥140 or diastolic ≥90mmHg on repeated measurement), but the "at-risk" category shifted from "prehypertension" (systolic 120–139 or diastolic 80–89mmHg, managed with Therapeutic Lifestyle Changes targeting cholesterol/heart health) in the 2013 edition to "at-risk blood pressure" (systolic 120–139 or diastolic 85–89mmHg, managed with a broader "Healthy Living" lifestyle approach) in the 2018 edition — a change in both the diastolic cut-point and the framing of the recommended intervention. The lecture notes that pharmacological agents may delay progression of pre-hypertension to hypertension but have not been shown to alter or prevent that progression (citing a lack of supporting evidence), so global cardiovascular risk assessment (e.g., using the Framingham Heart Study multivariate risk algorithm or the Framingham General Cardiovascular Risk Chart with locally adapted risk-stratification tables) is used to decide whether pharmacological treatment should be added to lifestyle change — recommended when 10-year risk is medium (10–20%) or high (>20%).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Cardiovascular disease: terminology and Malaysia's ACS registry <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The lecture distinguishes disorders of the heart from disorders of blood vessels. Coronary heart disease (CHD) is disease of the blood vessels supplying the heart muscle (also called coronary artery disease, CAD); cerebrovascular disease affects vessels supplying the brain (manifesting as stroke/CVA); and peripheral arterial disease affects vessels supplying the limbs. Other cardiac disorders include rheumatic heart disease (valve/muscle damage following streptococcal rheumatic fever), congenital heart disease, and deep vein thrombosis/pulmonary embolism. Acute coronary syndrome (ACS) is explicitly distinguished from CAD and CHD: CAD refers to the underlying atherosclerotic pathological process (which can be asymptomatic), CHD is the resulting clinical disease (angina, MI, silent ischaemia), and ACS is a symptomatic subcategory — presenting as unstable angina, NSTEMI or STEMI — with the classification of "unstable angina" versus "MI" substantially revised following the development of sensitive cardiac troponin immunoassays.</p>
+<p>Malaysia's National Cardiovascular Disease – Acute Coronary Syndrome (NCVD-ACS) Registry reported, for 2014–2015 (n=17,771 ACS admissions): STEMI 46.1%, NSTEMI 25.2%, and unstable angina 28.7% of presentations; patients presenting with ACS were notably young, with a significant proportion under age 50 (over a quarter of Malay and Indian patients presenting below age 50), a high prevalence of hypertension/dyslipidaemia/diabetes among them, yet nearly 40% had never smoked and over 70% had no family history of premature cardiovascular disease — a pattern the lecture frames as raising an open question of whether younger-onset ACS reflects genuinely rising risk-factor prevalence in younger cohorts, or greater awareness/screening detecting disease earlier. The registry's stated objectives are to critically appraise evidence on primary/secondary CVD prevention strategies, educate healthcare workers on cardiovascular risk assessment/stratification in the local population, and recommend preventive action at individual, community, and governmental levels. Available screening/prevention tools referenced include the Framingham risk score and the American Heart Association's "Life's Simple 7"/"Life's Essential 8" cardiovascular health metrics.</p></div>
+</div>
+</div>
+<div class="section" id="sec4">
+  <div class="page-title">4. Cancer Prevention & Control</div>
+  <div class="page-sub">Source: GKT504 Lecture "Prevention & Control of Cancer" — compiled directly from the lecture deck.</div>
+<div id="n4-epi"></div>
+<div id="n4-screen"></div>
+<div id="n4-ctrl"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📄</span> Global and Malaysian cancer epidemiology</div>
+<p>Cancer was the leading cause of death worldwide in the lecture's cited framing, causing nearly 10 million deaths in 2020 (nearly one in six deaths globally) and ranking as the second leading cause of death worldwide in 2019; approximately 400,000 children develop cancer each year globally. The most common cancers vary by country — breast, lung, colorectal and prostate cancers are most common overall, while cervical cancer is the most common cancer in 23 countries (reflecting persistent gaps in HPV vaccination and screening coverage in those settings). By mortality, lung, liver and stomach cancers are the most deadly; lung cancer is the leading cancer-related cause of death in men and breast cancer in women. Prognosis varies sharply by cancer type: prostate and thyroid cancers have close to 100% five-year survival, while oesophageal, liver and pancreatic cancers have under 20% five-year survival — a spread the lecture uses to argue that "cancer" is not a single disease with a single prognosis, and that prevention/control priorities should be tailored by cancer type rather than treated uniformly.</p>
+<p>In Malaysia, the most common cancers are breast, colorectal, lung, nasopharyngeal (NPC), and liver cancer, with breast, colorectal and lung cancers together making up about half of all cancer cases; breast and cervical cancer are the leading causes of cancer death among Malaysian women specifically.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Causality and risk factors <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Around one-third of cancer deaths are attributable to five behavioural/metabolic risk factors: tobacco use, high BMI, alcohol consumption, unhealthy diet (low fruit and vegetable intake), and physical inactivity. In low- and lower-middle-income countries specifically, cancer-causing infections (HPV, hepatitis) contribute to roughly 30% of cancer cases — a materially larger infection-attributable share than in high-income settings, reflecting lower vaccination/screening/antiviral treatment coverage. Cancer more broadly results from interaction between a person's genetic factors and external carcinogens, categorised as physical carcinogens (ultraviolet and ionising radiation), chemical carcinogens (asbestos, tobacco smoke components, alcohol, aflatoxin, arsenic), and biological carcinogens (oncogenic viruses, bacteria, or parasites).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Prevention and control framework <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The lecture frames a 30–50% reduction in cancer burden as achievable through four combined actions: avoiding/eliminating risk factors, early detection (improving chances of cure), appropriate treatment (improving chances of cure), and care of patients who develop cancer (including palliative care) — matching the earlier "screen, detect, treat" NCD management framework to cancer specifically, with early detection and effective infection treatment/vaccination (e.g., HPV vaccination for cervical cancer, hepatitis B vaccination/treatment for liver cancer) cited as concrete high-yield interventions.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Cancer registry and national screening programmes (Malaysia) <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Malaysia's cancer registry is explicitly <strong>not</strong> a notifiable disease under statute; data collection instead relies on voluntary/passive notification by medical personnel and healthcare facilities, supplemented by active case-finding from multiple sources — pathology reports, hospital discharge data, mortality registry data, and hospital-based registries. This is a structurally different (and inherently less complete) surveillance mechanism than statutorily notifiable diseases covered elsewhere in the MPH programme (e.g., dengue, TB, HIV), a distinction directly relevant to any dissertation using Malaysian cancer registry data as an outcome measure. Malaysia's national screening programmes cover breast cancer, colorectal cancer, prostate cancer, and cervical cancer, each with its own method, accuracy profile, eligibility criteria, and implementation issues/challenges that the lecture flags as requiring topic-specific discussion beyond the general framework given here.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Stigma, misperception, and clinical advances <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The lecture lists specific misperceptions that drive stigma and delayed care-seeking in Malaysia: that a cancer diagnosis inevitably means death; that cancer is a disease of the elderly only; that cancer is self-inflicted/"deserved" due to bad behaviour; that surgery spreads cancer cells; that absence of family history means no risk, or conversely that family history guarantees disease; and that everyday exposures such as mobile phones or herbal products cause cancer. These misperceptions interact with real structural barriers — low cancer awareness/knowledge of symptoms, low screening uptake, delays in care-seeking and diagnosis, inadequate access to quality (including palliative) care, an "infodemic" of uncontrolled social-media promotion of alternative/unproven therapies leading to refusal or delay of standard treatment, and patient-level fears (disability, treatment cost/side effects, societal stigma, altered body image) — to produce later-stage presentation and worse prognosis. The lecture also distinguishes palliative care (specialised care to improve quality of life for people with serious illness, which can begin at diagnosis alongside active treatment) from hospice care (focused specifically on comfort, not cure, typically for those with a prognosis of six months or less); both are approaches to care rather than physical locations, and both centre on patients' emotional, spiritual and practical care goals. On the treatment side, the lecture notes recent clinical advances including new chemotherapy regimens, targeted therapy, widespread genetic-mutation testing, earlier disease detection, immunotherapy integration, and reconstructive surgery.</p></div>
+</div>
+<div class="callout callout-red"><strong>Core issue:</strong> Malaysia's cancer surveillance rests on voluntary/passive notification rather than a statutory mandate, unlike most other conditions in this course — a structural weakness worth flagging explicitly if cancer registry data underpin a dissertation's outcome measure. Separately, the persistence of specific, nameable misperceptions (surgery spreads cancer, family history determinism in both directions) suggests targeted myth-correction health communication may be a higher-yield intervention than generic awareness campaigns.</div>
+</div>
+<div class="section" id="sec5">
+  <div class="page-title">5. Tobacco & Substance Use Control</div>
+  <div class="page-sub">Source: GKT504 Lecture "Prevention & Control of Tobacco Product Use"; GKT504 Course Notes — "Substance Abuse and Addiction" lesson plan (lecturer attribution omitted); MOH Malaysia "Garis Panduan Pengendalian Penyalahgunaan Amphetamine Type Stimulant (ATS) dan Psikostimulant Lain di Peringkat Primer dan Komuniti" (2013); National Anti-Drugs Agency (AADK) national drug-abuse statistics, 2018–2024 (provisional).</div>
+<div id="n5-tob"></div>
+<div id="n5-sub"></div>
+<div id="n5-tx"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📑</span> Definition of smoker and tobacco products</div>
+<p>Smoking is defined as the behaviour of inhaling into the lungs any tobacco product containing nicotine as its active ingredient. Tobacco products fall into two types: <strong>smoked tobacco</strong> (manufactured and hand-rolled cigarettes, kreteks, pipes, curut, cigars, cigarillos, water pipes/shisha/hookah, bidis) and <strong>smokeless tobacco</strong> (snuff held in mouth/nose, chewing tobacco, betel quid with tobacco, and — per a 2016 TECMA classification cited in the lecture — electronic cigarettes and similar devices). The lecture poses this as an open definitional question worth interrogating: are vape, e-cigarette, shisha and hookah users properly classified as "smokers"? Malaysian legal definition (Regulation 11, Control of Tobacco Product Regulations 2004) resolves this operationally by defining "smoking" as "inhaling and expelling the smoke or vapour of any tobacco product, and includes the holding of or control over any ignited, heated, or vaporized tobacco product" — meaning Malaysia's no-smoking-area bans extend to vaping and shisha use unless the product genuinely contains no nicotine.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Smoking status classification (NHMS vs CDC NHIS) <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Two parallel classification systems are compared in the lecture. The CDC's National Health Interview Survey (NHIS) framework distinguishes current smokers (further split into current/daily and occasional smokers), ex/former smokers, and non/never smokers, alongside separate categories for environmental tobacco smoke exposure and smokeless tobacco use status. Malaysia's NHMS uses parallel but not identical terminology: "current/occasional smoker," "former daily smoker," and "never daily smoker" — a subtle but consequential difference (e.g., defining a "former" smoker specifically against a "daily" smoking history) that the lecture flags as relevant when comparing Malaysian smoking-prevalence figures directly against CDC-reported or other countries' figures, since differently defined categories are not strictly comparable.</p>
+<p>The lecture also distinguishes three exposure pathways by hand: <strong>firsthand/active smoking</strong> (direct inhalation by the smoker); <strong>secondhand/passive smoking</strong> (inhalation of exhaled/sidestream smoke by bystanders); and <strong>thirdhand smoke</strong> (residual particles and chemicals deposited on surfaces, clothing, and dust after smoking has stopped, posing ongoing exposure risk particularly to infants and young children in the same household).</p></div>
+</div>
+<div class="callout callout-orange"><p>Tobacco use is highly addictive and a major risk factor for cardiovascular and respiratory disease, over 20 different cancer types/subtypes, and many other debilitating conditions. It also contributes to poverty by diverting household spending away from basic needs — a burden compounded because addictive spending behaviour is difficult to curb, and because premature death/disability of productive-age household members reduces household income while simultaneously increasing healthcare costs.</p></div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Dual use and product design as public health concerns <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>"Dual use" refers to using e-cigarettes, smokeless tobacco or other tobacco products in addition to regular cigarettes rather than as a replacement. The lecture states there is no scientific proof that electronic nicotine delivery systems (ENDS) or electronic non-nicotine delivery systems (ENND) actually help people reduce or quit smoking, nor that they carry meaningfully lower nicotine-related hazard — despite this, dual use is a growing/"trending" pattern. Flavoured tobacco and vape products (candy, fruit and dessert flavours marketed with imagery resembling confectionery) are specifically highlighted as a product-design strategy that increases appeal to young adults, children, and — via sweeter flavour profiles — women and girls, a pattern the lecture frames as deliberately masking the product's tobacco/nicotine content so that a user "may not even realise" they are becoming addicted, and that may also function as a gateway to other forms of addiction. A related social-norms observation is that smaller, discreet smoking apparatus and flavoured scent have reduced the historical social stigma against female smokers ("feminisation" of smoking apparatus).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Policy framework: WHO FCTC, MPOWER, and Malaysian legislation <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The WHO Framework Convention on Tobacco Control (FCTC) is implemented operationally through the MPOWER strategy: <strong>M</strong>onitor tobacco use and prevention policies; <strong>P</strong>rotect people from tobacco smoke; <strong>O</strong>ffer help to quit tobacco use; <strong>W</strong>arn about the dangers of tobacco; <strong>E</strong>nforce bans on tobacco advertising, promotion and sponsorship; and <strong>R</strong>aise taxes on tobacco. Malaysia's own governing documents cited are the National Strategic Plan for the Control of Tobacco & Smoking Products 2021–2030 (MOH Malaysia) and the Control of Smoking Products for Public Health Act 2024, alongside the older Control of Tobacco Product Regulations 2004; the lecture poses as a discussion task how these newer Malaysian instruments relate back to the WHO FCTC framework. Enforcement currently spans multiple statutes — tobacco product regulation historically sits partly under the Food Act 1983, with additional oversight under chemical/pharmaceutical authorisation law — and the lecture flags this fragmented legislative basis (rather than a single dedicated tobacco-control act with full enforcement powers) as a structural weakness, compounded by the fact that framing tobacco regulation partly as a food/drug matter can dilute focus, since pharmacists and food regulators are not necessarily incentivised to prioritise tobacco control specifically.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Global structural issues: farming, manufacturing, marketing, and the industry <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Tobacco farming carries direct health hazards for farmers, environmental degradation (including deforestation), and child-labour concerns, and is concentrated in low-income countries; the tobacco industry has been observed to invoke smallholder farmer livelihoods as an argument against tobacco-control measures, framing control policy as an economic/agricultural threat. Kenaf (and more broadly hemp-family crops) is discussed as a potential alternative cash crop to displace tobacco farming, though the lecture poses open questions about why such alternatives remain unpopular, what farmer acceptance looks like, and who would need to drive the transition.</p>
+<p>On the manufacturing side, industry strategies to make products more attractive include added flavours (with menthol banning cited as a specific control lever, since menthol is believed to facilitate smoking initiation and hinder quitting), varying modes of use, and additives that speed nicotine absorption; counter-strategies include banning characterising flavours, capping nicotine content, and "freezing" the tobacco market by blocking new brand introductions, restricting each brand to a single presentation (preventing implied "reduced harm" variants), and mandating ingredient disclosure to regulators and consumers. On marketing, industry strategy is framed as building demand particularly among new/young consumers, countered by advertising bans intended to shield children, youth, and adult role models from persuasion to smoke. More broadly, the industry is described as using attractive packaging and "corporate social responsibility" campaigns to present itself as a positive societal contributor, and as reallocating marketing spend toward less-regulated channels (direct mail, internet, point-of-sale, package branding, discounting) whenever conventional channels (magazine, billboard advertising) are restricted.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Malaysia-specific religious framing and cessation-service challenges <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>A 1995 fatwa (37th Muzakarah of the National Fatwa Committee for Islamic Religious Affairs Malaysia) ruled that smoking is haram ("Merokok Adalah Haram") from an Islamic perspective, on the basis that it causes harm (mudharat), citing Qur'anic verse Al-Baqarah 195 ("do not throw yourselves into destruction") and hadith principles against causing harm to oneself or others (narrated by Ahmad and Ibn Majah). The lecture notes this religious framing alongside survey evidence that most smokers, both globally and nationally, are aware smoking harms their health and would like to quit but find it difficult to do so — motivating Malaysia's smoking-cessation infrastructure (e.g., the Infoline Berhenti Merokok quitline). Remaining challenges specific to Malaysia's control programme include: sustaining political will to prioritise the programme, to support alternative-crop (Kenaf) initiatives at a market value attractive enough to shift farmers away from tobacco, and to strengthen enforcement legislation; the growing availability of tobacco/nicotine products and home-made-nicotine information via internet and online sale channels, which existing legislation struggles to reach; and low uptake of smoking-cessation services, addressed partly through an "opportunistic approach" of offering cessation support to smokers who present at healthcare facilities for unrelated health services rather than waiting for smokers to self-refer.</p></div>
+</div>
+<div class="callout callout-red"><strong>Core issue:</strong> Tobacco control in Malaysia sits across multiple overlapping and imperfectly harmonised legal instruments (Food Act 1983-era tobacco regulation, Control of Tobacco Product Regulations 2004, National Strategic Plan 2021–2030, and the newer Control of Smoking Products for Public Health Act 2024) — a fragmented legislative history worth mapping explicitly in any dissertation evaluating enforcement gaps. The definitional question of whether vapes/e-cigarettes/shisha count as "tobacco products" is not merely academic: it determines which legal instrument, if any, actually regulates a given product, and Malaysia's current answer (products are covered if they involve inhaling/expelling smoke or vapour "of any tobacco product," regardless of ignition method) is a comparatively broad interpretation relative to some other jurisdictions.</div>
+<div class="card">
+<div class="card-title"><span class="icon">💊</span> Substance Abuse and Addiction: core concepts</div>
+<p>The GKT504 lesson on this topic requires students to differentiate <strong>abuse</strong> (harmful or hazardous use of a psychoactive substance), <strong>dependence</strong> (a cluster of physiological, behavioural and cognitive phenomena in which substance use takes on a much higher priority for the individual than other behaviours that once had greater value), and <strong>tolerance</strong> (a state of adaptation in which repeated exposure to a substance induces changes that result in diminished effect over time, requiring escalating doses to achieve the same effect) — alongside describing the burden of substance abuse, current Malaysian policy/programmes, and the issues/challenges in prevention and control. The designated reading is MOH Malaysia's 2013 guideline for managing Amphetamine-Type Stimulant (ATS) and other psychostimulant abuse at the primary-care and community level.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Amphetamine-Type Stimulants (ATS): what they are <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Amphetamine is a synthetic drug classified as a stimulant — a substance that excites the central nervous system and increases physical activity. Related psychostimulants covered by the guideline include methamphetamine ("Syabu"/ice), MDMA/ecstasy, ketamine, dextromethorphan (DXM), phencyclidine (PCP), and cocaine, as well as prescription stimulants subject to misuse (Ritalin/methylphenidate, Duromine/phentermine, Tenuate/diethylpropion, dexamphetamine). Amphetamine and methamphetamine both disrupt dopamine metabolism/reuptake and increase noradrenaline and serotonin release, producing more central than peripheral stimulation, with methamphetamine differing structurally by an added methyl group. In Malaysia, the drug-abuse landscape shifted historically from opiates toward psychostimulants, with methamphetamine first detected in Sabah in the 1990s and increasing steadily thereafter; entertainment-venue recreational use of "Yaba," ice, methamphetamine and ecstasy was identified as a major driver.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Patterns of use and effects <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The guideline classifies use patterns as experimental (curiosity/peer-driven, typically brief, late adolescence/early adulthood), recreational (social-context use, perceived low-harm, often weekend/event-linked), circumstantial (task-driven, e.g. long-distance drivers or students cramming for exams), binge use (episodic, high-quantity use over 2–10 days), regular use (frequent use associated with psychological and physical dependence syndrome, disrupting daily function), and polydrug use (combining ATS with alcohol, benzodiazepines or opioids to potentiate or offset side effects). Effects are dose- and duration-dependent: low-dose effects include sweating, palpitations, chest pain, headache, appetite suppression, hypertension and euphoria; high-dose effects include intoxication, seizure, vomiting and intracranial haemorrhage/death; short-term effects include dehydration, tachyarrhythmia, hyperthermia and overdose; and long-term effects include dependence/addiction, malnutrition, sleep disturbance, and elevated cardiovascular risk including fatal arrhythmia, myocardial infarction or stroke.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🇲🇾</span> Burden of substance abuse in Malaysia (AADK national statistics, 2018–2024)</div>
+<p>National Anti-Drugs Agency (AADK) data (compiled from PDRM, AADK, MOH and PPDP sources) show the number of registered drug abusers/addicts in Malaysia fluctuating without a clear sustained decline: 130,788 (2018) → 142,199 (2019) → 128,325 (2020, likely reflecting pandemic-related case detection disruption) → 123,139 (2021) → 137,176 (2022) → 145,526 (2023) → a provisional 169,691 (2024), corresponding to a national rate rising from 404 to 498 per 100,000 population over the same period. The burden is heavily concentrated among males (about 96% of cases in most years), the Malay ethnic group (roughly 76% of cases in 2024), and young adults aged 19–39 ("belia," consistently the largest age category, e.g. 98,977 of 169,691 cases in 2024) — though the "dewasa" (≥40 years) category has been rising sharply in relative and absolute terms (34,987 in 2018 to 69,937 in 2024), suggesting an ageing cohort of long-term users alongside continued new uptake among youth. State-level rates per 100,000 population are consistently highest in Kelantan, Terengganu, Perlis and Pahang, and lowest in Sabah, Selangor and Sarawak — a geographic pattern worth relating to the socioeconomic and rural/urban gradients discussed elsewhere in this module.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">ASSIST screening and primary-care intervention pathway <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>WHO developed the Alcohol, Smoking and Substance Involvement Screening Test (ASSIST) in 2010 as a validated screening instrument suited to primary-care settings, adopted by Malaysia's 2013 guideline as the standard tool. The Malaysian ASSIST v3.1 form comprises 8 questions covering lifetime and past-3-month experience with amphetamines, alcohol, tobacco and other substances (medication used strictly as prescribed by a doctor is excluded unless used for a non-prescribed purpose); scores from questions 2–7 are summed per substance to generate a risk-band score. Intervention is then risk-stratified: score 0–3 (except alcohol 0–10) = low risk → feedback card plus education and harm-reduction advice; score 4–26 (except alcohol 11–26) = moderate risk → brief intervention plus the Matrix Model structured programme; score ≥27 = high risk → brief intervention, Matrix Model, and specialist referral. A supplementary injection-risk-pattern assessment further triages patients who inject drugs into brief intervention (injecting ≤4 days/month over the past 3 months) versus more intensive referral and treatment (injecting >4 days/month) — this ASSIST-based, primary-care-anchored, harm-reduction-oriented model was itself informed by Malaysia's prior experience that heroin-dependent patients preferred community-based rehabilitation with opioid substitution therapy over institutional treatment.</p></div>
+</div>
+</div>
+<div class="section" id="sec6">
+  <div class="page-title">6. Mental Health, Road Traffic Injury & Traditional & Complementary Medicine</div>
+  <div class="page-sub">Source: GKT504 course class notes "Mental Health, RTA and TCM" — compiled directly from the notes document.</div>
+<div id="n6-mh"></div>
+<div id="n6-rta"></div>
+<div id="n6-tcm"></div>
+<div class="card">
+<div class="card-title"><span class="icon">📘</span> Mental health vs. psychiatric illness</div>
+<p>The course notes draw an explicit distinction: <strong>mental health</strong> (WHO) is a state of mental well-being that enables people to cope with the stresses of life, realise their abilities, learn well and work well, and contribute to their community — i.e., a positive state, not merely the absence of illness. <strong>Psychiatric illness</strong>, by contrast, is any mental illness that has impacted function — i.e., a pathological state. This distinction matters for prevention and control framing: interventions to promote mental health (the positive state) are broader than, and not simply the inverse of, interventions to treat psychiatric illness.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">WHO and Malaysian (KKM) mental health policy <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>WHO's mental health policy is built around four objectives that inform national action plans: strengthening effective leadership and governance for mental health; providing comprehensive, integrated and responsive mental health and social care services in community-based settings; implementing promotion and prevention strategies in mental health; and strengthening information systems, evidence and research for mental health.</p>
+<p>Malaysia's KKM (Ministry of Health) mental health policy is explicitly aligned with the WHO framework, adapted to national needs, and organised around eight strategies: (1) enhancing governance and regulatory framework; (2) strengthening mental health surveillance systems; (3) ensuring availability and accessibility of comprehensive, quality mental health services; (4) strengthening mental health resources; (5) enhancing and nurturing intra- and inter-sectoral collaboration; (6) promoting mental health and wellbeing across all settings and target groups; (7) strengthening mental health preparedness and services during emergencies, crises and disasters; and (8) addressing suicide and suicidal behaviour specifically. The notes highlight a structural shift in care delivery: psychiatric illness management has moved toward community-based treatment, intended to better integrate patients into society and normalise the condition rather than confining care to institutional settings.</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Mental health during crisis, and challenges to promoting wellbeing <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>During a crisis (an acute traumatic situation such as a natural disaster, flooding, or a pandemic like COVID-19), mental health is affected by the overwhelming nature of the experience itself; the notes specifically identify <strong>psychological first aid</strong> as the relevant response framework in these acute settings, distinct from longer-term psychiatric treatment. Persistent challenges to promoting mental wellbeing identified include: stigma and discrimination (in society and in employment settings specifically); inadequate numbers of trained mental health professionals; cultural and ethnic beliefs that shape how mental illness is understood; and, arising from those beliefs, reliance on traditional healers or traditional medicine as a first or sole recourse rather than, or before, conventional psychiatric care — directly linking the mental health topic to the TCM topic covered later in this section.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🚗</span> Road traffic accidents (RTA): governing documents and the Safe System Approach</div>
+<p>Key reference documents identified in the notes include the WHO World Report on Road Traffic Injury Prevention (2004) — described as the foundational document that gave rise to the Safe System Approach — the WHO Global Status Report on Road Safety (2018), the WHO overview of injury prevention, and the Malaysia Road Safety Plan 2020.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Global and Malaysian RTA policy: matching frameworks <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The WHO/UN Global Plan for the Decade of Action for Road Safety 2021–2030 is organised around five pillars: multimodal transport and land-use planning; safe road infrastructure; vehicle safety; safe road use; and post-crash response. Malaysia's Road Safety Plan 2020, built on the same underlying Safe System Approach, translates this into ten national strategies: responsive governance; effective monitoring and evaluation; safer motorcycle riding; speed management; safer work-related journeys; safer journeys for high-risk groups; safer infrastructure; safer vehicles; safer micromobility; and post-crash management — a considerably more granular breakdown than the WHO's five pillars, reflecting Malaysia's specific road-safety risk profile (notably its high proportion of motorcycle-related fatalities, addressed via a dedicated "safer motorcycle riding" strategy not explicit in the WHO framework).</p></div>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">RTA risk factors and control challenges <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>Risk factors identified span individual, behavioural, infrastructural and governance domains: socioeconomic status, age, and sex (demographic risk factors); speeding, driving under the influence of alcohol or drugs, non-use of safety equipment (helmets, seatbelts, child seats), and distracted driving (behavioural risk factors); unsafe road infrastructure and unsafe vehicles (environmental/engineering risk factors); and inadequate post-crash care and inadequate enforcement of traffic laws (health-system and governance risk factors). The notes frame attitude and behaviour, and governance capacity (financing and law enforcement specifically), as cross-cutting challenges that any single-pillar intervention (e.g., infrastructure improvement alone) cannot fully address without also being matched by enforcement and behaviour-change efforts.</p></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🏺</span> Traditional & Complementary Medicine (TCM): definitions</div>
+<p>Per Malaysia's national TCM policy document, <strong>traditional medicine</strong> is "the sum total of knowledge, skills and practices on holistic healthcare, which is recognised and accepted by the community for its role in the maintenance of health and the treatment of diseases," based on theory, beliefs and experience indigenous to different cultures and handed down across generations. <strong>Complementary medicine</strong>, in practice, refers to a wide range of health interventions originating from different cultures across thousands of years of history. Combined, <strong>Traditional and Complementary Medicine (T/CM)</strong> is legally defined in Malaysia as practice other than the practice of medicine or surgery by registered medical practitioners under the Medical Act 1971 — a definition that draws the regulatory boundary by exclusion rather than by listing every included practice. WHO's definition of complementary/alternative medicine describes a broad set of health-care practices that are not part of a given country's own tradition or conventional medicine and are not fully integrated into the dominant health-care system — used interchangeably with "traditional medicine" in some countries, which the Malaysian definition deliberately avoids by treating "traditional" and "complementary" as related but distinct categories. Herbal medicines specifically are defined as herbs, herbal materials, herbal preparations and finished herbal products containing plant parts or other plant materials as active ingredients.</p>
+</div>
+<div class="accordion">
+<div class="accordion-head" onclick="toggleAcc(this)">Types of TCM practice <span class="acc-icon">▼</span></div>
+<div class="accordion-body"><p>The notes organise TCM practices into five broad categories: (1) <em>traditional/alternative systems</em> — acupuncture, Ayurveda, homeopathy, naturopathy, and Chinese/Oriental medicine, among the more mainstream and widely accepted forms globally; (2) <em>body-based therapies</em> — chiropractic and osteopathic medicine, massage, body-movement therapies, tai chi, and yoga, based on the premise that manual manipulation of one body area can support healing elsewhere; (3) <em>diet and herbal approaches</em> — dietary supplements, herbal medicine, and nutrition/diet-based interventions, framed as attempts to correct nutritional excess or deficiency associated with modern chronic disease; (4) <em>external energy therapies</em> — electromagnetic therapy, Reiki, and Qigong, based on the belief that external energies directly affect health; and (5) <em>mind- and sense-based therapies</em> — meditation, biofeedback, and hypnosis (mind-based), and art/dance/music therapy and visualisation/guided imagery (sense-based), reflecting even conventional medicine's recognition of the mind-body connection in healing.</p></div>
+</div>
+<div class="callout callout-purple"><strong>Core issue:</strong> The notes flag specific, actionable issues in TCM's relationship to NCD prevention and control rather than only a general caution: regulatory gaps covering both TCM products and practitioners; the risk of patients relying solely on TCM to the exclusion of conventional treatment for NCDs (directly relevant given this section's placement within an NCD module, where evidence-based treatment of conditions like diabetes/hypertension/cancer has established best-buy interventions); the practical challenge of integrating TCM into the mainstream health system; and the state of formal education/training standards for TCM practitioners. This directly connects back to the mental health section's finding that cultural/ethnic beliefs can lead patients toward traditional healers as a first or sole recourse — the same integration and regulatory questions apply across both topics.</div>
+</div>
+<div class="section" id="sec-pyq">
+  <div class="page-title">📝 Sample Questions (with model answers)</div>
+  <div class="page-sub">Practice questions in the style of GKT 504 past-year papers</div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q1</span>
+<span class="q-topic">NCD Surveillance & Prevention</span>
+<span class="q-marks">15 marks</span>
+</div>
+<div class="q-stem">Explain the importance of NCD surveillance and describe the WHO STEPwise (STEPS) approach. Give one example of a modifiable risk factor monitored.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 15 marks: importance 5; STEPS 7; example 3</div>
+<div class="ans-section"><div class="ans-section-title">Answer — Importance</div><p>NCD surveillance <strong>quantifies burden</strong>, tracks risk-factor trends, identifies priorities, and evaluates interventions. Without routine data, planning is guesswork and progress cannot be measured.</p></div><div class="ans-section"><div class="ans-section-title">Answer — STEPS</div><p>WHO STEPS is a <strong>sequential, standardised</strong> risk-factor surveillance instrument: <strong>Step 1</strong> questionnaire (behavioural — tobacco, alcohol, diet, physical activity); <strong>Step 2</strong> physical measurements (blood pressure, height, weight, waist); <strong>Step 3</strong> biochemical measures (glucose, cholesterol). It enables cross-country comparability.</p></div><div class="ans-section"><div class="ans-section-title">Answer — Example</div><p>Current tobacco use is a core modifiable risk factor captured in Step 1 and linked to CVD, cancer and respiratory disease.</p></div>
+</div>
+</div>
+<div class="q-item">
+<div class="q-head">
+<span class="q-num">Q2</span>
+<span class="q-topic">Cancer Screening & Tobacco Control</span>
+<span class="q-marks">20 marks</span>
+</div>
+<div class="q-stem">Contrast primary and secondary prevention of NCDs using cancer as an example. Explain how the WHO Framework Convention on Tobacco Control (FCTC) supports primary prevention.</div>
+<button class="q-ans-toggle" onclick="toggleAns(this)">▶ Show Model Answer</button>
+<div class="q-answer">
+<div class="marks-guide"><strong>Marks guide:</strong> 20 marks: primary vs secondary 8; cancer examples 6; FCTC 6</div>
+<div class="ans-section"><div class="ans-section-title">Answer — Primary vs secondary</div><p><strong>Primary prevention</strong> averts disease onset (e.g., tobacco control, HPV vaccination to prevent cervical cancer). <strong>Secondary prevention</strong> detects disease early when treatable (e.g., mammography for breast cancer, Pap smear for cervical cancer, colorectal screening).</p></div><div class="ans-section"><div class="ans-section-title">Answer — FCTC</div><p>The WHO FCTC is the first global health treaty; it mandates demand-reduction measures (taxation, plain packaging, advertising bans, smoke-free spaces) and supply reduction. It is a cornerstone of <strong>population-level primary prevention</strong> of tobacco-related NCDs.</p></div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+
+<script>
+// --- Navigation ---
+function showSection(id) {
+  if (typeof isMobile === 'function' && isMobile()) closeSidebarMobile();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(document.getElementById(id)) document.getElementById(id).classList.add('active');
+  const map = {"sec-home": "Overview", "sec1": "Introduction to NCD Prevention & Control", "sec2": "NCD Surveillance", "sec3": "Metabolic Syndrome, Hypertension, Diabetes & CVD", "sec4": "Cancer Prevention & Control", "sec5": "Tobacco & Substance Use Control", "sec6": "Mental Health, Road Traffic Injury & TCM", "sec-pyq": "Sample Questions"};
+  document.getElementById('bc-section').textContent = map[id] || '';
+  document.getElementById('content').scrollTop = 0;
+  document.querySelectorAll('.nav-topic-header').forEach(h => h.classList.remove('active'));
+}
+function goHome() {
+  showSection('sec-home');
+  document.getElementById('nav-home').classList.add('active');
+}
+function toggleNav(el, secId) {
+  const header = el.querySelector('.nav-topic-header');
+  const sub = el.querySelector('.nav-sub');
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-topic-header').forEach(h => { h.classList.remove('open'); h.classList.remove('active'); });
+  if (!isOpen) {
+    sub.classList.add('open');
+    header.classList.add('open');
+    header.classList.add('active');
+    showSection(secId);
+  }
+}
+// --- Accordion ---
+function toggleAcc(head) {
+  const body = head.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+// --- Sample-Q answer toggle ---
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('open');
+  ans.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Model Answer' : '▼ Hide Model Answer';
+}
+// --- Sidebar toggle ---
+function isMobile() { return window.innerWidth <= 768; }
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (isMobile()) {
+    const isOpen = sb.classList.contains('mobile-open');
+    if (isOpen) { sb.classList.remove('mobile-open'); bd.classList.remove('visible'); }
+    else { sb.classList.add('mobile-open'); bd.classList.add('visible'); }
+  } else { sb.classList.toggle('collapsed'); }
+}
+// --- Scroll to anchor ---
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// --- Search ---
+function doSearch(query) {
+  if (!query.trim()) return;
+  const q = query.toLowerCase();
+  const sections = ['sec-home', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6', 'sec-pyq'];
+  for (const sid of sections) {
+    const el = document.getElementById(sid);
+    if (el && el.textContent.toLowerCase().includes(q)) {
+      showSection(sid);
+      el.querySelectorAll('.accordion-body').forEach(b => {
+        if (b.textContent.toLowerCase().includes(q)) { b.classList.add('open'); b.previousElementSibling.classList.add('open'); }
+      });
+      break;
+    }
+  }
+}
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch(this.value);
+});
+// --- Progress tracking ---
+const PROGRESS_KEY = 'gkt504_progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch {}
+function markRead(secId) {
+  progress[secId] = true;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch {}
+  updateProgress();
+}
+function updateProgress() {
+  const total = 7;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' topics';
+}
+function showProgress() {
+  const total = 7;
+  const done = Object.keys(progress).filter(k => k.startsWith('sec')).length;
+  alert('Your progress: ' + done + ' / ' + total + ' topics read (' + Math.round(done/total*100) + '%)\n\nProgress is saved in this browser.');
+}
+updateProgress();
+// --- Theme toggle ---
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('gkt504_theme', isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('gkt504_theme') === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      });
+    }
+  } catch {}
+})();
+
+</script>
+</body>
+</html>
