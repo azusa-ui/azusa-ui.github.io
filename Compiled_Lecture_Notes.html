@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Public Health Epidemiology — Compiled Lecture Notes</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --bg-panel: #ffffff;
+    --bg-sidebar: #eef1f5;
+    --text: #1c2430;
+    --text-muted: #5a6675;
+    --border: #dde2e8;
+    --accent: #2456a6;
+    --accent-soft: #e5edf9;
+    --code-bg: #eef2f7;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --scrollbar: #c7cfd9;
+  }
+  html[data-theme="dark"] {
+    --bg: #14181f;
+    --bg-panel: #1b212b;
+    --bg-sidebar: #10141b;
+    --text: #dfe4ea;
+    --text-muted: #9aa5b1;
+    --border: #2a323d;
+    --accent: #6fa2e8;
+    --accent-soft: #1e2c40;
+    --code-bg: #202834;
+    --shadow: 0 1px 3px rgba(0,0,0,0.4);
+    --scrollbar: #333c48;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    display: flex;
+    min-height: 100vh;
+  }
+  a { color: var(--accent); }
+
+  /* Sidebar */
+  #sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    padding: 18px 12px 40px;
+  }
+  #sidebar::-webkit-scrollbar { width: 8px; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+
+  .brand {
+    font-size: 15px;
+    font-weight: 700;
+    padding: 4px 10px 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .brand small {
+    display: block;
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 11.5px;
+    margin-top: 3px;
+  }
+
+  .nav-item { margin-bottom: 3px; }
+  .nav-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    user-select: none;
+  }
+  .nav-head:hover { background: var(--accent-soft); }
+  .nav-head.active { background: var(--accent-soft); color: var(--accent); }
+  .nav-head .caret {
+    transition: transform 0.15s ease;
+    color: var(--text-muted);
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .nav-item.open .caret { transform: rotate(90deg); }
+  .nav-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background: var(--border);
+    font-size: 10.5px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+  }
+  .nav-head.active .nav-num { background: var(--accent); color: #fff; }
+
+  .nav-sub {
+    display: none;
+    padding-left: 30px;
+    margin: 2px 0 8px;
+  }
+  .nav-item.open .nav-sub { display: block; }
+  .nav-sub a {
+    display: block;
+    padding: 5px 8px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 6px;
+  }
+  .nav-sub a:hover { background: var(--accent-soft); color: var(--accent); }
+
+  /* Main */
+  #main {
+    flex: 1;
+    min-width: 0;
+    padding: 28px 44px 80px;
+    max-width: 900px;
+  }
+  #topbar {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 5;
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 0 14px;
+    margin-bottom: 6px;
+  }
+  #theme-toggle {
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    color: var(--text);
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+  #theme-toggle:hover { border-color: var(--accent); }
+
+  section.topic { display: none; }
+  section.topic.active { display: block; animation: fadein 0.15s ease; }
+  @keyframes fadein { from {opacity:0;} to {opacity:1;} }
+
+  h1.topic-title {
+    font-size: 26px;
+    margin: 0 0 4px;
+    color: var(--text);
+  }
+  .topic-meta {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  h2 {
+    font-size: 18px;
+    margin: 30px 0 10px;
+    color: var(--accent);
+    border-left: 3px solid var(--accent);
+    padding-left: 10px;
+  }
+  h3 {
+    font-size: 15px;
+    margin: 20px 0 6px;
+    color: var(--text);
+  }
+  p { margin: 0 0 12px; font-size: 15px; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; font-size: 15px; }
+  li { margin-bottom: 5px; }
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin: 14px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 13.5px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--bg-sidebar); }
+  code {
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 90%;
+  }
+  .refs {
+    margin-top: 34px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .refs h2 { border: none; padding: 0; margin-bottom: 10px; color: var(--text); }
+  .refs ol { font-size: 13px; color: var(--text-muted); padding-left: 20px; }
+  .refs li { margin-bottom: 8px; }
+  .cite { font-size: 0.85em; color: var(--text-muted); }
+
+  /* Overview page */
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+  .card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform 0.1s ease, border-color 0.1s ease;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card .num { color: var(--accent); font-weight: 700; font-size: 12px; }
+  .card h3 { margin: 4px 0 6px; font-size: 15px; }
+  .card p { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+  .anon-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg-sidebar);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 26px;
+  }
+  footer.doc-footer {
+    margin-top: 50px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  @media (max-width: 800px) {
+    body { flex-direction: column; }
+    #sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--border); }
+    #main { padding: 20px; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="brand">Public Health Epidemiology
+    <small>Compiled learning notes · DrPH programme</small>
+  </div>
+
+  <div class="nav-item" data-topic="overview">
+    <div class="nav-head" onclick="selectTopic('overview')"><span><span class="nav-num">☰</span>Overview</span></div>
+  </div>
+
+  <div class="nav-item" data-topic="t1">
+    <div class="nav-head" onclick="toggleAndSelect('t1')"><span><span class="nav-num">1</span>Lack of Validity &amp; Confounding</span><span class="caret">▸</span></div>
+    <div class="nav-sub">
+      <a href="#t1-bias" onclick="jump('t1','t1-bias')">Bias &amp; internal validity</a>
+      <a href="#t1-selection" onclick="jump('t1','t1-selection')">Selection &amp; information bias</a>
+      <a href="#t1-confounding" onclick="jump('t1','t1-confounding')">Non-causal association: confounding</a>
+      <a href="#t1-assess" onclick="jump('t1','t1-assess')">Assessing confounding</a>
+      <a href="#t1-refs" onclick="jump('t1','t1-refs')">References</a>
+    </div>
+  </div>
+
+  <div class="nav-item" data-topic="t2">
+    <div class="nav-head" onclick="toggleAndSelect('t2')"><span><span class="nav-num">2</span>Heterogeneity, Stratification &amp; Adjustment</span><span class="caret">▸</span></div>
+    <div class="nav-sub">
+      <a href="#t2-interaction" onclick="jump('t2','t2-interaction')">Interaction / effect modification</a>
+      <a href="#t2-models" onclick="jump('t2','t2-models')">Additive vs multiplicative models</a>
+      <a href="#t2-strat" onclick="jump('t2','t2-strat')">Stratification &amp; adjustment</a>
+      <a href="#t2-limits" onclick="jump('t2','t2-limits')">Residual confounding &amp; overadjustment</a>
+      <a href="#t2-refs" onclick="jump('t2','t2-refs')">References</a>
+    </div>
+  </div>
+
+  <div class="nav-item" data-topic="t3">
+    <div class="nav-head" onclick="toggleAndSelect('t3')"><span><span class="nav-num">3</span>Prioritization of PH Problems</span><span class="caret">▸</span></div>
+    <div class="nav-sub">
+      <a href="#t3-what" onclick="jump('t3','t3-what')">What is prioritization</a>
+      <a href="#t3-needs" onclick="jump('t3','t3-needs')">Needs assessment</a>
+      <a href="#t3-criteria" onclick="jump('t3','t3-criteria')">Criteria for prioritizing</a>
+      <a href="#t3-methods" onclick="jump('t3','t3-methods')">Prioritization methods</a>
+      <a href="#t3-refs" onclick="jump('t3','t3-refs')">References</a>
+    </div>
+  </div>
+
+  <div class="nav-item" data-topic="t4">
+    <div class="nav-head" onclick="toggleAndSelect('t4')"><span><span class="nav-num">4</span>Epidemiological Investigation &amp; Analysis</span><span class="caret">▸</span></div>
+    <div class="nav-sub">
+      <a href="#t4-invest" onclick="jump('t4','t4-invest')">Investigation: concept &amp; phases</a>
+      <a href="#t4-designs" onclick="jump('t4','t4-designs')">Study designs</a>
+      <a href="#t4-measures" onclick="jump('t4','t4-measures')">Measures of occurrence &amp; effect</a>
+      <a href="#t4-causal" onclick="jump('t4','t4-causal')">Causal inference &amp; Hill's criteria</a>
+      <a href="#t4-refs" onclick="jump('t4','t4-refs')">References</a>
+    </div>
+  </div>
+
+  <div class="nav-item" data-topic="t5">
+    <div class="nav-head" onclick="toggleAndSelect('t5')"><span><span class="nav-num">5</span>Risk Management in PH</span><span class="caret">▸</span></div>
+    <div class="nav-sub">
+      <a href="#t5-cycle" onclick="jump('t5','t5-cycle')">Risk management cycle</a>
+      <a href="#t5-rra" onclick="jump('t5','t5-rra')">Rapid Risk Assessment</a>
+      <a href="#t5-comm" onclick="jump('t5','t5-comm')">Risk communication</a>
+      <a href="#t5-refs" onclick="jump('t5','t5-refs')">References</a>
+    </div>
+  </div>
+
+  <div class="nav-item" data-topic="t6">
+    <div class="nav-head" onclick="toggleAndSelect('t6')"><span><span class="nav-num">6</span>Qualitative Study in PH</span><span class="caret">▸</span></div>
+    <div class="nav-sub">
+      <a href="#t6-phil" onclick="jump('t6','t6-phil')">Philosophy of science</a>
+      <a href="#t6-paradigms" onclick="jump('t6','t6-paradigms')">Paradigms</a>
+      <a href="#t6-qualvsquant" onclick="jump('t6','t6-qualvsquant')">Qualitative vs quantitative</a>
+      <a href="#t6-approaches" onclick="jump('t6','t6-approaches')">Approaches &amp; methods</a>
+      <a href="#t6-refs" onclick="jump('t6','t6-refs')">References</a>
+    </div>
+  </div>
+
+  <div class="nav-item" data-topic="t7">
+    <div class="nav-head" onclick="toggleAndSelect('t7')"><span><span class="nav-num">7</span>Mixed-Method Design</span><span class="caret">▸</span></div>
+    <div class="nav-sub">
+      <a href="#t7-rationale" onclick="jump('t7','t7-rationale')">Rationale &amp; integration</a>
+      <a href="#t7-typology" onclick="jump('t7','t7-typology')">Core typologies</a>
+      <a href="#t7-examples" onclick="jump('t7','t7-examples')">Applied examples</a>
+      <a href="#t7-refs" onclick="jump('t7','t7-refs')">References</a>
+    </div>
+  </div>
+
+  <div class="nav-item" data-topic="t8">
+    <div class="nav-head" onclick="toggleAndSelect('t8')"><span><span class="nav-num">8</span>Evaluation of PH Programs</span><span class="caret">▸</span></div>
+    <div class="nav-sub">
+      <a href="#t8-def" onclick="jump('t8','t8-def')">Definitions &amp; logic model</a>
+      <a href="#t8-types" onclick="jump('t8','t8-types')">Types of evaluation</a>
+      <a href="#t8-designs" onclick="jump('t8','t8-designs')">Evaluation designs</a>
+      <a href="#t8-cdc" onclick="jump('t8','t8-cdc')">CDC framework &amp; ethics</a>
+      <a href="#t8-refs" onclick="jump('t8','t8-refs')">References</a>
+    </div>
+  </div>
+
+  <div class="nav-item" data-topic="t9">
+    <div class="nav-head" onclick="toggleAndSelect('t9')"><span><span class="nav-num">9</span>Public Health Informatics</span><span class="caret">▸</span></div>
+    <div class="nav-sub">
+      <a href="#t9-def" onclick="jump('t9','t9-def')">Definition &amp; elements</a>
+      <a href="#t9-principles" onclick="jump('t9','t9-principles')">Principles &amp; applications</a>
+      <a href="#t9-msia" onclick="jump('t9','t9-msia')">Malaysian context</a>
+      <a href="#t9-refs" onclick="jump('t9','t9-refs')">References</a>
+    </div>
+  </div>
+
+</nav>
+
+<main id="main">
+  <div id="topbar">
+    <button id="theme-toggle" onclick="toggleTheme()">🌙 Dark mode</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <section class="topic active" id="topic-overview">
+    <h1 class="topic-title">Public Health Epidemiology</h1>
+    <div class="topic-meta">Compiled learning notes across nine core topics, synthesised from course lecture slides, learning guides, and cited primary/secondary references.</div>
+
+    <p>This document consolidates lecture content from a DrPH-level Public Health Epidemiology course into a single browsable reference. Each topic in the sidebar expands into its own set of sub-sections; click a topic name to open it, or a sub-section to jump straight to that part of the notes. Notes were compiled directly from course slide decks and accompanying learning guides, with technical claims traced back to the textbooks and journal articles the course materials themselves cited.</p>
+
+    <div class="callout">Instructor names and designations appearing in the original slide decks have been anonymised throughout this document. Course/module codes (e.g. GDT 508 / GET 508) are retained as they identify the curriculum, not an individual.</div>
+
+    <h2 style="margin-top:26px;">Topics</h2>
+    <div class="topic-grid">
+      <div class="card" onclick="selectTopic('t1')"><div class="num">01</div><h3>Lack of Validity &amp; Confounding</h3><p>Bias, internal validity, and non-causal association through confounding.</p></div>
+      <div class="card" onclick="selectTopic('t2')"><div class="num">02</div><h3>Heterogeneity, Stratification &amp; Adjustment</h3><p>Interaction/effect modification and multivariable control of confounding.</p></div>
+      <div class="card" onclick="selectTopic('t3')"><div class="num">03</div><h3>Prioritization of PH Problems</h3><p>Needs assessment and structured methods for ranking public health priorities.</p></div>
+      <div class="card" onclick="selectTopic('t4')"><div class="num">04</div><h3>Epidemiological Investigation &amp; Analysis</h3><p>From John Snow to modern measures of disease occurrence and effect.</p></div>
+      <div class="card" onclick="selectTopic('t5')"><div class="num">05</div><h3>Risk Management in PH</h3><p>Rapid risk assessment and risk communication for acute public health events.</p></div>
+      <div class="card" onclick="selectTopic('t6')"><div class="num">06</div><h3>Qualitative Study in PH</h3><p>Philosophy of science, paradigms, and qualitative methods in health research.</p></div>
+      <div class="card" onclick="selectTopic('t7')"><div class="num">07</div><h3>Mixed-Method Design</h3><p>Triangulation, sequential, and embedded designs integrating qual and quant data.</p></div>
+      <div class="card" onclick="selectTopic('t8')"><div class="num">08</div><h3>Evaluation of PH Programs</h3><p>Logic models, evaluation types, and experimental/non-experimental designs.</p></div>
+      <div class="card" onclick="selectTopic('t9')"><div class="num">09</div><h3>Public Health Informatics</h3><p>Informatics vs IT, core elements, and applications including the Malaysian context.</p></div>
+    </div>
+
+    <div class="anon-note">Use the toggle above to switch between light and dark themes; your preference is remembered on this device.</div>
+
+    <footer class="doc-footer">Compiled learning notes — single-file HTML reference. Source material: course lecture slides, learning guides, and cited literature.</footer>
+  </section>
+
+  <!-- TOPIC 1 -->
+  <section class="topic" id="topic-t1">
+    <h1 class="topic-title">1. Lack of Validity &amp; Non-Causal Association</h1>
+    <div class="topic-meta">Bias, internal validity, and confounding · Course Lecturer A</div>
+
+    <h2 id="t1-bias">Bias and internal validity</h2>
+    <p>Bias is defined as a systematic error in the design or conduct of a study, arising from flaws in the selection of study participants or in the procedures used to gather exposure and outcome information, such that observed results diverge systematically from the true results.<span class="cite"> (Delgado-Rodríguez &amp; Llorca, 2004)</span> A study whose design and procedures are unbiased is described as internally valid, because its results will, on average, tend toward the true value; a flawed design is therefore described as biased or invalid.<span class="cite"> (Szklo &amp; Nieto, 2014)</span></p>
+    <p>Bias can be classified by the direction of the distortion it produces in a measure of association such as the odds ratio: a <em>toward-the-null</em> bias yields estimates closer to the null value, while an <em>away-from-the-null</em> bias yields estimates further from the null than the truth.</p>
+    <p>Prevention and control of bias operate at three levels: (1) ensuring the study design, including sample selection procedures, is appropriate to the study hypotheses; (2) establishing and carefully monitoring valid and reliable data-collection procedures; and (3) applying appropriate analytic procedures.<span class="cite"> (Szklo &amp; Nieto, 2014)</span></p>
+
+    <h2 id="t1-selection">Selection bias and information bias</h2>
+    <p><strong>Selection bias</strong> occurs when individuals have different probabilities of being included in the study sample according to their exposure and outcome status — that is, when the study population fails to represent the target population. It can be controlled when the variables influencing selection are measured in all subjects and either are antecedents of exposure and outcome, or their joint distribution (or selection probabilities) in the target population is known. Common manifestations include inappropriate definition of the eligible population (competing risks, healthcare-access bias, length-bias sampling, Neyman bias, Berkson's bias), inaccurate sampling frames (non-random sampling, publication bias), and uneven diagnostic procedures (detection bias).</p>
+    <p><strong>Information bias</strong> results from a systematic tendency for study participants to be misclassified with respect to exposure or outcome category — the classic example being recall bias in case-control studies. Related patterns include combined selection-and-information bias, and sparse-data bias, which arises when the number of study subjects or events is too small relative to the number of variables being modelled.<span class="cite"> (Szklo &amp; Nieto, 2014; Greenland, in Detels et al., <em>Oxford Textbook of Public Health</em>, 5th ed.)</span></p>
+
+    <h2 id="t1-confounding">Non-causal association: confounding</h2>
+    <p>Confounding refers to a situation in which a non-causal association between a given exposure and an outcome is observed as a result of the influence of a third variable — the confounder — that is associated with both the exposure and the outcome, but is not an intermediate step in the causal pathway between them.<span class="cite"> (Szklo &amp; Nieto, 2014)</span> Two classic criteria are used to identify a potential confounder: first, it must be associated with the outcome among the unexposed; second, it must be associated with the exposure in the source population. A third condition — that the variable not be a consequence of the exposure (i.e. not a mediator) — is required to distinguish confounding from mediation.</p>
+    <p>Directed acyclic graphs (DAGs) are increasingly used as a theoretical and graphical aid for identifying confounding pathways and distinguishing confounders from mediators or colliders before analysis begins.</p>
+
+    <h2 id="t1-assess">Assessing the presence of confounding</h2>
+    <p>Confounding is assessed empirically by comparing the crude (unadjusted) measure of association with the measure obtained after stratifying or adjusting for the suspected confounder. If the stratum-specific estimates are similar to one another but differ materially from the crude estimate, confounding is present and the adjusted (pooled/stratified) estimate is taken as the less biased value. If adjustment produces a result inconsistent with what would be expected from the confounder's relationship with exposure and outcome, the adjustment procedure itself should be re-examined for error.<span class="cite"> (Szklo &amp; Nieto, 2014)</span></p>
+    <p>Confounding should always be distinguished analytically from interaction (effect modification), covered in the following topic: confounding is a nuisance to be removed, whereas interaction is a substantive finding about the biology or social patterning of the exposure–outcome relationship, to be reported rather than adjusted away.</p>
+
+    <div class="refs" id="t1-refs">
+      <h2>References</h2>
+      <ol>
+        <li>Delgado-Rodríguez M, Llorca J. Bias. <em>J Epidemiol Community Health</em>. 2004;58:635–641. doi:10.1136/jech.2003.008466</li>
+        <li>Szklo M, Nieto FJ. <em>Epidemiology: Beyond the Basics</em>. 3rd ed. Burlington, MA: Jones &amp; Bartlett Learning; 2014.</li>
+        <li>Greenland S. Validity and bias in epidemiological research. In: Detels R, et al., eds. <em>Oxford Textbook of Public Health</em>. 5th ed. Oxford University Press.</li>
+        <li>Gordis L. <em>Epidemiology</em>. 5th ed. Philadelphia: Saunders/Elsevier.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TOPIC 2 -->
+  <section class="topic" id="topic-t2">
+    <h1 class="topic-title">2. Heterogeneity of Effects, Stratification &amp; Adjustment</h1>
+    <div class="topic-meta">Interaction, effect modification, and multivariable control of confounding · Course Lecturer A</div>
+
+    <h2 id="t2-interaction">Interaction / effect modification</h2>
+    <p>Interaction describes a situation in which two or more risk factors modify each other's effect on the occurrence or level of an outcome; it is also termed effect modification and must be distinguished from confounding. MacMahon's classic definition states that interaction is present "when the incidence rate of disease in the presence of two or more risk factors differs from the incidence rate expected to result from their individual effects."<span class="cite"> (cited in Szklo &amp; Nieto, 2014)</span></p>
+    <p>For a dichotomous effect modifier, interaction means the exposure's effect on the outcome differs depending on whether the modifier is present or absent; for continuous modifiers, the exposure effect (e.g. a regression coefficient) varies with the modifier's level rather than simply its presence or absence. A minimum of three variables is required for interaction to be assessed: the exposure (A), the outcome (Y), and the candidate effect modifier (Z). Where the modifier strengthens the exposure effect, the two are said to be synergistic (positive interaction); where it diminishes or eliminates the effect, they are antagonistic (negative interaction).</p>
+
+    <h2 id="t2-models">Additive vs multiplicative interaction models</h2>
+    <p>Two complementary statistical models are used to detect interaction. The <strong>additive model</strong> considers interaction present when the attributable risk among the exposed (the absolute risk difference between exposed and unexposed) varies across strata of the third variable Z; this model is generally considered more relevant to public health impact, since it reflects the absolute burden attributable to joint exposures. The <strong>multiplicative model</strong> considers interaction present when the relative risk (or risk ratio) of the outcome comparing exposed to unexposed varies across strata of Z; this model is more directly tied to standard regression coefficients and is therefore more often used to test statistical significance of an interaction term.<span class="cite"> (Szklo &amp; Nieto, 2014; Gordis, 5th ed.)</span> A dataset can show additive interaction without multiplicative interaction, or vice versa, so both should be examined and reported explicitly, together with the scale on which "no interaction" is being defined.<span class="cite"> (Knol &amp; VanderWeele, 2012)</span></p>
+
+    <h2 id="t2-strat">Stratification and adjustment</h2>
+    <p>Stratification — dividing the data into homogeneous strata of a third variable — is the simplest analytic tool for detecting and controlling confounding, and is also a necessary preliminary step before deciding whether adjustment is appropriate (i.e. whether the stratum-specific estimates are sufficiently homogeneous to be validly combined). Once stratification confirms that pooling is reasonable, an adjusted (summary) measure of association can be calculated using direct adjustment, indirect adjustment, or the <strong>Mantel-Haenszel method</strong>, which produces a weighted average of the stratum-specific estimates and remains one of the most widely used approaches for adjusted risk/odds ratios in epidemiology.</p>
+    <p>Where the number of confounders is large, or the strata become too sparse for stable stratum-specific estimates, multiple regression techniques (logistic, Poisson, or Cox regression, depending on outcome type) provide a more flexible way of adjusting for several confounders simultaneously.</p>
+
+    <h2 id="t2-limits">Limitations: residual confounding and overadjustment</h2>
+    <p><strong>Residual confounding</strong> occurs when adjustment is incomplete — typically due to crude categorisation of a continuous confounder, unmeasured confounders, or measurement error in the confounder — leaving some of the non-causal association unaccounted for even after formal adjustment. <strong>Overadjustment</strong>, conversely, occurs when a variable that lies on the causal pathway between exposure and outcome (a mediator) or that is a collider is mistakenly treated as a confounder and adjusted for, which can bias the estimate of the total effect of the exposure. Careful conceptual (causal-diagram-based) reasoning about each covariate's role — confounder, mediator, or collider — is therefore recommended before any variable is entered into an adjustment model.<span class="cite"> (Szklo &amp; Nieto, 2014)</span></p>
+
+    <div class="refs" id="t2-refs">
+      <h2>References</h2>
+      <ol>
+        <li>Szklo M, Nieto FJ. <em>Epidemiology: Beyond the Basics</em>. 3rd ed. Ch. 6, Defining and Assessing Heterogeneity of Effects: Interaction.</li>
+        <li>Gordis L. <em>Epidemiology</em>. 5th ed. Ch. 15.</li>
+        <li>Knol MJ, VanderWeele TJ. Recommendations for presenting analyses of effect modification and interaction. <em>Int J Epidemiol</em>. 2012;41(2):514–520.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TOPIC 3 -->
+  <section class="topic" id="topic-t3">
+    <h1 class="topic-title">3. Prioritization of Public Health Problems</h1>
+    <div class="topic-meta">Needs assessment and structured prioritization methods · Course Lecturer B</div>
+
+    <h2 id="t3-what">What is prioritization in public health</h2>
+    <p>Prioritization is the process of ranking public health issues based on perceived significance or importance, in order to direct limited resources toward the most pressing needs. A public health problem is understood as a widespread condition, actual or potential, causing morbidity or mortality, that is perceived by the public, government, or public health authorities as requiring attention; public health planning should in principle encompass all relevant programs and services, including health promotion.</p>
+    <p>A practical checklist for prioritization exercises includes: a clearly structured objective with a defined time horizon; an organisation equipped for change; selection of appropriate people to carry out the change; and financial/organisational feasibility of the proposed change.</p>
+
+    <h2 id="t3-needs">Needs assessment</h2>
+    <p>Needs assessment underpins prioritization and typically draws on three complementary sources: surveillance data, community-leader interviews, and community health surveys. A health survey is defined as the systematic collection of factual data on health and disease in a defined population within a geographic area, used to evaluate health status (e.g. facility distance, disease prevalence). Community health surveys specifically aim to surface needs and concerns as perceived by the community itself — which may not be visible in routine formal health data (for example, high school truancy linked to substance use). Needs assessment serves to determine priorities, guide organisational improvement, inform resource allocation, and identify feasible community partners.</p>
+
+    <h2 id="t3-criteria">Criteria for prioritizing a health problem</h2>
+    <p>Because resources are limited, a structured set of criteria is used to rank competing problems: size of the problem (prevalence, distribution, trend); seriousness (potential for disability or death, e.g. via cause-specific mortality or DALYs); economic and social impact (direct healthcare cost and productivity loss); availability of effective, evidence-based interventions; public health concern; political will; availability of resources; whether the disease is of international interest; and equity, referring to the excess burden borne by disadvantaged groups even from ostensibly minor problems.</p>
+
+    <h2 id="t3-methods">Prioritization methods and techniques</h2>
+    <p>Several structured techniques are used to translate these criteria into a ranked list:</p>
+    <ul>
+      <li><strong>Simplex method</strong> — a closed-ended questionnaire generating a numeric priority score used to rank issues.</li>
+      <li><strong>Nominal Group Technique (NGT)</strong> — a structured group process best suited to problem exploration, knowledge exploration, priority development, program development, and program evaluation.</li>
+      <li><strong>Criteria Weighting Method</strong> — criteria (often derived from an NGT session) are listed, each is weighted, issues are scored against each criterion (commonly on a −10 to +10 scale), rating × weight is summed across criteria, and issues are ranked by total significance score.</li>
+      <li><strong>PEARL screen</strong> — assessing Propriety, Economics, Acceptability, Resources, and Legality of a proposed program for a prioritised problem.</li>
+      <li><strong>Prioritization matrix</strong> — a tabular tool combining multiple weighted criteria for transparent, reproducible ranking, often embedded within a broader participatory/consensus-building process involving stakeholders and partners.</li>
+    </ul>
+    <p>Cost-effectiveness considerations are frequently layered onto the ranked list using a cost-effectiveness plane, since "best buys" identified in one setting may not transfer efficiently to another. Applying these tools within a participatory, systematic, evidence-based framework — described in the course materials by the acronym SEED (Systematic thinking for Evidence-based and Efficient Decision-making) — helps rationalise intervention selection, improve the likelihood of achieving effectiveness in line with actual needs, and increase acceptance through participatory planning.<span class="cite"> (Isaranuwatchai, 2020)</span></p>
+
+    <div class="refs" id="t3-refs">
+      <h2>References</h2>
+      <ol>
+        <li>Isaranuwatchai W. Priority setting in public health (course-cited slide reference), 2020.</li>
+        <li>APEXPH in Practice. Prioritization section, National Association of County and City Health Officials (NACCHO).</li>
+        <li>Vlassoff C, et al. Setting health priorities in a community (course reading list).</li>
+        <li><em>BMJ</em> 2020;368:m141 — health system priority-setting methods (course reading list).</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TOPIC 4 -->
+  <section class="topic" id="topic-t4">
+    <h1 class="topic-title">4. Epidemiological Investigation &amp; Analysis</h1>
+    <div class="topic-meta">From outbreak investigation to measures of effect · Course Lecturer C</div>
+
+    <h2 id="t4-invest">Investigation: concept and phases</h2>
+    <p>Epidemiology is defined as the study of the distribution and determinants of health, disease, or injury in human populations, and the application of that study to the control of health problems, with objectives spanning determining the extent of disease problems, studying natural history and prognosis, investigating aetiology and modes of transmission, evaluating preventive and therapeutic measures, and informing public policy. The field's modern origins are frequently traced to John Snow (1813–1858), whose removal of the Broad Street pump handle during the 1854 London cholera epidemic is treated as a founding example of applied epidemiological investigation.</p>
+    <p>Epidemiological practice is organised around surveillance, investigation, analysis, and evaluation, supported by communication, information-systems, and management skills. An <em>investigation</em> is distinguished from surveillance in that it presupposes a problem already exists and is an active search for its explanation, whereas surveillance is ongoing and routine. A generalised sequence of phases is described for epidemiological investigation: diagnostic (confirming disease presence) → descriptive (population and distribution) → investigative (field studies to test hypotheses) → experimental (controlled testing) → analytical (formal analysis, often with modelling) → intervention → decision-making (weighing options and costs) → monitoring (tracking whether control measures are working).</p>
+    <p>For outbreaks of chronic (non-communicable) disease, the same underlying logic applies via a condensed sequence: verify the outbreak, define the disease, describe it by time/place/person, generate an aetiological hypothesis, conduct analytic studies, summarise findings, and communicate recommended interventions — a structure common to both communicable and non-communicable disease investigations despite differences in methods and findings.<span class="cite"> (Kuller, 1987)</span></p>
+
+    <h2 id="t4-designs">Study designs</h2>
+    <p>Epidemiological investigation relies predominantly on observational designs. <strong>Prospective (cohort/longitudinal)</strong> studies look forward in time, comparing attack rates or incidence between groups defined by presence/absence of a determinant, and yield the strongest observational evidence for causal association. <strong>Retrospective (case-control)</strong> studies look backward, comparing the frequency of a determinant between diseased and non-diseased groups, and are efficient for rare diseases. <strong>Cross-sectional</strong> studies compare disease prevalence across populations at a single point in time, useful for hypothesis generation but not causal inference. Experimental designs (e.g. vaccine trials) provide the strongest evidence for aetiology but are typically restricted to smaller, controlled populations. Descriptive epidemiology describes patterns and course of disease using routinely collected data, while analytical epidemiology develops new data and planned designs specifically to test cause-and-effect relationships.</p>
+
+    <h2 id="t4-measures">Measures of disease occurrence and effect</h2>
+    <p>Analysis begins with measures of disease occurrence — cumulative incidence, incidence density, point and period prevalence, and survivorship (time-to-event) — computed from data reduced, wherever possible, to a 2×2 contingency table of exposure by outcome. From this table, measures of effect are derived: relative risk (expressed variously as the prevalence ratio, cumulative incidence ratio, incidence density ratio, odds ratio, or hazard ratio depending on design) and attributable risk (a subtraction rather than ratio measure). The odds ratio in particular approximates relative risk well when the outcome is rare, which underlies its common use in case-control studies. Relative risk quantifies the strength of association most relevant to causal inference, while attributable risk quantifies the public-health impact of removing the exposure and is often used to prioritise intervention targets.</p>
+    <p>Random error is addressed through Type I (alpha) and Type II (beta, related to study power) error frameworks, and must be distinguished conceptually from bias, which — unlike random error — does not diminish with larger sample size and must instead be addressed through study design.</p>
+
+    <h2 id="t4-causal">Causal inference and Bradford Hill's criteria</h2>
+    <p>Interpreting an epidemiological finding requires two major steps: rigorously evaluating whether formal criteria for a causal association are met, and separately assessing whether the observed association could instead be explained by chance, bias, or confounding. The classic set of considerations for weighing causality — strength of association, dose-response relationship, consistency across studies, correct temporal sequence, specificity, and biological/coherence plausibility — derives from Sir Austin Bradford Hill and remains the standard heuristic taught for moving from statistical association toward a judgement of causation. Underlying biostatistical techniques for this analysis include the chi-squared test and generalised linear models (linear, logistic, and Poisson regression), along with survival analysis via Cox proportional hazards regression.</p>
+
+    <div class="refs" id="t4-refs">
+      <h2>References</h2>
+      <ol>
+        <li>Last JM, Wallace RB, eds. <em>Maxey-Rosenau-Last: Public Health and Preventive Medicine</em>. 15th ed. McGraw-Hill; 2007.</li>
+        <li>Gordis L. <em>Epidemiology</em>. 3rd ed. Saunders; 2004.</li>
+        <li>Kuller LH. Epidemiologic investigation of chronic and non-communicable disease, 1987 (course reading list).</li>
+        <li>Bellan S. Study Design and Analysis in Epidemiology (course-cited online resource).</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TOPIC 5 -->
+  <section class="topic" id="topic-t5">
+    <h1 class="topic-title">5. Risk Management in Public Health</h1>
+    <div class="topic-meta">Rapid risk assessment and risk communication · Course Lecturer D</div>
+
+    <h2 id="t5-cycle">The risk management cycle</h2>
+    <p>Risk management in public health is the process of making decisions about controlling health, safety, and environmental risks — for example, cleaning up hazardous waste sites, setting water/air quality standards, or breaking a chain of communicable-disease transmission. It requires scientific and technical information on the size, distribution, and source of a risk, available control strategies, and their cost. The risk management cycle comprises: hazard identification and exposure/context assessment leading to risk characterization; identification of potential control measures ranked by priority, likelihood of success, feasibility, and unintended consequences; and continuous monitoring, evaluation, and lessons-learned review as the event unfolds, all underpinned by ongoing communication with stakeholders and affected communities.</p>
+    <p>Operationally this is organised into five steps: (1) identify the health event via indicator- or event-based surveillance; (2) analyse the event, typically via Rapid Risk Assessment, triaging it as a false rumour, a true but non-urgent risk, or a confirmed event with possible immediate risk; (3) evaluate and rank required actions; (4) act and monitor progress; and (5) review and evaluate the response.</p>
+
+    <h2 id="t5-rra">Rapid Risk Assessment (RRA)</h2>
+    <p>Rapid Risk Assessment is aimed at reducing or preventing disease in affected populations, minimising negative social and economic consequences, and enabling defensible, timely decision-making. A good RRA is consistent and transparent, easily understood by all interested parties, flexible enough to accommodate complex or culturally sensitive situations, reproducible, grounded in the best available evidence with clear documentation of sources, regularly reviewed and updated as new information arrives, and explicit about its uncertainties and assumptions.<span class="cite"> (WHO, 2012)</span></p>
+    <p>RRA proceeds through defined stages: preparation (evidence-based protocols, identification of key informants and experts); collection of event information (verification of the event, gathering and collating disease-specific data); forming the RRA team (adjusted for hazard type — e.g. adding zoonosis or toxicology expertise where relevant); formulating a clear, ranked risk question; assessing exposure (numbers exposed/susceptible, mode of transmission, incubation period, case fatality rate, R0, vaccination status); and risk characterisation combined with context assessment (physical environment, health infrastructure, political/media climate, cultural practices).</p>
+
+    <h2 id="t5-comm">Risk communication</h2>
+    <p>Risk communication is the open, two-way exchange of information, opinion, and advice about risk between experts, officials, and affected populations, aimed at enabling informed decision-making and protective behaviour.<span class="cite"> (WHO Risk Communication Strategies)</span> It comprises operational communication (between the risk-assessment team and stakeholders) and communication with the public (informing the public of risk levels and desired behavioural change). Its goals include reducing morbidity/mortality and complications, building support for the response plan, keeping decision-makers informed, and countering misinformation.</p>
+    <p>Recognised challenges include the rise of citizen journalism and social media as primary sources of health information, the difficulty of providing adequate information without triggering panic, and the frequent mismatch between actual risk level and public risk perception. A widely taught model for this mismatch is the "outrage" framework: outrage management strategies are needed when public concern exceeds the objectively assessed hazard, whereas concern-mobilisation strategies are needed when a serious hazard is being ignored by the public. Practical tools taught alongside this model include audience mapping (who needs to know what, why, when, and how), development of clear key messages to counter rumours, and a communication-strategy worksheet linking each audience to its key message, channel, and resource/timeline.</p>
+    <p>Guiding practice principles for risk and crisis communication include treating it as an ongoing (not one-off) process, conducting pre-event planning, being proactive, listening to public concerns, demonstrating honesty and empathy, accepting uncertainty, offering meaningful actions the public can take, and coordinating with credible sources.</p>
+
+    <div class="refs" id="t5-refs">
+      <h2>References</h2>
+      <ol>
+        <li>World Health Organization. <em>Rapid Risk Assessment of Acute Public Health Events</em>. Geneva: WHO; 2012.</li>
+        <li>World Health Organization. Risk Communication Strategies for Public Health Emergencies.</li>
+        <li>National Health Emergency Risk Communication Plan-Writing Package (course reading list).</li>
+        <li>European Centre for Disease Prevention and Control (ECDC). Risk Assessment Methodology Guidance.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TOPIC 6 -->
+  <section class="topic" id="topic-t6">
+    <h1 class="topic-title">6. Qualitative Study in Public Health</h1>
+    <div class="topic-meta">Philosophy of science, paradigms, and qualitative methods · Course Lecturer E</div>
+
+    <h2 id="t6-phil">Philosophy of science as a foundation</h2>
+    <p>Before qualitative methods are introduced, the course grounds students in the philosophy of science: the discipline concerned with the nature and justification of scientific and ordinary beliefs, spanning metaphysics, epistemology (the study of the nature, grounds, and limits of knowledge), ethics, and semantics. Different epistemological traditions imply fundamentally different ways of investigating the world, commonly grouped into positivism, interpretivism, and critical research. Scientific reasoning is further characterised along a deductive–inductive spectrum (with abduction as a middle path): deduction moves from general theory to hypothesis to data, while induction moves from observation toward theory.</p>
+    <p><strong>Positivism</strong>, grounded in biomedical research and dating to the Enlightenment, assumes a single objective reality accessible through the senses and testable via scientific method (empiricism); facts are treated as undistorted by the researcher's values. <strong>Interpretivism</strong> rejects this equivalence between the social and natural worlds, holding that human actions must be understood rather than merely measured, and that social reality is multiply constructed depending on perspective. <strong>Critical research</strong> seeks to cross-examine interpretations of social phenomena against their wider socio-historical context, combining micro-level interpretation with macro-level structural analysis, often with an explicit orientation toward social change.</p>
+
+    <h2 id="t6-paradigms">Paradigms: structure and agency</h2>
+    <p>These three traditions are often positioned along axes of structure (social/institutional forces) versus agency (individual interpretation and action): positivism emphasises objective patterns and cause-effect explanation; interpretivism emphasises naturalistic understanding of lived experience; and critical realism sits between the two, attending to both structural constraint and individual agency. Thomas Kuhn's account of paradigm shifts in <em>The Structure of Scientific Revolutions</em> is invoked to frame how the social structure of scientific communities itself shapes which epistemic questions are considered legitimate at a given time.</p>
+
+    <h2 id="t6-qualvsquant">Qualitative vs quantitative approaches</h2>
+    <table>
+      <tr><th>Qualitative</th><th>Quantitative</th></tr>
+      <tr><td>Focuses on the quality of data over numeric measurement</td><td>Based on numbers and quantitative measurement</td></tr>
+      <tr><td>Inductive: theories/hypotheses are generated from data</td><td>Deductive: theories/hypotheses are tested against data</td></tr>
+      <tr><td>Goes deep and specific; outliers are informative</td><td>Aims to generalise; outliers are treated as problematic</td></tr>
+      <tr><td>Value-laden; acknowledges researcher positionality</td><td>Claims to be value-free / reductionist</td></tr>
+    </table>
+    <p>Qualitative inquiry is described as "a situated activity that locates the observer in the world," an interpretive and naturalistic approach that studies phenomena in their natural settings and attempts to make sense of them in terms of the meanings people themselves bring to them.<span class="cite"> (Denzin &amp; Lincoln, 2013, p.6)</span> Rather than being paradigm purists, researchers are increasingly encouraged toward paradigm pluralism — treating qualitative and quantitative methods as complementary tools in a shared research toolbox, particularly useful for reaching populations, questions, or contexts that quantitative measurement alone cannot address.</p>
+
+    <h2 id="t6-approaches">Approaches and data-collection methods</h2>
+    <p>Core qualitative approaches include ethnography (participant observation, exemplified historically by Nicholas Miklouho-Maclay's 1875 ethnographic excursion in Johor), focus group discussions, in-depth interviews, case studies, action research, content analysis, phenomenology, and grounded theory. Grounded theory is distinguished as an inductive-deductive cycle in which data collection and analysis reciprocally inform one another through an iterative process, generating theory from successive rounds of empirical analysis rather than testing a theory specified in advance.</p>
+    <p>Interviews may be semi-structured (researcher poses specific questions around a known topic) or unstructured (open-ended exploration of an unknown topic). In-depth interviews are typically one-to-one, repeated until the participant is comfortable, and demand close listening and probing around key themes; focus groups (typically up to eight participants) rely on group interaction and are particularly valuable when participants of differing power positions (e.g. policymakers and patients) are brought together, though the researcher has comparatively little control over the interaction and cannot guarantee full confidentiality. Fieldnotes should capture not only what is said but the affective "sense" of the encounter, since this informs later analysis.</p>
+
+    <div class="refs" id="t6-refs">
+      <h2>References</h2>
+      <ol>
+        <li>Denzin NK, Lincoln YS, eds. <em>The SAGE Handbook of Qualitative Research</em>. 4th/5th ed. Thousand Oaks: SAGE; 2013.</li>
+        <li>Lim WM. What is qualitative research? An overview and guidelines. <em>Australasian Marketing Journal</em>. 2024.</li>
+        <li>An overview of qualitative research methodology for public health researchers. <em>Indian J Community Med</em> (or equivalent). 2014. doi:10.4103/2230-8598.144055</li>
+        <li>Kuhn TS. <em>The Structure of Scientific Revolutions</em>. University of Chicago Press.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TOPIC 7 -->
+  <section class="topic" id="topic-t7">
+    <h1 class="topic-title">7. Mixed-Method Design in Public Health</h1>
+    <div class="topic-meta">Combining qualitative and quantitative evidence · Course Lecturer F</div>
+
+    <h2 id="t7-rationale">Rationale and integration</h2>
+    <p>Mixed-methods research deliberately combines qualitative and quantitative data collection and analysis within a single study, on the premise that integrating multiple perspectives strengthens validity, reduces the blind spots inherent to any single method, and provides a more comprehensive understanding of a phenomenon than either approach alone.<span class="cite"> (Creswell &amp; Plano Clark; Fetters, Curry &amp; Creswell, 2013)</span> The point at which qualitative and quantitative strands are brought together — the <em>integration</em> point — is the design feature that most distinguishes one mixed-methods typology from another.</p>
+
+    <h2 id="t7-typology">Core typologies</h2>
+    <table>
+      <tr><th>Design</th><th>Structure</th><th>Integration point</th><th>Key trade-off</th></tr>
+      <tr>
+        <td><strong>Triangulation / Convergence</strong></td>
+        <td>Single phase; qualitative and quantitative data collected concurrently and analysed separately</td>
+        <td>At interpretation, merging results to compare/contrast findings</td>
+        <td>Strengthens validity but demands proficiency in both methods and a plan for reconciling conflicting results</td>
+      </tr>
+      <tr>
+        <td><strong>Explanatory Sequential</strong></td>
+        <td>Two phases: quantitative data collected first, followed by qualitative data</td>
+        <td>Qualitative phase explains or contextualises unexpected quantitative findings</td>
+        <td>Straightforward to implement and report, but time-consuming across two phases</td>
+      </tr>
+      <tr>
+        <td><strong>Exploratory Sequential</strong></td>
+        <td>Two phases: qualitative data collected and analysed first</td>
+        <td>Qualitative findings inform development of the quantitative instrument/design</td>
+        <td>Enables discovery of new, generalisable insight, but the initial qualitative phase must be rigorous for valid quantitative follow-through</td>
+      </tr>
+      <tr>
+        <td><strong>Embedded</strong></td>
+        <td>One data type is dominant, the other plays a secondary, supportive role</td>
+        <td>Secondary method's data supports and enriches interpretation of the primary method's findings</td>
+        <td>Accessible for beginners and time-constrained studies, but the primary/secondary purposes can be difficult to specify and integrate cleanly</td>
+      </tr>
+    </table>
+
+    <h2 id="t7-examples">Applied examples</h2>
+    <p>Course-worked application examples illustrate each design: a convergent/triangulation design assessing student satisfaction with online learning by combining survey results with in-depth interviews; an explanatory sequential design comparing risk-standardised survival rates of in-hospital cardiac arrest across hospitals via registry data, followed by qualitative exploration of resuscitation-team structure and process to explain the quantitative variation; an exploratory sequential design first exploring employee experience of wellbeing in remote work, then validating and quantifying the key wellbeing factors identified; and an embedded design in which a workplace wellness program's impact on health indicators (dominant, quantitative) is complemented by participants' perceptions of the program's effectiveness (secondary, qualitative).</p>
+    <p>Across designs, the trade-off is consistent: greater integration and validity gained through combining methods comes at the cost of requiring dual methodological proficiency, longer timelines, and an explicit plan for reconciling qualitative and quantitative findings that may not agree.</p>
+
+    <div class="refs" id="t7-refs">
+      <h2>References</h2>
+      <ol>
+        <li>Creswell JW, Plano Clark VL. <em>Designing and Conducting Mixed Methods Research</em>. SAGE Publications.</li>
+        <li>Fetters MD, Curry LA, Creswell JW. Achieving integration in mixed methods designs — principles and practices. <em>Health Serv Res</em>. 2013;48(6pt2):2134–2156.</li>
+        <li>Leech NL, Onwuegbuzie AJ. A typology of mixed methods research designs. <em>Qual Quant</em>. 2009;43:265–275.</li>
+        <li>Doyle L, Brady AM, Byrne G. An overview of mixed methods research. <em>J Res Nurs</em>. 2009;14(2):175–185.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TOPIC 8 -->
+  <section class="topic" id="topic-t8">
+    <h1 class="topic-title">8. Evaluation of Public Health Programs</h1>
+    <div class="topic-meta">Logic models, evaluation types, and evaluation designs · Course Lecturer C</div>
+
+    <h2 id="t8-def">Definitions and the logic model</h2>
+    <p>Program evaluation is the systematic collection of information about a program's activities, characteristics, and outcomes, used to make judgements about the program, improve its effectiveness, and inform decisions about its future development.<span class="cite"> (CDC, MMWR 1999)</span> Evaluation is undertaken to gain insight for better decision-making and resource management, to improve practice, to assess whether objectives and community benefits are being met, and to build organisational capacity. Programs of almost any kind — direct services, surveillance systems, outbreak investigations, communication campaigns, training, or policy activities — can be evaluated, and evaluation is appropriate at every stage of a program's life, from planning a new program through assessing a mature or completed one, though the purpose and type of information sought differs by stage.</p>
+    <p>Central to planning an evaluation is the <strong>program logic model</strong>: a graphic depiction of the evidence-based, cause-effect relationship linking Inputs (resources invested) → Activities (what the program does) → Outputs (immediate, tangible products) → Outcomes/Impact (changes in the target population's attitudes, behaviour, health status, or wellbeing, and the program's broader, longer-term effect). Within this framework, <em>efficacy</em> refers to benefit under ideal/controlled conditions (internal validity, short-term outcomes), <em>effectiveness</em> to meaningful effect under real-world conditions (external validity, intermediate/long-term outcomes), and <em>efficiency</em> to the ratio of output to input (cost-benefit).<span class="cite"> (Burches &amp; Burches, 2020)</span> Monitoring is distinguished from evaluation: monitoring tracks quantifiable indicators routinely to show whether a program is progressing as planned, while evaluation additionally asks whether observed change can be causally attributed to the program itself, rather than to other factors.</p>
+
+    <h2 id="t8-types">Types of evaluation</h2>
+    <p><strong>Formative evaluation</strong> occurs during or shortly after program design, before broad implementation, to refine the program before scale-up (e.g. pilot focus groups). <strong>Process evaluation</strong> examines how faithfully and well the program was implemented — reach, coverage, quality, and client satisfaction — and may also illuminate the cultural, political, and economic context shaping implementation. <strong>Outcome/impact evaluation</strong> assesses whether the program achieved its main objective(s), distinguishing short/intermediate outcomes from longer-term impact, and asks specifically whether the observed change is attributable to the program.</p>
+    <p>Program evaluation is distinguished from academic research (whose goal is new generalisable knowledge) and from the more rigorous, analytically demanding subfield of <em>evaluation research</em>, which examines complex relationships among program components using formal designs, spanning assessment of need, program theory (impact theory, service-utilisation plan, organisational plan), process, outcome/impact, and efficiency (cost-effectiveness and cost-benefit analysis).<span class="cite"> (Rossi, Lipsey &amp; Freeman, <em>Evaluation</em>, 7th ed.)</span></p>
+
+    <h2 id="t8-designs">Evaluation designs</h2>
+    <p>Because evaluation must address the counterfactual — what would have happened without the program — in order to demonstrate causal impact, three broad design families are used. <strong>Randomised designs</strong> (e.g. pre-test/post-test with random assignment) offer the strongest basis for determining causal impact and eliminate selection bias, but are costly, slow, and — per WHO guidance — often inappropriate or misleading for evaluating health promotion initiatives specifically.<span class="cite"> (UNAIDS, 2010)</span> <strong>Quasi-experimental designs</strong> lack randomisation but retain a comparison group, often matched on selected characteristics, and are used where randomisation is impossible or unethical. <strong>Non-experimental designs</strong> — the most common in practice — include before-and-after (historical control) studies, vulnerable to confounding from maturation and secular trends; time-series designs, including the stronger interrupted time series (ITS), which establishes an underlying trend interrupted by the intervention at a known point; and other comparison strategies such as utilizer-vs-non-utilizer, eligible-vs-non-eligible, case-control, and the weakest option, post-test-only designs.</p>
+    <p>Qualitative evaluation methods (focus groups, in-depth interviews) and multiple/mixed-methods approaches (triangulation, sequential mixed data collection) are increasingly used alongside or instead of purely quantitative designs, particularly to surface unexpected findings that structured designs would miss.</p>
+
+    <h2 id="t8-cdc">CDC framework and ethical considerations</h2>
+    <p>The CDC's Framework for Program Evaluation in Public Health, developed in 1998, provides a practical, non-prescriptive six-step structure and accompanying standards for effective evaluation practice, and remains a standard reference for public health evaluators.<span class="cite"> (CDC, MMWR 1999;48(RR-11))</span> Evaluation research also raises distinct logistical and ethical challenges: it unfolds within uncontrollable real-world conditions rather than a laboratory, program administrators often bear logistical burdens the design did not anticipate, and interventions may raise political or ethical questions in their own right — most starkly illustrated by the historical Tuskegee syphilis study, cited as a cautionary example of the ethical stakes involved when a control group is deliberately denied an intervention of known value.</p>
+
+    <div class="refs" id="t8-refs">
+      <h2>References</h2>
+      <ol>
+        <li>Centers for Disease Control and Prevention. Framework for program evaluation in public health. <em>MMWR</em>. 1999;48(RR-11):1–40.</li>
+        <li>Rossi PH, Lipsey MW, Freeman HE. <em>Evaluation: A Systematic Approach</em>. 7th ed. Thousand Oaks: SAGE.</li>
+        <li>Burches E, Burches M. Efficacy, effectiveness and efficiency in the health care: the need for an agreement to clarify its meaning. <em>Int Arch Public Health Community Med</em>. 2020;4(1). doi:10.23937/2643-4512/171003</li>
+        <li>UNAIDS. Strategic Guidance for Evaluating HIV Prevention Programmes. 2010.</li>
+        <li>Centers for Disease Control and Prevention. Introduction to Program Evaluation for Public Health Programs: A Self-Study Guide.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TOPIC 9 -->
+  <section class="topic" id="topic-t9">
+    <h1 class="topic-title">9. Public Health Informatics</h1>
+    <div class="topic-meta">Informatics vs IT, core elements, and applications · Course Lecturer G</div>
+
+    <h2 id="t9-def">Definition and key elements</h2>
+    <p>Public health informatics (PHI) is the systematic application of information science, computer science, and technology to public health practice, research, and learning.<span class="cite"> (course lecture material, drawing on O'Carroll et al.)</span> It is explicitly distinguished from information technology (IT): informatics defines <em>what</em> information is needed and how it should be used to support decisions, led by public health priorities, whereas IT builds <em>how</em> the underlying systems work, led by technical requirements — summarised in the course material as "IT supports informatics, but informatics guides IT."</p>
+    <p>Five key elements structure informatics work: <strong>data acquisition</strong> (capturing accurate, timely, complete data), <strong>storage</strong> (retrievable and secure data), <strong>communication</strong> (moving data from collection through storage, analysis, and use), <strong>manipulation</strong> (cleaning, linking, aggregating, and analysing data), and <strong>display</strong> (presenting information so it can be understood and acted upon).</p>
+
+    <h2 id="t9-principles">Principles and applications</h2>
+    <p>Public health informatics is guided by several core principles: applications should promote the health of populations rather than individuals; they should aim to prevent disease and injury by altering the conditions or environment that create population-level risk; they should explore prevention potential at every vulnerable point along a causal chain rather than being restricted to a particular social or behavioural context; and they should reflect the governmental context within which public health is practised.</p>
+    <p>These principles translate into applications across the full public health cycle: planning and system design (identifying what information is needed and by whom); data collection (managing bias across collection methods, appropriate use of structured data and standards); data management and integration (linking legacy systems, remedying data-quality problems while preserving privacy); analysis and alerting (statistical and visualisation methods, algorithms to flag aberrant health events); and interpretation and dissemination (contextualising findings and delivering them through channels appropriate to the intended audience). A "public health informatics profile" — a structured summary of an agency's current and projected information-system needs — is one practical tool used to prioritise investment in this cycle.</p>
+
+    <h2 id="t9-msia">Applications and challenges in the Malaysian context</h2>
+    <p>Within Malaysia, PHI applications include disease surveillance and notification, early warning and outbreak detection, GIS-based mapping and hotspot analysis, programme monitoring and evaluation, and cross-agency/intersectoral data sharing — illustrated in the course material by systems such as eNCDC (the national electronic notifiable communicable disease control/surveillance system). Mapped against the five core informatics elements, commonly cited Malaysian challenges include under-reporting and manual data-entry burden (acquisition), siloed legacy systems (storage), delayed notification (communication), limited GIS/analytics capacity (manipulation), and dashboards that are technically functional but not decision-friendly for frontline users (display).</p>
+    <p>Recurring pitfalls highlighted for practitioners include treating informatics as if it were simply an IT procurement exercise, prioritising dashboards over the underlying data quality that feeds them, layering advanced analytics onto broken workflows rather than fixing the workflows first, and underestimating the added workload that new systems place on already-stretched health workers — summarised in the course material as the principle that good PHI should reduce workload before adding complexity.</p>
+
+    <div class="refs" id="t9-refs">
+      <h2>References</h2>
+      <ol>
+        <li>Centers for Disease Control and Prevention. Introduction to Public Health Informatics.</li>
+        <li>O'Carroll PW, Yasnoff WA, Ward ME, Ripp LH, Martin EL, eds. <em>Public Health Informatics and Information Systems</em>. New York: Springer.</li>
+        <li>Ministry of Health Malaysia. eNCDC (electronic Notifiable Communicable Disease Control) system documentation (course-cited system example).</li>
+      </ol>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const topics = ['t1','t2','t3','t4','t5','t6','t7','t8','t9'];
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const btn = document.getElementById('theme-toggle');
+    btn.textContent = theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode';
+    try { localStorage.setItem('phe-theme', theme); } catch(e) {}
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  }
+
+  (function initTheme() {
+    let saved = null;
+    try { saved = localStorage.getItem('phe-theme'); } catch(e) {}
+    if (!saved) {
+      saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    applyTheme(saved);
+  })();
+
+  function selectTopic(id) {
+    document.querySelectorAll('section.topic').forEach(s => s.classList.remove('active'));
+    document.getElementById('topic-' + id).classList.add('active');
+    document.querySelectorAll('.nav-head').forEach(h => h.classList.remove('active'));
+    const navItem = document.querySelector('.nav-item[data-topic="' + id + '"] .nav-head');
+    if (navItem) navItem.classList.add('active');
+    window.scrollTo({top: 0, behavior: 'instant'});
+    document.getElementById('main').scrollTo(0,0);
+  }
+
+  function toggleAndSelect(id) {
+    const item = document.querySelector('.nav-item[data-topic="' + id + '"]');
+    const wasOpen = item.classList.contains('open');
+    // collapse all other topic groups
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+    selectTopic(id);
+  }
+
+  function jump(topicId, anchorId) {
+    const item = document.querySelector('.nav-item[data-topic="' + topicId + '"]');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+    item.classList.add('open');
+    selectTopic(topicId);
+    setTimeout(() => {
+      const el = document.getElementById(anchorId);
+      if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 30);
+  }
+</script>
+</body>
+</html>
