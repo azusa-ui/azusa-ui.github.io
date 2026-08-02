@@ -1,319 +1,633 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Public Health Notes</title>
+
   <style>
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
+
       font-family: 'Segoe UI', system-ui, sans-serif;
+
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
       min-height: 100vh;
+
       padding: 20px;
+
     }
+
     .container {
+
       max-width: 1100px;
+
       width: 100%;
+
       margin: 0 auto;
+
       background: white;
+
       border-radius: 12px;
+
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
       overflow: hidden;
+
     }
+
     .header {
+
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
       color: white;
+
       padding: 40px 30px;
+
       text-align: center;
+
     }
+
     .header h1 {
+
       font-size: 2.5em;
+
       margin-bottom: 10px;
+
       font-weight: 700;
+
     }
+
     .header p {
+
       font-size: 1.1em;
+
       opacity: 0.95;
+
     }
+
     .content {
+
       padding: 40px 30px;
+
     }
+
     .category-block {
+
       margin-bottom: 40px;
+
     }
+
     .category-block:last-child {
+
       margin-bottom: 0;
+
     }
+
     .category-title {
+
       font-size: 1.4em;
+
       font-weight: 700;
+
       color: #444;
+
       margin-bottom: 6px;
+
       padding-bottom: 10px;
+
       border-bottom: 2px solid #e9ecef;
+
       display: flex;
+
       align-items: center;
+
       gap: 10px;
+
     }
+
     .category-tag {
+
       display: inline-block;
+
       width: 10px;
+
       height: 10px;
+
       border-radius: 50%;
+
       background: #667eea;
+
     }
+
     .category-block.environmental .category-tag { background: #2fa66c; }
+
     .category-block.occupational .category-tag { background: #e08a2c; }
+
     .category-block.others .category-tag { background: #8b8f96; }
+
     .category-block.masters .category-tag { background: #c0392b; }
+
     .masters .note-card .course-code { background: #c0392b; }
+
     .notes-grid {
+
       display: grid;
+
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
       gap: 25px;
+
       margin-top: 20px;
+
     }
+
     .note-card {
+
       background: #f8f9fa;
+
       border: 2px solid #e9ecef;
+
       border-radius: 10px;
+
       padding: 25px;
+
       transition: all 0.3s ease;
+
       text-decoration: none;
+
       color: inherit;
+
       cursor: pointer;
+
     }
+
     .note-card:hover {
+
       transform: translateY(-8px);
+
       box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
+
       border-color: #667eea;
+
     }
+
     .note-card h2 {
+
       color: #667eea;
+
       margin-bottom: 12px;
+
       font-size: 1.3em;
+
       line-height: 1.3;
+
     }
+
     .note-card p {
+
       color: #6c757d;
+
       font-size: 0.95em;
+
       line-height: 1.5;
+
       margin-bottom: 15px;
+
     }
+
     .note-card .course-code {
+
       display: inline-block;
+
       background: #667eea;
+
       color: white;
+
       padding: 5px 12px;
+
       border-radius: 20px;
+
       font-size: 0.85em;
+
       font-weight: 600;
+
     }
+
     .environmental .note-card .course-code { background: #2fa66c; }
+
     .occupational .note-card .course-code { background: #e08a2c; }
+
     .others .note-card .course-code { background: #8b8f96; }
+
     .footer {
+
       background: #f8f9fa;
+
       padding: 25px 30px;
+
       text-align: center;
+
       color: #6c757d;
+
       font-size: 0.95em;
+
       border-top: 1px solid #e9ecef;
+
     }
+
     .footer a {
+
       color: #667eea;
+
       text-decoration: none;
+
     }
+
     .footer a:hover {
+
       text-decoration: underline;
+
     }
+
     @media (max-width: 640px) {
+
       .header h1 { font-size: 1.8em; }
+
       .header { padding: 30px 20px; }
+
       .content { padding: 25px 20px; }
+
       .notes-grid { gap: 15px; }
+
     }
+
   </style>
+
 </head>
+
 <body>
+
   <div class="container">
+
     <div class="header">
+
       <h1>Public Health Notes</h1>
+
       <p>Compilation of lecture notes and study materials</p>
+
     </div>
+
     <div class="content">
 
+
+
       <div class="category-block epidemiology">
+
         <div class="category-title"><span class="category-tag"></span>Epidemiology</div>
+
         <div class="notes-grid">
+
           <a href="Compiled_Lecture_Notes.html" class="note-card">
+
             <span class="course-code">PHE</span>
+
             <h2>Public Health Epidemiology</h2>
+
             <p>Compiled lecture notes: epidemiological concepts, disease distribution, determinants, surveillance &amp; control</p>
+
           </a>
+
           <a href="Advanced_Categorical_Analysis.html" class="note-card">
+
             <span class="course-code">GET502</span>
+
             <h2>Advanced Categorical Analysis</h2>
+
             <p>Chi-square, logistic regression, survival analysis, categorical data methods</p>
+
           </a>
+
           <a href="Advanced_Numerical_Analysis.html" class="note-card">
+
             <span class="course-code">GET503</span>
+
             <h2>Advanced Numerical Analysis</h2>
+
             <p>Linear regression, multiple regression, ANOVA, numerical methods</p>
+
           </a>
+
           <a href="Critical_Appraisal.html" class="note-card">
+
             <span class="course-code">GET512</span>
+
             <h2>Critical Appraisal Notes</h2>
+
             <p>CASP checklists, evidence appraisal, study validity assessment</p>
+
           </a>
+
           <a href="Special_Issues_Epid.html" class="note-card">
+
             <span class="course-code">GET513</span>
+
             <h2>Special Issues in Epidemiology</h2>
+
             <p>Advanced topics in epidemiological methods and applications</p>
+
           </a>
+
           <a href="Clinical Epid notes.html" class="note-card">
+
             <span class="course-code">GET504</span>
+
             <h2>Clinical Epidemiology Notes</h2>
+
             <p>Clinical epidemiology combined notes and applications</p>
+
           </a>
+
         </div>
+
       </div>
+
+
 
       <div class="category-block environmental">
+
         <div class="category-title"><span class="category-tag"></span>Environmental Health</div>
+
         <div class="notes-grid">
+
           <a href="GVT502_Deep_Learning_Notes.html" class="note-card">
+
             <span class="course-code">GVT502</span>
+
             <h2>Sanitation and Environmental Health Management</h2>
+
             <p>Detailed topic-by-topic learning notes covering sanitation and environmental health, with published framework references</p>
+
           </a>
+
           <a href="GVT504_Deep_Learning_Notes.html" class="note-card">
+
             <span class="course-code">GVT504</span>
+
             <h2>Food Safety and Environmental Surveillance</h2>
+
             <p>Indoor air quality, foodborne disease surveillance, radiation, pesticide residue, food law, and HACCP, with published framework references</p>
+
           </a>
+
           <a href="GVT514_Deep_Learning_Notes.html" class="note-card">
+
             <span class="course-code">GVT514</span>
+
             <h2>Environmental Health Risk Assessment and Management</h2>
+
             <p>EIA, environmental health impact and risk assessment, risk management and communication, Environmental Quality Act 1974, and international EH frameworks</p>
+
           </a>
+
           <a href="Environmental_Health_Learning_Notes_Azul.html" class="note-card">
+
             <span class="course-code">EH</span>
+
             <h2>Environmental Health — Learning Notes &amp; Study Guide</h2>
+
             <p>Interactive study guide covering environmental epidemiology, ecological frameworks, climate change, time series, chronic disease surveillance, urbanisation and public health entomology. Compiled by Dr Azul.</p>
+
           </a>
+
         </div>
+
       </div>
+
+
 
       <div class="category-block occupational">
+
         <div class="category-title"><span class="category-tag"></span>Occupational Health</div>
+
         <div class="notes-grid">
+
           <a href="GVT503_Deep_Learning_Notes.html" class="note-card">
+
             <span class="course-code">GVT503</span>
+
             <h2>Occupational Epidemiology &amp; Information Technology</h2>
+
             <p>Detailed topic-by-topic learning notes covering occupational health epidemiology, with published framework references</p>
+
           </a>
+
           <a href="GVT513_Deep_Learning_Notes.html" class="note-card">
+
             <span class="course-code">GVT513</span>
+
             <h2>Advanced Occupational Safety and Health</h2>
+
             <p>OSH across aviation, agriculture, mining, healthcare, petrochemical and underwater industries, injury indicators, rehabilitation, CHRA, and emergency response planning</p>
+
           </a>
+
           <a href="GVT515_Deep_Learning_Notes.html" class="note-card">
+
             <span class="course-code">GVT515</span>
+
             <h2>Occupational Health Diseases</h2>
+
             <p>WMSD, occupational poisoning, lung disease, ergonomics, NIHL, radiation, dermatoses, thermal injury, infections, vibration disease, and occupational cancer</p>
+
           </a>
+
         </div>
+
       </div>
 
+
+
       <div class="category-block others">
+
         <div class="category-title"><span class="category-tag"></span>Others</div>
+
         <div class="notes-grid">
+
           <a href="notes/missing-data-r.html" class="note-card">
+
             <span class="course-code">Notes</span>
+
             <h2>Handling Missing Data in R</h2>
+
             <p>MCAR/MAR/MNAR, deletion, single &amp; multiple imputation (mice), worked R syntax and outputs</p>
+
           </a>
+
           <a href="Health_Policy_and_Ethics_Compiled_Notes.html" class="note-card">
             <span class="course-code">HPE</span>
-            <h2>Health Policy &amp; Ethics: Compiled Notes</h2>
+            <h2>Health Policy &amp; Ethics</h2>
             <p>Health systems &amp; policy, financing, governance, equity, bioethics &amp; research ethics, Malaysian context</p>
           </a>
         </div>
+
       </div>
+
+
 
       <div class="category-block masters">
+
         <div class="category-title"><span class="category-tag"></span>Master of Public Health</div>
+
         <div class="notes-grid">
+
           <a href="Master of Public Health/GKT502_Principles_of_Epidemiology.html" class="note-card">
+
             <span class="course-code">GKT 502</span>
+
             <h2>Principles of Epidemiology</h2>
+
             <p>Measures of occurrence, risk &amp; association, study design, causal inference, screening, applied epidemiology</p>
+
           </a>
+
           <a href="Master of Public Health/GKT506_Medical_Sociology.html" class="note-card">
+
             <span class="course-code">GKT 506</span>
+
             <h2>Medical Sociology</h2>
+
             <p>Sociological imagination, social determinants, health systems, doctor–patient relationship, health policy</p>
+
           </a>
+
           <a href="Master of Public Health/GKT513_Community_Nutrition.html" class="note-card">
+
             <span class="course-code">GKT 513</span>
+
             <h2>Community Nutrition</h2>
+
             <p>Nutrition concepts, malnutrition &amp; NCDs, double burden, programmes, food security</p>
+
           </a>
+
           <a href="Master of Public Health/GKT514_Health_Promotion.html" class="note-card">
+
             <span class="course-code">GKT 514</span>
+
             <h2>Health Promotion</h2>
+
             <p>Ottawa Charter, theories &amp; models, settings, health communication, evaluation</p>
+
           </a>
+
           <a href="Master of Public Health/GKT515_Medical_Statistics.html" class="note-card">
+
             <span class="course-code">GKT 515</span>
+
             <h2>Medical Statistics</h2>
+
             <p>Descriptive stats, hypothesis testing, confidence intervals, regression, survival analysis</p>
+
           </a>
+
           <a href="Master of Public Health/GKT516_Health_Management.html" class="note-card">
+
             <span class="course-code">GKT 516</span>
+
             <h2>Health Management</h2>
+
             <p>Health systems, quality &amp; safety, human resources, strategic &amp; risk management</p>
+
           </a>
+
           <a href="Master of Public Health/GKT517_Research_Project.html" class="note-card">
+
             <span class="course-code">GKT 517</span>
+
             <h2>Research Project</h2>
+
             <p>Research process, literature &amp; protocol, methods, analysis, ethics, writing</p>
+
           </a>
+
           <a href="Master of Public Health/GKT503_Prevention_and_Control_of_Communicable_Diseases.html" class="note-card">
+
             <span class="course-code">GKT 503</span>
+
             <h2>Prevention &amp; Control of Communicable Diseases</h2>
+
             <p>Chain of infection, surveillance, outbreak investigation, vaccine-preventable diseases, vector-borne diseases, HIV/STI &amp; zoonoses</p>
+
           </a>
+
           <a href="Master of Public Health/GKT504_Prevention_and_Control_of_Non-Communicable_Diseases.html" class="note-card">
+
             <span class="course-code">GKT 504</span>
+
             <h2>Prevention &amp; Control of Non-Communicable Diseases</h2>
+
             <p>NCD burden &amp; determinants, surveillance, metabolic syndrome/HTN/DM/CVD, cancer, tobacco &amp; substance control, mental health &amp; RTA</p>
+
           </a>
+
           <a href="Master of Public Health/GKT509_Occupational_Health.html" class="note-card">
+
             <span class="course-code">GKT 509</span>
+
             <h2>Occupational Health</h2>
+
             <p>OH services &amp; legislation, HIRARC, occupational toxicology, OSH management system &amp; CHRA, specific hazards</p>
+
           </a>
+
           <a href="Master of Public Health/GKT510_Environmental_Health.html" class="note-card">
+
             <span class="course-code">GKT 510</span>
+
             <h2>Environmental Health</h2>
+
             <p>Exposome, water &amp; sanitation, air pollution, food safety &amp; HACCP, pesticides/IPM, disaster management</p>
+
           </a>
+
           <a href="Master of Public Health/GKT512_Family_Health.html" class="note-card">
+
             <span class="course-code">GKT 512</span>
+
             <h2>Family Health</h2>
+
             <p>Maternal &amp; perinatal health, child health, women's/men's/adolescent health, disability &amp; healthy ageing</p>
+
           </a>
+
         </div>
+
       </div>
 
+
+
     </div>
+
     <div class="footer">
+
       <p>Public Health Study Notes | Malaysia</p>
+
       <p style="margin-top: 10px; font-size: 0.85em;">Last updated: July 2026</p>
+
     </div>
+
   </div>
+
 </body>
+
 </html>
+
