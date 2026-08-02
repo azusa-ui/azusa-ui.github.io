@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MJMSTable — Interactive Learning Notes</title>
+<style>
+  :root{
+    --bg:#f5f6fb; --panel:#ffffff; --border:#e3e6f0; --text:#1c2130; --muted:#6b7280;
+    --code-bg:#1e1e2e; --code-text:#e6e6fa;
+    --grad1:#7c3aed; --grad2:#2563eb; --grad3:#06b6d4;
+    --pink:#ec4899; --amber:#f59e0b; --green:#10b981; --violet:#8b5cf6; --blue:#3b82f6; --teal:#14b8a6; --rose:#f43f5e; --lime:#84cc16;
+    --chip-bg:#eef0fb; --shadow:0 2px 10px rgba(30,20,80,0.08);
+  }
+  html[data-theme="dark"]{
+    --bg:#0f1117; --panel:#181b26; --border:#2b3040; --text:#e7e9f2; --muted:#98a0b3;
+    --code-bg:#0b0d14; --code-text:#d6d6f5;
+    --chip-bg:#20243a; --shadow:0 2px 14px rgba(0,0,0,0.5);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.65;
+  }
+  a{color:var(--grad2);}
+
+  .hero{
+    background:linear-gradient(120deg, var(--grad1), var(--grad2) 55%, var(--grad3));
+    color:#fff; padding:46px 6vw 56px; position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18), transparent 45%);
+  }
+  .hero-inner{ position:relative; max-width:1000px; margin:0 auto; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700;
+    background:rgba(255,255,255,0.18); padding:5px 12px; border-radius:20px; letter-spacing:0.03em;
+  }
+  .hero h1{ font-size:34px; margin:16px 0 8px; }
+  .hero p.lead{ font-size:15.5px; opacity:0.92; max-width:680px; margin:0 0 18px; }
+  .credit-box{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+    background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.3);
+    border-radius:12px; padding:12px 16px; font-size:13.5px; backdrop-filter: blur(4px);
+  }
+  .credit-box b{ font-weight:700; }
+  .credit-box a{ color:#fff; text-decoration:underline; font-weight:600; }
+  #theme-toggle{
+    position:absolute; top:20px; right:6vw; border:1px solid rgba(255,255,255,0.5);
+    background:rgba(255,255,255,0.15); color:#fff; border-radius:20px; padding:7px 14px;
+    font-size:12.5px; cursor:pointer;
+  }
+  #theme-toggle:hover{ background:rgba(255,255,255,0.28); }
+
+  .wrap{ max-width:1000px; margin:0 auto; padding:34px 6vw 80px; }
+
+  .install{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    padding:20px 22px; box-shadow:var(--shadow); margin-bottom:30px;
+  }
+  .install h2{ margin:0 0 10px; font-size:17px; }
+
+  pre.code{
+    background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:14px 16px;
+    overflow-x:auto; font-size:13px; position:relative; margin:10px 0;
+    font-family:"SF Mono", Menlo, Consolas, monospace;
+  }
+  .copy-btn{
+    position:absolute; top:8px; right:8px; background:rgba(255,255,255,0.12); color:#fff;
+    border:none; border-radius:6px; font-size:11px; padding:4px 9px; cursor:pointer;
+  }
+  .copy-btn:hover{ background:rgba(255,255,255,0.25); }
+  .kw{ color:#f472b6; } .fn{ color:#60a5fa; } .str{ color:#a3e635; } .cm{ color:#7c8399; font-style:italic; }
+
+  /* function nav chips */
+  .chipbar{
+    display:flex; flex-wrap:wrap; gap:8px; margin:26px 0 6px; position:sticky; top:0;
+    background:var(--bg); padding:12px 0; z-index:5;
+  }
+  .chip{
+    border:1px solid var(--border); background:var(--chip-bg); color:var(--text);
+    border-radius:20px; padding:7px 14px; font-size:12.5px; font-weight:600; cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .chip:hover{ transform:translateY(-1px); }
+  .chip.active{ color:#fff; border-color:transparent; }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; animation:fade .18s ease; }
+  @keyframes fade{ from{opacity:0} to{opacity:1} }
+
+  .fn-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:16px;
+    padding:26px 28px; box-shadow:var(--shadow); margin-bottom:20px;
+  }
+  .fn-head{ display:flex; align-items:center; gap:12px; margin-bottom:6px; flex-wrap:wrap; }
+  .fn-name{ font-family:"SF Mono", Menlo, Consolas, monospace; font-size:20px; font-weight:700; }
+  .badge{
+    display:inline-block; font-size:11px; font-weight:700; color:#fff; padding:3px 10px;
+    border-radius:12px; text-transform:uppercase; letter-spacing:0.03em;
+  }
+  .fn-purpose{ color:var(--muted); font-size:14.5px; margin:6px 0 18px; }
+
+  h3.sub{ font-size:13.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); margin:22px 0 8px; }
+
+  table.argtbl{ width:100%; border-collapse:collapse; font-size:13px; margin-bottom:6px; }
+  table.argtbl th, table.argtbl td{ border:1px solid var(--border); padding:7px 10px; text-align:left; vertical-align:top; }
+  table.argtbl th{ background:var(--chip-bg); }
+  code.inline{ background:var(--chip-bg); padding:1px 5px; border-radius:4px; font-size:90%; }
+
+  .out-table{ width:100%; border-collapse:collapse; font-size:13px; margin:8px 0 4px; }
+  .out-table caption{ text-align:left; font-weight:700; font-size:13.5px; margin-bottom:6px; color:var(--text); }
+  .out-table th, .out-table td{ border:1px solid var(--border); padding:6px 9px; }
+  .out-table th{ background:var(--chip-bg); }
+  .out-foot{ font-size:11px; color:var(--muted); margin-top:4px; }
+
+  .note{
+    border-left:3px solid var(--violet); background:var(--chip-bg); border-radius:8px;
+    padding:10px 14px; font-size:13.5px; margin-top:14px;
+  }
+
+  footer.credit-footer{
+    margin-top:50px; padding:24px; text-align:center; border-radius:14px;
+    background:linear-gradient(120deg, var(--grad1), var(--grad2) 55%, var(--grad3)); color:#fff; font-size:13.5px;
+  }
+  footer.credit-footer a{ color:#fff; font-weight:700; }
+
+  @media (max-width:700px){ .hero h1{ font-size:26px; } #theme-toggle{ position:static; margin-top:14px; display:inline-block; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <button id="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+  <div class="hero-inner">
+    <span class="eyebrow">📦 R package walkthrough</span>
+    <h1>MJMSTable — Interactive Learning Notes</h1>
+    <p class="lead">A hands-on guide to generating publication-ready, MJMS/university-style statistical tables in R with one function call per test — built on top of <code>gtsummary</code>.</p>
+    <div class="credit-box">
+      🙏 <b>Full credit to the package developer:</b>
+      <span>created out of an industrial training project and shared for the community —</span>
+      <a href="https://github.com/wnarifin/MJMSTable" target="_blank">github.com/wnarifin/MJMSTable</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="install">
+    <h2>📥 Getting started</h2>
+    <p style="margin:0 0 4px; font-size:14px;">Install the package directly from GitHub, then load it alongside <code class="inline">dplyr</code> for data wrangling:</p>
+    <pre class="code" id="code-install"><button class="copy-btn" onclick="copyCode('code-install')">Copy</button><span class="cm"># install once</span>
+<span class="fu">install.packages</span>(<span class="str">"devtools"</span>)  <span class="cm"># if not already installed</span>
+devtools::<span class="fu">install_github</span>(<span class="str">"wnarifin/MJMSTable"</span>)
+
+<span class="cm"># load for every session</span>
+<span class="kw">library</span>(MJMSTable)
+<span class="kw">library</span>(dplyr)</pre>
+    <p style="margin:10px 0 0; font-size:13.5px; color:var(--muted);">The package ships with a built-in demo dataset, <code class="inline">mjms_data</code> (500 simulated patients, 16 variables — demographics, biomarkers, diagnosis, treatment group, and a pre/post symptom pair) so every example below can be run immediately after loading the package.</p>
+  </div>
+
+  <p style="font-size:14px; color:var(--muted); margin:-10px 0 0;">Click a test below to jump to its worked example — code, output table, and how to read it.</p>
+
+  <div class="chipbar" id="chipbar"></div>
+
+  <div id="panels"></div>
+
+  <footer class="credit-footer">
+    MJMSTable was designed and built by <a href="https://github.com/wnarifin" target="_blank">wnarifin</a> as an industrial-training project, customised to Malaysian Journal of Medical Sciences (MJMS) / university reporting style, on top of the <code style="background:rgba(255,255,255,0.2); padding:1px 6px; border-radius:4px;">gtsummary</code> ecosystem.<br>
+    Please star / try / feedback on the repository: <a href="https://github.com/wnarifin/MJMSTable" target="_blank">github.com/wnarifin/MJMSTable</a>
+  </footer>
+</div>
+
+<script>
+const colors = {
+  descriptive:'#8b5cf6', diagnostic:'#ec4899', ttest:'#2563eb', paired:'#14b8a6',
+  chisq:'#f59e0b', pearson:'#10b981', mcnemar:'#f43f5e', anova:'#3b82f6',
+  lm:'#7c3aed', logistic:'#06b6d4'
+};
+
+const fns = [
+  {
+    id:'descriptive', name:'descriptive_tbl()', color:colors.descriptive, badge:'Table 1 / Baseline',
+    purpose:'Builds a "Table 1"-style baseline characteristics table — means/SD for continuous variables, n (%) for categorical — optionally split by a grouping variable (e.g. treatment arm).',
+    args:[
+      ['data','data frame containing the variables to summarise'],
+      ['group_var','(optional) categorical variable to stratify columns by, e.g. Treatment_Group'],
+      ['included_var','variables to summarise, passed unquoted inside c(...)'],
+      ['table_caption','caption text shown above the table'],
+      ['abbreviation','footnote text spelling out any abbreviations used, e.g. "BMI = Body Mass Index"']
+    ],
+    code:`tbl_descriptive <- descriptive_tbl(
+  data = mjms_data,
+  included_var = c(Age, BMI, Sex, Smoker),
+  table_caption = "Baseline Patient Characteristics",
+  abbreviation = "BMI = Body Mass Index"
+)
+tbl_descriptive`,
+    outCaption:'Baseline Patient Characteristics (n = 500)',
+    outHead:['Variables','Total n (%)'],
+    outRows:[
+      ['Age <sup>a</sup>','55.2 (12.4)'],
+      ['BMI <sup>a</sup>','26.7 (4.8)'],
+      ['Sex — Female','243 (48.6)'],
+      ['Sex — Male','257 (51.4)'],
+      ['Smoker — Yes','156 (31.2)']
+    ],
+    outFoot:'<sup>a</sup> Mean (SD). Abbreviation: BMI = Body Mass Index.',
+    note:'Add <code class="inline">group_var = Treatment_Group</code> to the same call and MJMSTable automatically adds one column per group — no extra code needed.'
+  },
+  {
+    id:'diagnostic', name:'diagnostic_tbl()', color:colors.diagnostic, badge:'Diagnostic accuracy',
+    purpose:'Evaluates one or more continuous markers against a gold-standard status variable, reporting sensitivity, specificity, and AUC (with 95% CI) at a chosen cutoff for each marker.',
+    args:[
+      ['data','data frame'],
+      ['status_var','name (as string) of the gold-standard disease status variable'],
+      ['marker_map','a named list; each marker gets a display label and a numeric cutoff'],
+      ['show_plot','TRUE/FALSE — whether to also return a ROC plot object'],
+      ['table_caption / abbreviation','as above']
+    ],
+    code:`marker_map <- list(
+  Age = list(label = "Age", cutoff = 50),
+  BMI = list(label = "Body Mass Index", cutoff = 25)
+)
+
+tbl_diagnostic <- diagnostic_tbl(
+  data = mjms_data,
+  status_var = "Gold_Standard",
+  marker_map = marker_map,
+  show_plot = FALSE,
+  table_caption = "Diagnostic Performance",
+  abbreviation = "BMI = Body Mass Index"
+)
+tbl_diagnostic$table`,
+    outCaption:'Diagnostic Performance (n = 500)',
+    outHead:['Variable (cutoff)','Sensitivity (%)','Specificity (%)','AUC (95% CI)','P-value <sup>a</sup>'],
+    outRows:[
+      ['Age','63.5%','33.9%','0.50 (0.45, 0.55)','&gt;0.9'],
+      ['Body Mass Index','67.5%','37.9%','0.51 (0.46, 0.57)','0.6']
+    ],
+    outFoot:'<sup>a</sup> Null hypothesis: true AUC = 0.5. Abbreviation: BMI = Body Mass Index.',
+    note:'Because <code class="inline">diagnostic_tbl()</code> can return a plot object, the result is a list — always call <code class="inline">$table</code> to render just the table.'
+  },
+  {
+    id:'ttest', name:'ttest_tbl()', color:colors.ttest, badge:'Independent groups',
+    purpose:'Runs an independent-samples t-test comparing a continuous outcome between two independent groups, and formats the result as a reporting-ready table.',
+    args:[
+      ['data','data frame'],
+      ['outcome_var','continuous outcome, e.g. Age'],
+      ['group_var','binary grouping variable, e.g. Smoker'],
+      ['equal_var','TRUE for Student’s t-test, FALSE for Welch’s t-test'],
+      ['table_caption / abbreviation','as above']
+    ],
+    code:`tbl_ttest <- ttest_tbl(
+  data = mjms_data,
+  outcome_var = Age,
+  group_var = Smoker,
+  equal_var = TRUE,
+  table_caption = "Independent t-test (Age by Smoker)",
+  abbreviation = ""
+)
+tbl_ttest`,
+    outCaption:'Independent t-test (Age by Smoker)',
+    outHead:['Variable','Yes (n=156)','No (n=344)','Mean diff. (95% CI)','t (df)','P-value'],
+    outRows:[
+      ['Age','55.26 (11.35)','55.23 (12.90)','-0.03 (-2.28, 2.22)','-0.02 (498)','0.98']
+    ],
+    outFoot:'Independent t-test.',
+    note:'Set <code class="inline">equal_var = FALSE</code> whenever a Levene’s test (or clear SD imbalance) suggests unequal variances — the table will switch to Welch’s t-test automatically.'
+  },
+  {
+    id:'paired', name:'paired_ttest_tbl()', color:colors.paired, badge:'Paired / repeated',
+    purpose:'Compares two repeated measurements on the same subjects (e.g. left-arm vs right-arm blood pressure) using a paired t-test.',
+    args:[
+      ['data','data frame'],
+      ['id_var','subject identifier used to pair observations, e.g. PatientID'],
+      ['pre_var / post_var','the two repeated measurement columns'],
+      ['outcome_var / variable_label','internal name and display label for the measured quantity'],
+      ['table_caption / abbreviation','as above']
+    ],
+    code:`tbl_paired_ttest <- paired_ttest_tbl(
+  data = mjms_data,
+  id_var = PatientID,
+  pre_var = SBP_Left_Arm,
+  post_var = SBP_Right_Arm,
+  outcome_var = SBP,
+  variable_label = "Systolic Blood Pressure",
+  table_caption = "Paired t-test",
+  abbreviation = "SBP = Systolic Blood Pressure"
+)
+tbl_paired_ttest`,
+    outCaption:'Paired t-test (n = 500)',
+    outHead:['Variable','SBP_Right_Arm','SBP_Left_Arm','Mean diff. (95% CI)','t (df)','P-value'],
+    outRows:[
+      ['Systolic Blood Pressure, Mean (SD)','142.01 (12.04)','145.87 (12.16)','3.9 (3.7, 4.0)','-45 (499)','&lt;0.001']
+    ],
+    outFoot:'Paired t-test. Abbreviation: SBP = Systolic Blood Pressure.',
+    note:'<code class="inline">variable_label</code> is purely cosmetic — it controls the row label so the table reads naturally in a manuscript, independent of the raw column names.'
+  },
+  {
+    id:'chisq', name:'chisq_tbl()', color:colors.chisq, badge:'Categorical × Categorical',
+    purpose:'Tests independence between two categorical variables (e.g. smoking status and heart disease) and reports the cross-tabulation with the chi-square statistic.',
+    args:[
+      ['data','data frame'],
+      ['exposure_var','row variable, e.g. Smoker'],
+      ['outcome_var','column variable, e.g. Heart_Disease'],
+      ['table_caption','as above']
+    ],
+    code:`tbl_chisq <- chisq_tbl(
+  data = mjms_data,
+  exposure_var = Smoker,
+  outcome_var = Heart_Disease,
+  table_caption = "Chi-square Test"
+)
+tbl_chisq`,
+    outCaption:'Chi-square Test (n = 500)',
+    outHead:['Smoker, n (%)','Heart Disease: No','Heart Disease: Yes','&chi;&sup2; (df)','P-value'],
+    outRows:[
+      ['—','132 (31.4)','24 (30.0)','&mdash;','&mdash;']
+    ],
+    outFoot:'Chi-square test for independence.',
+    note:'When any expected cell count falls below 5, consider re-running the comparison with Fisher’s exact test instead — MJMSTable’s chi-square output does not automatically substitute it.'
+  },
+  {
+    id:'pearson', name:'pearson_tbl()', color:colors.pearson, badge:'Correlation matrix',
+    purpose:'Produces a full pairwise Pearson correlation matrix across several continuous variables in one call, with SD on the diagonal, r below it, and p-values alongside.',
+    args:[
+      ['data','data frame'],
+      ['included_var','continuous variables to correlate, unquoted inside c(...)'],
+      ['show_plot / plot_x / plot_y','optionally return a single scatter plot for one variable pair'],
+      ['abbreviation / table_caption','as above']
+    ],
+    code:`tbl_pearson <- pearson_tbl(
+  data = mjms_data,
+  included_var = c(Age, BMI, Cholesterol, SBP_Left_Arm, SBP_Right_Arm),
+  show_plot = FALSE,
+  plot_x = Age,
+  plot_y = Cholesterol,
+  abbreviation = "SBP = Systolic Blood Pressure",
+  table_caption = "Pearson Correlation"
+)
+tbl_pearson$table`,
+    outCaption:'Pearson Correlation (n = 500)',
+    outHead:['Variables','Age','BMI','Cholesterol','SBP_Left_Arm','SBP_Right_Arm'],
+    outRows:[
+      ['Age','12.43 <sup>a</sup>','0.85 <sup>b</sup>','0.29 <sup>b</sup>','0.85 <sup>b</sup>','0.95 <sup>b</sup>'],
+      ['BMI','0.008 <sup>c</sup>','4.80 <sup>a</sup>','0.16 <sup>b</sup>','0.26 <sup>b</sup>','0.29 <sup>b</sup>'],
+      ['Cholesterol','0.047 <sup>c</sup>','0.063 <sup>c</sup>','29.47 <sup>a</sup>','0.65 <sup>b</sup>','0.75 <sup>b</sup>']
+    ],
+    outFoot:'<sup>a</sup> SD (diagonal). <sup>b</sup> P-value. <sup>c</sup> Pearson r. Abbreviation: SBP = Systolic Blood Pressure.',
+    note:'This is one of the two functions (with <code class="inline">diagnostic_tbl()</code>) that returns a list — remember <code class="inline">$table</code> to print just the table, or omit it to also access the plot.'
+  },
+  {
+    id:'mcnemar', name:'mcnemar_tbl()', color:colors.mcnemar, badge:'Paired categorical',
+    purpose:'Compares two paired binary/categorical ratings on the same subjects — for example, two doctors’ diagnoses, or a pre/post symptom check — using McNemar’s test.',
+    args:[
+      ['data','data frame'],
+      ['pre_var / post_var','the two paired categorical columns, e.g. Diagnosis_Doc_A / Diagnosis_Doc_B'],
+      ['header_pre / header_post','display labels for the two raters/timepoints'],
+      ['table_caption','as above']
+    ],
+    code:`tbl_mcnemar <- mcnemar_tbl(
+  data = mjms_data,
+  pre_var = Diagnosis_Doc_A,
+  post_var = Diagnosis_Doc_B,
+  table_caption = "McNemar Test",
+  header_pre = "Doctor A",
+  header_post = "Doctor B"
+)
+tbl_mcnemar`,
+    outCaption:'McNemar Test (n = 500)',
+    outHead:['Doctor A','Doctor B: Negative n (%)','Doctor B: Positive n (%)','Row total','&chi;&sup2; (df)','P-value'],
+    outRows:[
+      ['Negative','130 (26.0)','139 (27.8)','269','2.92 (1)','0.088'],
+      ['Positive','111 (22.2)','120 (24.0)','231','2.92 (1)','0.088']
+    ],
+    outFoot:'McNemar’s chi-squared test with continuity correction.',
+    note:'Use this instead of a plain chi-square test whenever the two measurements come from the <em>same</em> subjects (inter-rater agreement, before/after status) rather than independent groups.'
+  },
+  {
+    id:'anova', name:'anova_tbl()', color:colors.anova, badge:'3+ groups',
+    purpose:'Runs a one-way ANOVA across three or more groups, with an optional post-hoc test to flag which specific group pairs differ significantly.',
+    args:[
+      ['data','data frame'],
+      ['outcome_var / outcome_label','continuous outcome and its display label'],
+      ['group_var','categorical variable with 3+ levels, e.g. Treatment_Group'],
+      ['var_equal','TRUE for classic ANOVA, FALSE for Welch’s ANOVA'],
+      ['posthoc_method','e.g. "holm", "bonferroni", "tukey"'],
+      ['show_plot / abbreviation / table_caption','as above']
+    ],
+    code:`tbl_anova <- anova_tbl(
+  data = mjms_data,
+  outcome_var = Cholesterol,
+  group_var = Treatment_Group,
+  var_equal = TRUE,
+  outcome_label = "Total Cholesterol",
+  table_caption = "One-way ANOVA",
+  posthoc_method = "holm",
+  abbreviation = "",
+  show_plot = FALSE
+)
+tbl_anova`,
+    outCaption:'One-way ANOVA (n = 500)',
+    outHead:['Group','n','Total Cholesterol, Mean (SD)','F (df1, df2) <sup>a</sup>','P-value <sup>b</sup>'],
+    outRows:[
+      ['Drug_A','196','205.37 (28.75)','4.86 (2, 497)','0.019'],
+      ['Drug_B','152','215.19 (29.40)','',''],
+      ['Placebo','152','210.27 (29.71)','','']
+    ],
+    outFoot:'<sup>a</sup> One-way ANOVA. <sup>b</sup> Significant post-hoc difference (p&lt;0.05): Drug_B vs Drug_A (Holm correction).',
+    note:'The post-hoc line is only added to the footnote when at least one pairwise comparison is significant — no extra parsing needed on your end.'
+  },
+  {
+    id:'lm', name:'lm_tbl()', color:colors.lm, badge:'Continuous outcome',
+    purpose:'Fits and reports a multiple linear regression model: adjusted regression coefficients (b) with 95% CI and p-values for every predictor, in one publication-ready table.',
+    args:[
+      ['data','data frame'],
+      ['outcome_var','continuous dependent variable, e.g. Cholesterol'],
+      ['predictor_vars','independent variables, unquoted inside c(...)'],
+      ['var_labels','a list of formulas mapping each predictor to its display label'],
+      ['table_caption / abbreviation','as above']
+    ],
+    code:`tbl_lm <- lm_tbl(
+  data = mjms_data,
+  outcome_var = Cholesterol,
+  predictor_vars = c(Age, BMI, Smoker),
+  var_labels = list(
+    Age ~ "Age",
+    BMI ~ "Body Mass Index",
+    Smoker ~ "Smoker"
+  ),
+  table_caption = "Linear Regression",
+  abbreviation = "BMI = Body Mass Index"
+)
+tbl_lm`,
+    outCaption:'Linear Regression (n = 500)',
+    outHead:['Factor','Adjusted b (95% CI) <sup>a</sup>','P-value <sup>b</sup>'],
+    outRows:[
+      ['Age','0.11 (-0.10, 0.32)','0.30'],
+      ['Body Mass Index','0.39 (-0.15, 0.93)','0.16'],
+      ['Smoker: No','&mdash; (ref.)','&mdash;'],
+      ['Smoker: Yes','0.79 (-4.8, 6.4)','0.78']
+    ],
+    outFoot:'<sup>a</sup> Adjusted regression coefficients. <sup>b</sup> Multiple linear regression (R² = 0.006). BMI = Body Mass Index.',
+    note:'Categorical predictors are detected automatically and given a reference row — you only need to supply a plain-language label via <code class="inline">var_labels</code>.'
+  },
+  {
+    id:'logistic', name:'logistic_tbl()', color:colors.logistic, badge:'Binary outcome',
+    purpose:'Fits and reports a multiple logistic regression model: adjusted odds ratios (95% CI) and p-values for every predictor, with explicit reference levels for categorical variables.',
+    args:[
+      ['data','data frame'],
+      ['outcome_var','binary dependent variable, e.g. Heart_Disease'],
+      ['predictors','independent variables, unquoted inside c(...)'],
+      ['ref_levels','named list fixing the reference category for each categorical predictor'],
+      ['cat_vars','character vector naming which predictors should be treated as categorical'],
+      ['var_labels / table_caption / abbreviation','as above']
+    ],
+    code:`tbl_logistic <- logistic_tbl(
+  data = mjms_data,
+  outcome_var = Heart_Disease,
+  predictors = c(Age, BMI, Smoker, Treatment_Group),
+  ref_levels = list(
+    Smoker = "No",
+    Treatment_Group = "Placebo"
+  ),
+  var_labels = list(
+    Age ~ "Age",
+    BMI ~ "Body Mass Index",
+    Smoker ~ "Smoker",
+    Treatment_Group ~ "Treatment Group"
+  ),
+  cat_vars = c("Smoker", "Treatment_Group"),
+  table_caption = "Logistic Regression",
+  abbreviation = "BMI = Body Mass Index"
+)
+tbl_logistic`,
+    outCaption:'Logistic Regression (n = 500)',
+    outHead:['Factor','b','Adjusted OR (95% CI)','P-value <sup>a</sup>'],
+    outRows:[
+      ['Age','0.00','1.00 (0.98, 1.02)','0.96'],
+      ['Body Mass Index','-0.01','0.99 (0.94, 1.04)','0.72'],
+      ['Smoker: No','&mdash;','&mdash; (ref.)','&mdash;'],
+      ['Smoker: Yes','-0.04','0.96 (0.56, 1.61)','0.87'],
+      ['Treatment: Placebo','&mdash;','&mdash; (ref.)','&mdash;'],
+      ['Treatment: Drug_A','-0.18','0.84 (0.47, 1.49)','0.54'],
+      ['Treatment: Drug_B','-0.18','0.83 (0.45, 1.54)','0.56']
+    ],
+    outFoot:'<sup>a</sup> Likelihood ratio test. BMI = Body Mass Index.',
+    note:'<code class="inline">ref_levels</code> and <code class="inline">cat_vars</code> together give you full control over how each categorical predictor is dummy-coded and labelled in the final table.'
+  }
+];
+
+const chipbar = document.getElementById('chipbar');
+const panelsEl = document.getElementById('panels');
+
+fns.forEach((f,i) => {
+  const chip = document.createElement('button');
+  chip.className = 'chip' + (i===0 ? ' active':'');
+  chip.textContent = f.name.replace('()','');
+  chip.style.setProperty('--c', f.color);
+  chip.onmouseenter = () => {};
+  chip.onclick = () => selectFn(f.id);
+  chip.dataset.id = f.id;
+  if(i===0){ chip.style.background = f.color; chip.style.color = '#fff'; }
+  chipbar.appendChild(chip);
+
+  const panel = document.createElement('div');
+  panel.className = 'panel' + (i===0 ? ' active':'');
+  panel.id = 'panel-' + f.id;
+  panel.innerHTML = `
+    <div class="fn-card">
+      <div class="fn-head">
+        <span class="fn-name">${f.name}</span>
+        <span class="badge" style="background:${f.color}">${f.badge}</span>
+      </div>
+      <p class="fn-purpose">${f.purpose}</p>
+
+      <h3 class="sub">Arguments</h3>
+      <table class="argtbl">
+        <tr><th>Argument</th><th>What it does</th></tr>
+        ${f.args.map(a => `<tr><td><code class="inline">${a[0]}</code></td><td>${a[1]}</td></tr>`).join('')}
+      </table>
+
+      <h3 class="sub">R code</h3>
+      <pre class="code" id="code-${f.id}"><button class="copy-btn" onclick="copyCode('code-${f.id}')">Copy</button>${highlightR(f.code)}</pre>
+
+      <h3 class="sub">Output</h3>
+      <table class="out-table">
+        <caption>${f.outCaption}</caption>
+        <tr>${f.outHead.map(h=>`<th>${h}</th>`).join('')}</tr>
+        ${f.outRows.map(r => `<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}
+      </table>
+      <div class="out-foot">${f.outFoot}</div>
+
+      <div class="note">💡 ${f.note}</div>
+    </div>
+  `;
+  panelsEl.appendChild(panel);
+});
+
+function highlightR(code){
+  return code
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"([^"]*)"/g, '<span class="str">"$1"</span>')
+    .replace(/\b(library|install\.packages)\b/g, '<span class="kw">$1</span>')
+    .replace(/(#.*)$/gm, '<span class="cm">$1</span>')
+    .replace(/\b([a-zA-Z_][a-zA-Z0-9_.]*)\s*\(/g, '<span class="fn">$1</span>(');
+}
+
+function selectFn(id){
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.querySelectorAll('.chip').forEach(c => {
+    const f = fns.find(x=>x.id===c.dataset.id);
+    c.classList.remove('active');
+    c.style.background = '';
+    c.style.color = '';
+    if(c.dataset.id === id){
+      c.classList.add('active');
+      c.style.background = f.color;
+      c.style.color = '#fff';
+    }
+  });
+  document.getElementById('panels').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyCode(id){
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/^Copy\\n?/,'');
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = el.querySelector('.copy-btn');
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(()=>btn.textContent = old, 1200);
+  });
+}
+
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-toggle').textContent = t==='dark' ? '☀️ Light' : '🌙 Dark';
+  try{ localStorage.setItem('mjms-theme', t); }catch(e){}
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme')==='dark' ? 'dark':'light';
+  applyTheme(cur==='dark' ? 'light':'dark');
+}
+(function(){
+  let saved=null;
+  try{ saved = localStorage.getItem('mjms-theme'); }catch(e){}
+  if(!saved){ saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'; }
+  applyTheme(saved);
+})();
+</script>
+</body>
+</html>
